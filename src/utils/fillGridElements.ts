@@ -28,9 +28,10 @@ const getElementsPerMajor = ({ threshold, elementCount }: { threshold: number, e
 };
 
 const createRow = (gridElement: Element, internalHTML: string) => {
-  const XPATH = '//table/tbody/tr/td[1]';
-  const parentToColumns = document.evaluate(XPATH, gridElement, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as HTMLTableCellElement | null;
-  if (!parentToColumns) return;
+  const gridSectionParents = gridElement.querySelectorAll('[data-type="grid-section-parent"]');
+  if (!gridSectionParents) return;
+  const gridSectionParent = gridSectionParents[0];
+  if (!gridSectionParent) return;
 
   const columnHTMLString = `
     <div style="margin:0px auto;max-width:1200px;">
@@ -43,8 +44,8 @@ const createRow = (gridElement: Element, internalHTML: string) => {
       </table>
     </div>
   `;
-  parentToColumns.innerHTML =
-    parentToColumns.innerHTML +
+  gridSectionParent.innerHTML =
+    gridSectionParent.innerHTML +
     `
 
     `
@@ -64,8 +65,11 @@ const organizeGridElement = (gridElement: Element) => {
   const majorCount = elementsPerMajor.length;
 
   // Remove all columns
-  const gridColumnsParent = document.evaluate('//table/tbody/tr/td[1]', gridElement, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as HTMLTableRowElement | null;
+  const gridSections = gridElement.querySelectorAll('[data-type="grid-section"]');
+  if (!gridSections) return;
+  const gridColumnsParent = gridSections[0]?.parentElement;
   if (!gridColumnsParent) return;
+  gridColumnsParent.setAttribute('data-type', 'grid-section-parent');
   gridColumnsParent.innerHTML = '';
 
   if (direction === 'row') {
@@ -121,7 +125,9 @@ const organizeGridElement = (gridElement: Element) => {
     }
 
     // Popping with x.
-    const parentToColumns = document.evaluate('//table/tbody/tr/td[1]', gridElement, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as HTMLTableCellElement | null;
+    const gridSectionParents = gridElement.querySelectorAll('[data-type="grid-section-parent"]');
+    if (!gridSectionParents) return;
+    const parentToColumns = gridSectionParents[0];
     if (!parentToColumns) return;
     parentToColumns.innerHTML = '';
 

@@ -4,13 +4,14 @@ import { useWindowSize } from 'react-use';
 import useConversationManager from '@demo/hooks/useConversationManager';
 import generatePreviewOfTemplate from '@demo/utils/generatePreviewOfTemplate';
 import extractAttributes from '@demo/utils/extractAttributes';
-import { AttributeModifier, getCustomAttributes, getPredefinedAttributes, setCustomAttributes } from 'attribute-manager';
+import { getPredefinedAttributes } from 'attribute-manager';
 import { difference, zipObject } from 'lodash';
 import { isJSONStringValid } from '@demo/utils/isJSONStringValid';
 import generateHTML, { unsanitizeHTMLTags } from '@demo/utils/generateHTML';
 import mustachifyHTML from '@demo/utils/mustachifyHTML';
 import appendGridOrganizerScript from '@demo/utils/appendGridOrganizerScript';
 import getGridBlocksInJSON from '@demo/utils/getGridBlocksInJSON';
+import stylizeGridColumn from '@demo/utils/stylizeGridColumn';
 
 // Typescript:
 import { AdvancedType, BasicType, IPage } from 'easy-email-core';
@@ -173,19 +174,23 @@ const InternalEditor = ({ values }: {
       try {
         Message.loading('Loading...');
         const customAttributes = onlyGetUsedCustomAttributes(values);
-        // const customAttributesArray = [...new Set(Object.keys(getCustomAttributes()))];
         const customAttributesArray = [...new Set(Object.keys(customAttributes))];
         const predefinedAttributesArray = [...new Set(Object.keys(getPredefinedAttributes()))];
 
         const combinedAttributeMap = {
-          // ...getCustomAttributes(),
           ...customAttributes,
           ...getPredefinedAttributes(),
         };
 
         const templateType = sessionStorage.getItem('template-type') ?? 'EMAIL';
         const rawHTML = generateHTML(values, combinedAttributeMap);
-        const finalHTML = unsanitizeHTMLTags(mustachifyHTML(appendGridOrganizerScript(rawHTML)));
+        const finalHTML = unsanitizeHTMLTags(
+          mustachifyHTML(
+            stylizeGridColumn(
+              appendGridOrganizerScript(rawHTML)
+            )
+          )
+        );
         console.log(finalHTML);
         const preview = await generatePreviewOfTemplate(rawHTML);
         const blockIDMap = isJSONStringValid(sessionStorage.getItem('block-ids') ?? '{}') ? (sessionStorage.getItem('block-ids') ?? '{}') : '{}';

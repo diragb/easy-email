@@ -5,6 +5,7 @@ import mjml2html from 'mjml-browser';
 // Typescript:
 import { IEmailTemplate } from 'easy-email-editor';
 import { Message } from '@arco-design/web-react';
+import gridShiftBackgroundImageFromSectionToColumn from './gridShiftBackgroundImageFromSectionToColumn';
 
 // Functions:
 const MJMLEncodedDataToHTMLAttributesObject = (MJMLEncodedData: string): Record<string, string> => {
@@ -88,10 +89,13 @@ export const unsanitizeHTMLTags = (sanitizedHTML: string) => {
 
 const generateHTML = (templateData: IEmailTemplate, attributes: Record<string, string>) => {
   sessionStorage.setItem('isExporting', JSON.stringify(true));
+  const templateContent = gridShiftBackgroundImageFromSectionToColumn(templateData);
+  console.log(templateContent);
+
   const mjmlString = JsonToMjml({
-    data: templateData.content,
+    data: templateContent,
     mode: 'production',
-    context: templateData.content,
+    context: templateContent,
     dataSource: attributes,
   });
   sessionStorage.setItem('isExporting', JSON.stringify(false));

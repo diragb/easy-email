@@ -332,24 +332,25 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
           payload: JSON.stringify({
             template: {
               type: 'IMG',
-              content: "{\"type\":\"page\",\"data\":{\"value\":{\"breakpoint\":\"480px\",\"headAttributes\":\"\",\"font-size\":\"14px\",\"font-weight\":\"400\",\"line-height\":\"1.7\",\"headStyles\":[],\"fonts\":[],\"responsive\":true,\"font-family\":\"-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans','Helvetica Neue', sans-serif\",\"text-color\":\"#000000\"}},\"attributes\":{\"background-color\":\"#efeeea\",\"width\":\"600px\"},\"children\":[{\"type\":\"advanced_wrapper\",\"data\":{\"value\":{}},\"attributes\":{\"padding\":\"20px 0px 20px 0px\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\"},\"children\":[{\"type\":\"advanced_text\",\"data\":{\"value\":{\"content\":\"Make it easy for everyone to compose emails! {{canopus}} {{orionis}} {{tauri}} {{geminid}}\"}},\"attributes\":{\"padding\":\"10px 25px 10px 25px\",\"align\":\"left\",\"id\":\"alphabet\"},\"children\":[]}]}]}",
+              content: "{\"type\":\"page\",\"data\":{\"value\":{\"breakpoint\":\"480px\",\"headAttributes\":\"\",\"font-size\":\"20px\",\"font-weight\":\"600\",\"line-height\":\"2\",\"headStyles\":[],\"fonts\":[],\"responsive\":true,\"font-family\":\"'Inter'\",\"user-style\":{},\"text-color\":\"black\"}},\"attributes\":{\"width\":\"600px\",\"background-color\":\"#F3F3F3\"},\"children\":[{\"type\":\"advanced_wrapper\",\"data\":{\"value\":{}},\"attributes\":{\"padding\":\"20px 20px 20px 20px\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\",\"background-url\":\"https://i.imgur.com/szQzwot.png\",\"background-repeat\":\"no-repeat\",\"background-size\":\"cover\"},\"children\":[{\"type\":\"advanced_grid\",\"data\":{\"value\":{\"noWrap\":false}},\"attributes\":{\"padding\":\"100px 0px 220px 0px\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\",\"data-direction\":\"row\",\"data-threshold\":\"5\",\"data-type\":\"grid\",\"background-url\":\"https://i.imgur.com/DAnvNp1.png\",\"background-repeat\":\"no-repeat\",\"background-size\":\"contain\",\"data-source\":\"rewards\"},\"children\":[{\"type\":\"advanced_section\",\"data\":{\"value\":{\"noWrap\":false}},\"attributes\":{\"padding\":\"20px 0px 20px 0px\",\"background-repeat\":\"no-repeat\",\"background-size\":\"contain\",\"background-position\":\"top center\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\",\"background-url\":\"https://i.imgur.com/HpsWFqH.png\"},\"children\":[{\"type\":\"advanced_column\",\"data\":{\"value\":{}},\"attributes\":{\"padding\":\"35px 0px 35px 0px\",\"border\":\"none\",\"vertical-align\":\"top\"},\"children\":[{\"type\":\"advanced_text\",\"data\":{\"value\":{\"content\":\"<div style=\\\"text-align: center;\\\"><span style=\\\"background-color: initial; word-spacing: normal;\\\">{{slab}}</span></div>\"}},\"attributes\":{\"padding\":\"0px 0px 0px 0px\",\"align\":\"left\",\"font-size\":\"10px\",\"color\":\"white\"},\"children\":[]},{\"type\":\"advanced_text\",\"data\":{\"value\":{\"content\":\"<div style=\\\"text-align: center;\\\"><span style=\\\"background-color: initial; word-spacing: normal;\\\">{{reward}}</span></div>\"}},\"attributes\":{\"padding\":\"25px 0px 0px 0px\",\"align\":\"left\",\"font-size\":\"8px\"},\"children\":[]}]}]}]}]}]}",
               themeSettings: {
-                width: '1200px',
-                breakpoint: '600px',
-                fontFamily: "'Inter'",
-                fontSize: '20px',
-                lineHeight: '2',
-                fontWeight: '600',
-                textColor: '#3DA35D',
-                background: '#E8FCCF',
+                "width": "600px",
+                "breakpoint": "480px",
+                "fontFamily": "'Inter'",
+                "fontSize": "20px",
+                "lineHeight": "2",
+                "fontWeight": "600",
+                "textColor": "black",
+                "background": "#F3F3F3",
+                "userStyle": {}
               },
             },
             attributes: {
               predefined: ['alpha', 'beta', 'sierra'],
-              custom: ['canopus', 'orionis', 'tauri', 'geminid'],
+              custom: ["slab", "reward", "rewards"],
             },
             blockIDs: {
-              map: "{\"content.children.[0].children.[0]\":\"alphabet\"}",
+              map: "{}",
             }
           }),
           sender: Sender.FLUTTER,
