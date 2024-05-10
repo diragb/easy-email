@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useWindowSize } from 'react-use';
 import useConversationManager from '@demo/hooks/useConversationManager';
-import generatePreviewOfTemplate from '@demo/utils/generatePreviewOfTemplate';
 import extractAttributes from '@demo/utils/extractAttributes';
 import { getPredefinedAttributes } from 'attribute-manager';
 import { useScreenshot } from 'use-react-screenshot';
@@ -117,15 +116,15 @@ const InternalEditor = ({ values }: {
     enablePublish,
     enableSave,
   } = useConversationManager();
-  const [takeScreenshot] = useScreenshot();
+  const [_, takeScreenshot] = useScreenshot();
 
-  //Ref:
-  const screenshot = useRef<HTMLDivElement>(null);
+  // Ref:
+  const screenshotRef = useRef<HTMLDivElement>(null);
 
   // State:
   const [enableFlutterPublish, setEnableFlutterPublish] = useState(false);
   const [enableFlutterSave, setEnableFlutterSave] = useState(false);
-  const [previewHTML, setPreviewHTML] = useState('');
+  const [templateWidth, setTemplateWidth] = useState('600px');
 
   // Functions:
   const extractThemeSettingsFromTemplate = (template: IPage) => {
@@ -179,6 +178,7 @@ const InternalEditor = ({ values }: {
     registerEventHandlers.onRequestSave(async message => {
       try {
         Message.loading('Loading...');
+        setTemplateWidth(values.content.attributes.width ?? '600px');
         const customAttributes = onlyGetUsedCustomAttributes(values);
         const customAttributesArray = [...new Set(Object.keys(customAttributes))];
         const predefinedAttributesArray = [...new Set(Object.keys(getPredefinedAttributes()))];
@@ -190,15 +190,18 @@ const InternalEditor = ({ values }: {
 
         const templateType = sessionStorage.getItem('template-type') ?? 'EMAIL';
         const rawHTML = generateHTML(values, combinedAttributeMap);
-        const finalHTML = unsanitizeHTMLTags(mustachifyHTML(appendGridOrganizerScript(rawHTML)));
-        const previewHTML = unsanitizeHTMLTags(appendGridOrganizerScript(rawHTML));
+        const finalHTML = unsanitizeHTMLTags(
+          mustachifyHTML(
+            stylizeGridColumn(
+              appendGridOrganizerScript(rawHTML)
+            )
+          )
+        );
 
-        if (screenshot.current) {
-          setPreviewHTML(previewHTML);
-          screenshot.current.innerHTML = previewHTML;
-        }
+        const previewHTML = unsanitizeHTMLTags(stylizeGridColumn(rawHTML));
+        if (screenshotRef.current) screenshotRef.current.innerHTML = previewHTML;
 
-        const preview = await takeScreenshot(screenshot.current, {
+        const preview = await takeScreenshot(screenshotRef.current, {
           allowTaint: false,
           useCORS: true,
         });
@@ -274,10 +277,14 @@ const InternalEditor = ({ values }: {
   // Return:
   return (
     <>
-      <div ref={screenshot} style={{ position: 'absolute', left: '-9999px' }}>
-        <iframe style={{ position: 'absolute', left: '-9999px', }} srcDoc={previewHTML} width="1200px" height="42000px">
-        </iframe>
-      </div>
+      <div
+        ref={screenshotRef}
+        style={{
+          position: 'absolute',
+          width: templateWidth ?? '600px',
+          left: '-9999px',
+        }}
+      />
       {/** @ts-ignore */}
       <StandardLayout
         compact={!(width < 1400)}

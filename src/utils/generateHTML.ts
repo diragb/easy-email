@@ -90,7 +90,6 @@ export const unsanitizeHTMLTags = (sanitizedHTML: string) => {
 const generateHTML = (templateData: IEmailTemplate, attributes: Record<string, string>) => {
   sessionStorage.setItem('isExporting', JSON.stringify(true));
   const templateContent = gridShiftBackgroundImageFromSectionToColumn(templateData);
-  console.log(templateContent);
 
   const mjmlString = JsonToMjml({
     data: templateContent,
@@ -102,7 +101,6 @@ const generateHTML = (templateData: IEmailTemplate, attributes: Record<string, s
 
   const rawHTML = mjml2html(mjmlString, {}).html;
   const html = unwrapMJMLEncodedData(sanitizeRawHTMLTags(rawHTML));
-  console.log(html);
 
   return html;
 };
