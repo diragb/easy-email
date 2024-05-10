@@ -1,10 +1,11 @@
 // Packages:
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useWindowSize } from 'react-use';
 import useConversationManager from '@demo/hooks/useConversationManager';
 import generatePreviewOfTemplate from '@demo/utils/generatePreviewOfTemplate';
 import extractAttributes from '@demo/utils/extractAttributes';
 import { AttributeModifier, getCustomAttributes, getPredefinedAttributes, setCustomAttributes } from 'attribute-manager';
+import { useScreenshot } from 'use-react-screenshot';
 import { difference, zipObject } from 'lodash';
 import { isJSONStringValid } from '@demo/utils/isJSONStringValid';
 import generateHTML, { unsanitizeHTMLTags } from '@demo/utils/generateHTML';
@@ -115,10 +116,15 @@ const InternalEditor = ({ values }: {
     enablePublish,
     enableSave,
   } = useConversationManager();
+  const [image, takeScreenshot] = useScreenshot();
+
+  //Ref:
+  const screenshot = useRef<HTMLDivElement>(null);
 
   // State:
   const [enableFlutterPublish, setEnableFlutterPublish] = useState(false);
   const [enableFlutterSave, setEnableFlutterSave] = useState(false);
+  const [html, setHtml] = useState('');
 
   // Functions:
   const extractThemeSettingsFromTemplate = (template: IPage) => {
@@ -173,12 +179,10 @@ const InternalEditor = ({ values }: {
       try {
         Message.loading('Loading...');
         const customAttributes = onlyGetUsedCustomAttributes(values);
-        // const customAttributesArray = [...new Set(Object.keys(getCustomAttributes()))];
         const customAttributesArray = [...new Set(Object.keys(customAttributes))];
         const predefinedAttributesArray = [...new Set(Object.keys(getPredefinedAttributes()))];
 
         const combinedAttributeMap = {
-          // ...getCustomAttributes(),
           ...customAttributes,
           ...getPredefinedAttributes(),
         };
@@ -186,8 +190,21 @@ const InternalEditor = ({ values }: {
         const templateType = sessionStorage.getItem('template-type') ?? 'EMAIL';
         const rawHTML = generateHTML(values, combinedAttributeMap);
         const finalHTML = unsanitizeHTMLTags(mustachifyHTML(appendGridOrganizerScript(rawHTML)));
-        console.log(finalHTML);
-        const preview = await generatePreviewOfTemplate(rawHTML);
+
+        const cleanHTML = unsanitizeHTMLTags(appendGridOrganizerScript(rawHTML))
+
+        if (screenshot.current) {
+          setHtml(cleanHTML)
+          screenshot.current.innerHTML = cleanHTML
+        }
+
+        // Take a screenshot
+        const image = await takeScreenshot(screenshot.current, {
+          allowTaint: false,
+          useCORS: true,
+        });
+
+        // const preview = await generatePreviewOfTemplate(rawHTML);
         const blockIDMap = isJSONStringValid(sessionStorage.getItem('block-ids') ?? '{}') ? (sessionStorage.getItem('block-ids') ?? '{}') : '{}';
         const blockIDs = Object.values(JSON.parse(blockIDMap) as Record<string, string>);
         const themeSettings = extractThemeSettingsFromTemplate(values.content);
@@ -209,8 +226,8 @@ const InternalEditor = ({ values }: {
               map: blockIDMap,
               list: blockIDs,
             },
-            preview,
-            html: finalHTML,
+            preview: image,
+            html: finalHTML
           },
         });
         Message.clear();
@@ -227,7 +244,7 @@ const InternalEditor = ({ values }: {
         Message.error((error as Error)?.message ?? 'Could not save template!');
       }
     });
-  }, [values]);
+  }, [values, takeScreenshot]);
 
   useEffect(() => {
     const extractedDirtyAttributesArray = extractAttributes(JSON.stringify(values?.content ?? {}));
@@ -258,7 +275,11 @@ const InternalEditor = ({ values }: {
   // Return:
   return (
     <>
-      {/** @ts-ignore */}
+    <div ref={screenshot} style={{ position: 'absolute', left: '-9999px' }}>
+      <iframe style={{ position: 'absolute', left: '-9999px', }} srcDoc={html} width="1200px" height="42000px">
+      </iframe>
+    </div>
+     {/** @ts-ignore */}
       <StandardLayout
         compact={!(width < 1400)}
         categories={defaultCategories}
