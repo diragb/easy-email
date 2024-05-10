@@ -82,6 +82,7 @@
     "redux": "^4.1.2",
     "sleep-promise": "^9.1.0",
     "ts-node": "^10.7.0",
+    "use-react-screenshot": "^4.0.0",
     "uuid": "^9.0.1",
     "yup": "^0.32.11"
   }

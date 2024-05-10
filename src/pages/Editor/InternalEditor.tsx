@@ -1,10 +1,11 @@
 // Packages:
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useWindowSize } from 'react-use';
 import useConversationManager from '@demo/hooks/useConversationManager';
 import generatePreviewOfTemplate from '@demo/utils/generatePreviewOfTemplate';
 import extractAttributes from '@demo/utils/extractAttributes';
 import { getPredefinedAttributes } from 'attribute-manager';
+import { useScreenshot } from 'use-react-screenshot';
 import { difference, zipObject } from 'lodash';
 import { isJSONStringValid } from '@demo/utils/isJSONStringValid';
 import generateHTML, { unsanitizeHTMLTags } from '@demo/utils/generateHTML';
@@ -116,10 +117,15 @@ const InternalEditor = ({ values }: {
     enablePublish,
     enableSave,
   } = useConversationManager();
+  const [takeScreenshot] = useScreenshot();
+
+  //Ref:
+  const screenshot = useRef<HTMLDivElement>(null);
 
   // State:
   const [enableFlutterPublish, setEnableFlutterPublish] = useState(false);
   const [enableFlutterSave, setEnableFlutterSave] = useState(false);
+  const [previewHTML, setPreviewHTML] = useState('');
 
   // Functions:
   const extractThemeSettingsFromTemplate = (template: IPage) => {
@@ -184,15 +190,20 @@ const InternalEditor = ({ values }: {
 
         const templateType = sessionStorage.getItem('template-type') ?? 'EMAIL';
         const rawHTML = generateHTML(values, combinedAttributeMap);
-        const finalHTML = unsanitizeHTMLTags(
-          mustachifyHTML(
-            stylizeGridColumn(
-              appendGridOrganizerScript(rawHTML)
-            )
-          )
-        );
-        console.log(finalHTML);
-        const preview = await generatePreviewOfTemplate(rawHTML);
+        const finalHTML = unsanitizeHTMLTags(mustachifyHTML(appendGridOrganizerScript(rawHTML)));
+        const previewHTML = unsanitizeHTMLTags(appendGridOrganizerScript(rawHTML));
+
+        if (screenshot.current) {
+          setPreviewHTML(previewHTML);
+          screenshot.current.innerHTML = previewHTML;
+        }
+
+        const preview = await takeScreenshot(screenshot.current, {
+          allowTaint: false,
+          useCORS: true,
+        });
+        // const preview = await generatePreviewOfTemplate(rawHTML);
+
         const blockIDMap = isJSONStringValid(sessionStorage.getItem('block-ids') ?? '{}') ? (sessionStorage.getItem('block-ids') ?? '{}') : '{}';
         const blockIDs = Object.values(JSON.parse(blockIDMap) as Record<string, string>);
         const themeSettings = extractThemeSettingsFromTemplate(values.content);
@@ -215,7 +226,7 @@ const InternalEditor = ({ values }: {
               list: blockIDs,
             },
             preview,
-            html: finalHTML,
+            html: finalHTML
           },
         });
         Message.clear();
@@ -232,7 +243,7 @@ const InternalEditor = ({ values }: {
         Message.error((error as Error)?.message ?? 'Could not save template!');
       }
     });
-  }, [values]);
+  }, [values, takeScreenshot]);
 
   useEffect(() => {
     const extractedDirtyAttributesArray = extractAttributes(JSON.stringify(values?.content ?? {}));
@@ -263,6 +274,10 @@ const InternalEditor = ({ values }: {
   // Return:
   return (
     <>
+      <div ref={screenshot} style={{ position: 'absolute', left: '-9999px' }}>
+        <iframe style={{ position: 'absolute', left: '-9999px', }} srcDoc={previewHTML} width="1200px" height="42000px">
+        </iframe>
+      </div>
       {/** @ts-ignore */}
       <StandardLayout
         compact={!(width < 1400)}
