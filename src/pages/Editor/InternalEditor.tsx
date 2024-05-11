@@ -26,6 +26,7 @@ import { Message } from '@arco-design/web-react';
 
 // Context:
 import { CallType } from '@demo/context/ConversationManagerContext';
+import { getTemplateTheme } from 'template-theme-manager';
 
 // Functions:
 BlockAttributeConfigurationManager.add({
@@ -206,10 +207,12 @@ const InternalEditor = ({ values }: {
           useCORS: true,
         });
         // const preview = await generatePreviewOfTemplate(rawHTML);
+        if (screenshotRef.current) screenshotRef.current.innerHTML = '';
 
         const blockIDMap = isJSONStringValid(sessionStorage.getItem('block-ids') ?? '{}') ? (sessionStorage.getItem('block-ids') ?? '{}') : '{}';
         const blockIDs = Object.values(JSON.parse(blockIDMap) as Record<string, string>);
         const themeSettings = extractThemeSettingsFromTemplate(values.content);
+        const templateTheme = getTemplateTheme();
         sendMessageToFlutter({
           conversationID: message.conversationID,
           conversationType: message.conversationType,
@@ -218,7 +221,11 @@ const InternalEditor = ({ values }: {
             template: {
               type: templateType,
               content: JSON.stringify(values.content),
-              themeSettings,
+              themeSettings: {
+                ...themeSettings,
+                typography: templateTheme.typography,
+                palettes: templateTheme.palettes,
+              },
             },
             attributes: {
               predefined: predefinedAttributesArray,

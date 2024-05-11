@@ -60,6 +60,23 @@ export interface ConversationManagerValues {
   enableSave: (payload: boolean) => void;
 }
 
+export interface Typography {
+  name: string;
+  fontFamily?: string;
+  fontSize?: string;
+  fontWeight?: string;
+}
+
+export interface PaletteColor {
+  name: string;
+  color: string;
+}
+
+export interface Palette {
+  name: string;
+  colors: PaletteColor[];
+}
+
 // Constants:
 const defaultProvider: ConversationManagerValues = {
   acknowledgeAndEndConversation: () => { },
@@ -342,7 +359,26 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
                 "fontWeight": "600",
                 "textColor": "black",
                 "background": "#F3F3F3",
-                "userStyle": {}
+                "userStyle": {},
+                typography: [
+                  {
+                    name: 'H1',
+                    fontFamily: "'Roboto'",
+                    fontSize: '60px',
+                    fontWeight: '700',
+                  }
+                ] as Typography[],
+                palettes: [
+                  {
+                    name: 'Utility Palette',
+                    colors: [
+                      {
+                        name: 'Primary',
+                        color: '#AEAEAE',
+                      }
+                    ]
+                  }
+                ] as Palette[],
               },
             },
             attributes: {

@@ -53,16 +53,17 @@ const options = [
   },
 ];
 
-export function FontWeight({ name }: { name?: string; }) {
+export function FontWeight({ name, disabled }: { name?: string; disabled?: boolean; }) {
   const { focusIdx } = useFocusIdx();
 
   return useMemo(() => {
     return (
       <SelectField
+        disabled={disabled}
         label={String('Font weight')}
         name={name || `${focusIdx}.attributes.font-weight`}
         options={options}
       />
     );
-  }, [focusIdx, name]);
+  }, [disabled, focusIdx, name]);
 }

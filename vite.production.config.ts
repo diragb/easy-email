@@ -14,6 +14,7 @@ export default defineConfig({
       'easy-email-editor': path.resolve('./packages/easy-email-editor'),
       'easy-email-extensions': path.resolve('./packages/easy-email-extensions'),
       'attribute-manager': path.resolve(__dirname, './attributeManager.ts'),
+      'template-theme-manager': path.resolve(__dirname, './templateThemeManager.ts'),
     },
   },
   optimizeDeps: {},

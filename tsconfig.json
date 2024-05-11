@@ -53,14 +53,18 @@
       ],
       "attribute-manager": [
         "./attributeManager.ts"
-      ]
+      ],
+      "template-theme-manager": [
+        "./templateThemeManager.ts"
+      ],
     }
   },
   "include": [
     "./src",
     "./example",
     "./typings",
-    "attributeManager.ts"
+    "attributeManager.ts",
+    "templateThemeManager.ts"
   ],
   "exclude": [
     "node_modules"

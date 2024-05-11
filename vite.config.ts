@@ -33,6 +33,7 @@ export default defineConfig({
         './node_modules/@arco-design/web-react/dist/css/arco.css',
       ),
       'attribute-manager': path.resolve(__dirname, 'attributeManager.ts'),
+      'template-theme-manager': path.resolve(__dirname, 'templateThemeManager.ts'),
     },
   },
 

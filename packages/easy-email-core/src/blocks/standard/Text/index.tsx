@@ -8,6 +8,7 @@ import { t } from '@core/utils';
 
 export type IText = IBlockData<
   {
+    'data-typography'?: string;
     'data-id'?: string;
     'css-class'?: string;
     color?: string;

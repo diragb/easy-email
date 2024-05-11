@@ -21,7 +21,12 @@ declare global {
     CurrentJSON: string;
   }
 }
-import { CallType, Sender } from '@demo/context/ConversationManagerContext';
+import {
+  CallType,
+  Palette,
+  Sender,
+  Typography,
+} from '@demo/context/ConversationManagerContext';
 
 // Imports:
 import 'easy-email-editor/lib/style.css';
@@ -45,6 +50,7 @@ import {
   EmailEditorProvider,
   IEmailTemplate,
 } from 'easy-email-editor';
+import { setTemplateTheme } from 'template-theme-manager';
 
 // Functions:
 export const generateTimestampID = () => {
@@ -166,6 +172,8 @@ const Editor = () => {
                 background?: string;
                 contentBackground?: string;
                 userStyle?: string;
+                typography?: Typography[];
+                palettes?: Palette[];
               };
             };
             attributes: {
@@ -180,6 +188,10 @@ const Editor = () => {
           sessionStorage.setItem('template-type', payload.template.type ?? 'EMAIL');
           sessionStorage.setItem('block-ids', isJSONStringValid(payload.blockIDs?.map) ? payload.blockIDs?.map : '{}');
 
+          const typography = payload.template.themeSettings.typography ?? [];
+          const palettes = payload.template.themeSettings.palettes ?? [];
+          setTemplateTheme(_templateTheme => ({ typography, palettes }));
+
           setTemplateData({
             content: modifyTemplateAccordingToThemeSettings(payload.template),
             subject: '',
@@ -192,7 +204,6 @@ const Editor = () => {
             ...zipObject(payload.attributes.predefined, Array(payload.attributes.predefined.length).fill('')),
             // example: 'https://images.pexels.com/photos/21936231/pexels-photo-21936231/free-photo-of-a-stork-is-sitting-on-top-of-a-nest.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
           }));
-          // setTemplateData((window as any).templateJSON);
           setIsLoading(false);
           acknowledgeAndEndConversation(message.conversationID);
         }

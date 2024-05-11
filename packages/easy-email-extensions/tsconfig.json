@@ -54,7 +54,10 @@
       ],
       "attribute-manager": [
         "../../attributeManager.ts"
-      ]
+      ],
+      "template-theme-manager": [
+        "../../templateThemeManager.ts"
+      ],
     }
   },
   "include": [
