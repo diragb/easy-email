@@ -375,9 +375,26 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
                       {
                         name: 'Primary',
                         color: '#AEAEAE',
-                      }
-                    ]
-                  }
+                      },
+                      {
+                        name: 'Secondary',
+                        color: '#03E3C1',
+                      },
+                    ],
+                  },
+                  {
+                    name: 'Lucidity Palette',
+                    colors: [
+                      {
+                        name: 'Primary',
+                        color: '#121212',
+                      },
+                      {
+                        name: 'Superluminary',
+                        color: '#123456',
+                      },
+                    ],
+                  },
                 ] as Palette[],
               },
             },

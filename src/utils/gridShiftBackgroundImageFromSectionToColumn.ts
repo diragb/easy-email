@@ -4,7 +4,7 @@ import { cloneDeep, omit } from 'lodash';
 // Typescript:
 import { IEmailTemplate } from 'easy-email-editor';
 
-interface Node {
+export interface Node {
   attributes: Record<string, string>;
   children: Node[];
   data: {

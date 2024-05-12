@@ -6,24 +6,35 @@ import styles from '../index.module.scss';
 import Color from 'color';
 
 import { PresetColorsContext } from '@extensions/AttributePanel/components/provider/PresetColorsProvider';
+import { useFocusIdx } from '@';
+import { TreeSelectField } from '@extensions/components/Form';
+import { TreeSelectDataType } from '@arco-design/web-react/es/TreeSelect/interface';
 
 export interface ColorPickerContentProps {
   onChange: (val: string) => void;
   value: string;
+  showThemeColorDropdown?: boolean;
+  paletteTree?: TreeSelectDataType[];
+  isForBackgroundColor?: boolean;
 }
 
 const transparentColor = 'rgba(0,0,0,0)';
 
 export function ColorPickerContent(props: ColorPickerContentProps) {
+  // Constants:
+  const { focusIdx } = useFocusIdx();
   const { colors: presetColors } = useContext(PresetColorsContext);
-
   const { onChange } = props;
+
+  // State:
   const [color, setColor] = useState(props.value);
 
+  // Effects:
   useEffect(() => {
     setColor(props.value);
   }, [props.value]);
 
+  // Memo:
   const presetColorList = useMemo(() => {
     return [...presetColors.filter(item => item !== transparentColor).slice(-14)];
   }, [presetColors]);
@@ -36,6 +47,7 @@ export function ColorPickerContent(props: ColorPickerContentProps) {
     }
   } catch (error) { }
 
+  // Return:
   return (
     <div
       className={styles.colorPicker}
@@ -102,6 +114,18 @@ export function ColorPickerContent(props: ColorPickerContentProps) {
             onChange={e => onChange(e.target.value)}
           />
         </Button>
+      </div>
+      <div>
+        {
+          props.showThemeColorDropdown && (
+            <TreeSelectField
+              label={'Theme Color'}
+              name={`${focusIdx}.attributes.data${props.isForBackgroundColor ? '-background' : ''}-color-palette-tree`}
+              treeData={props.paletteTree ?? []}
+              allowClear
+            />
+          )
+        }
       </div>
       <style>
         {`

@@ -9,6 +9,17 @@ import { t } from '@core/utils';
 export type IText = IBlockData<
   {
     'data-typography'?: string;
+
+    'data-color-palette-tree'?: string;
+    'data-color-palette-name'?: string;
+    'data-color-palette-color-name'?: string;
+    'data-color-palette-color-code'?: string;
+
+    'data-background-color-palette-tree'?: string;
+    'data-background-color-palette'?: string;
+    'data-background-color-palette-color-name'?: string;
+    'data-background-color-palette-color-code'?: string;
+
     'data-id'?: string;
     'css-class'?: string;
     color?: string;

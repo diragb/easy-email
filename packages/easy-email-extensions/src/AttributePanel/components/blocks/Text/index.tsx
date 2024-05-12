@@ -21,7 +21,8 @@ import { ClassName } from '../../attributes/ClassName';
 import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { SelectField, TextField } from '@extensions/components/Form';
 import { isIDValid } from '@extensions/utils/blockIDManager';
-import { getTemplateTheme, Typography } from 'template-theme-manager';
+import { getTemplateTheme, Palette, Typography } from 'template-theme-manager';
+import { TreeSelectDataType } from '@arco-design/web-react/es/TreeSelect/interface';
 
 export function Text() {
   // Constants:
@@ -32,13 +33,39 @@ export function Text() {
   const fontWeight = useField(`${focusIdx}.attributes.font-weight`);
   const dataTypography = useField(`${focusIdx}.attributes.data-typography`);
 
+  // For Text Color:
+  const dataColorPaletteTree = useField(`${focusIdx}.attributes.data-color-palette-tree`);
+  const color = useField(`${focusIdx}.attributes.color`);
+  const dataColorPaletteColorCode = useField(`${focusIdx}.attributes.data-color-palette-color-code`);
+
+  // For Background Color:
+  const dataBackgroundColorPaletteTree = useField(`${focusIdx}.attributes.data-background-color-palette-tree`);
+  const backgroundColor = useField(`${focusIdx}.attributes.container-background-color`);
+  const dataBackgroundColorPaletteColorCode = useField(`${focusIdx}.attributes.data-background-color-palette-color-code`);
+
   // State:
   const [visible, setVisible] = useState(false);
   const [typography, setTypography] = useState<Typography[]>([]);
   const [typographyList, setTypographyList] = useState<{ label: string; value: string; }[]>([]);
   const [selectedTypography, setSelectedTypography] = useState<Typography>();
   const [defaultTypographicStyling, setDefaultTypographicStyling] = useState<Typography>();
+  const [palettes, setPalettes] = useState<Palette[]>([]);
+  const [paletteTree, setPaletteTree] = useState<TreeSelectDataType[]>([]);
+  const [defaultColor, setDefaultColor] = useState<string>();
+  const [defaultBackgroundColor, setDefaultBackgroundColor] = useState<string>();
+  const [allowClearForColor, setAllowClearForColor] = useState(false);
+  const [allowClearForBackgroundColor, setAllowClearForBackgroundColor] = useState(false);
 
+  // Functions:
+  const resetToDefaultColor = () => {
+    change(`${focusIdx}.attributes.color`, defaultColor ?? '');
+  };
+
+  const resetToDefaultBackgroundColor = () => {
+    change(`${focusIdx}.attributes.container-background-color`, defaultBackgroundColor ?? '');
+  };
+
+  // Effects:
   useEffect(() => {
     const _selectedTypography = typography.find(typographyItem => typographyItem.name === dataTypography.input.value);
     setSelectedTypography(_selectedTypography);
@@ -62,12 +89,119 @@ export function Text() {
     });
   }, []);
 
-  // Effects:
   useEffect(() => {
     const _typography = getTemplateTheme()?.typography ?? [];
     setTypography(_typography);
     setTypographyList(_typography.map(typographyItem => ({ label: typographyItem.name, value: typographyItem.name })));
   }, []);
+
+  useEffect(() => {
+    const _palettes = getTemplateTheme()?.palettes ?? [];
+    setPalettes(_palettes);
+    setPaletteTree(_palettes.map(palette => {
+      return {
+        title: palette.name,
+        value: palette.name,
+        selectable: false,
+        expanded: true,
+        children: palette.colors.map(color => {
+          return {
+            title: (
+              <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                <div style={{ height: '20px', aspectRatio: '1', backgroundColor: color.color }} />
+                {color.name}
+              </div>
+            ),
+            value: color.name,
+          };
+        })
+      };
+    }));
+  }, []);
+
+  // For Text Color:
+  useEffect(() => {
+    if (dataColorPaletteTree.input.value) {
+      const indexes = (dataColorPaletteTree.input.value as string)
+        .split('-')
+        .filter(token => token.length > 0)
+        .map(token => parseInt(token));
+      const paletteIndex = indexes[0];
+      const colorIndex = indexes[1];
+      change(`${focusIdx}.attributes.data-color-palette-name`, palettes?.[paletteIndex]?.name ?? '');
+      change(`${focusIdx}.attributes.data-color-palette-color-name`, palettes?.[paletteIndex]?.colors?.[colorIndex]?.name ?? '');
+      change(`${focusIdx}.attributes.data-color-palette-color-code`, palettes?.[paletteIndex]?.colors?.[colorIndex]?.color ?? '');
+      change(`${focusIdx}.attributes.color`, palettes?.[paletteIndex]?.colors?.[colorIndex]?.color ?? '');
+      setAllowClearForColor(true);
+    } else {
+      change(`${focusIdx}.attributes.data-color-palette-name`, '');
+      change(`${focusIdx}.attributes.data-color-palette-color-name`, '');
+      change(`${focusIdx}.attributes.data-color-palette-color-code`, '');
+      setAllowClearForColor(false);
+    }
+  }, [palettes, dataColorPaletteTree.input.value]);
+
+  useEffect(() => {
+    if (!dataColorPaletteTree.input.value) {
+      setDefaultColor(color.input.value);
+    }
+  }, [dataColorPaletteTree.input.value, color.input.value]);
+
+  useEffect(() => {
+    if (
+      color.input.value &&
+      dataColorPaletteColorCode.input.value &&
+      color.input.value !== dataColorPaletteColorCode.input.value
+    ) {
+      change(`${focusIdx}.attributes.data-color-palette-tree`, '');
+      change(`${focusIdx}.attributes.data-color-palette-name`, '');
+      change(`${focusIdx}.attributes.data-color-palette-color-name`, '');
+      change(`${focusIdx}.attributes.data-color-palette-color-code`, '');
+      setAllowClearForColor(false);
+    }
+  }, [dataColorPaletteColorCode.input.value, color.input.value]);
+
+  // For Background Color:
+  useEffect(() => {
+    if (dataBackgroundColorPaletteTree.input.value) {
+      const indexes = (dataBackgroundColorPaletteTree.input.value as string)
+        .split('-')
+        .filter(token => token.length > 0)
+        .map(token => parseInt(token));
+      const paletteIndex = indexes[0];
+      const colorIndex = indexes[1];
+      change(`${focusIdx}.attributes.data-background-color-palette-name`, palettes?.[paletteIndex]?.name ?? '');
+      change(`${focusIdx}.attributes.data-background-color-palette-color-name`, palettes?.[paletteIndex]?.colors?.[colorIndex]?.name ?? '');
+      change(`${focusIdx}.attributes.data-background-color-palette-color-code`, palettes?.[paletteIndex]?.colors?.[colorIndex]?.color ?? '');
+      change(`${focusIdx}.attributes.container-background-color`, palettes?.[paletteIndex]?.colors?.[colorIndex]?.color ?? '');
+      setAllowClearForBackgroundColor(true);
+    } else {
+      change(`${focusIdx}.attributes.data-background-color-palette-name`, '');
+      change(`${focusIdx}.attributes.data-background-color-palette-color-name`, '');
+      change(`${focusIdx}.attributes.data-background-color-palette-color-code`, '');
+      setAllowClearForBackgroundColor(false);
+    }
+  }, [palettes, dataBackgroundColorPaletteTree.input.value]);
+
+  useEffect(() => {
+    if (!dataBackgroundColorPaletteTree.input.value) {
+      setDefaultBackgroundColor(backgroundColor.input.value);
+    }
+  }, [dataBackgroundColorPaletteTree.input.value, backgroundColor.input.value]);
+
+  useEffect(() => {
+    if (
+      backgroundColor.input.value &&
+      dataBackgroundColorPaletteColorCode.input.value &&
+      backgroundColor.input.value !== dataBackgroundColorPaletteColorCode.input.value
+    ) {
+      change(`${focusIdx}.attributes.data-background-color-palette-tree`, '');
+      change(`${focusIdx}.attributes.data-background-color-palette-name`, '');
+      change(`${focusIdx}.attributes.data-background-color-palette-color-name`, '');
+      change(`${focusIdx}.attributes.data-background-color-palette-color-code`, '');
+      setAllowClearForBackgroundColor(false);
+    }
+  }, [dataBackgroundColorPaletteColorCode.input.value, backgroundColor.input.value]);
 
   // Return:
   return (
@@ -114,13 +248,24 @@ export function Text() {
         >
           <Grid.Row>
             <Grid.Col span={11}>
-              <Color />
+              <Color
+                showThemeColorDropdown
+                paletteTree={paletteTree}
+                resetToDefaultColor={resetToDefaultColor}
+                allowClear={allowClearForColor}
+              />
             </Grid.Col>
             <Grid.Col
               offset={1}
               span={11}
             >
-              <ContainerBackgroundColor title={String('Background color')} />
+              <ContainerBackgroundColor
+                title={String('Background color')}
+                showThemeColorDropdown
+                paletteTree={paletteTree}
+                resetToDefaultBackgroundColor={resetToDefaultBackgroundColor}
+                allowClear={allowClearForBackgroundColor}
+              />
             </Grid.Col>
           </Grid.Row>
         </Collapse.Item>

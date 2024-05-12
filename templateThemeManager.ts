@@ -9,9 +9,19 @@ export interface Typography {
   fontWeight?: string;
 }
 
+export interface PaletteColor {
+  name: string;
+  color: string;
+}
+
+export interface Palette {
+  name: string;
+  colors: PaletteColor[];
+}
+
 export interface TemplateTheme {
   typography: Typography[],
-  palettes: any[],
+  palettes: Palette[],
 }
 
 // Constants:

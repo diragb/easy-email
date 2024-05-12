@@ -12,6 +12,7 @@ export const ColorPickerField = (
 ) => {
   return (
     <ColorPickerFieldSource
+      showThemeColorDropdown={props.showThemeColorDropdown}
       config={colorAdapter}
       {...props}
     />

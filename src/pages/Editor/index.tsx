@@ -14,6 +14,8 @@ import {
   setPredefinedAttributes,
 } from 'attribute-manager';
 import { isJSONStringValid } from '@demo/utils/isJSONStringValid';
+import { setTemplateTheme } from 'template-theme-manager';
+import updateThemeInstancesInTemplate from '@demo/utils/updateThemeInstancesInTemplate';
 
 // Typescript:
 declare global {
@@ -50,7 +52,6 @@ import {
   EmailEditorProvider,
   IEmailTemplate,
 } from 'easy-email-editor';
-import { setTemplateTheme } from 'template-theme-manager';
 
 // Functions:
 export const generateTimestampID = () => {
@@ -191,9 +192,10 @@ const Editor = () => {
           const typography = payload.template.themeSettings.typography ?? [];
           const palettes = payload.template.themeSettings.palettes ?? [];
           setTemplateTheme(_templateTheme => ({ typography, palettes }));
+          const template = updateThemeInstancesInTemplate(payload.template);
 
           setTemplateData({
-            content: modifyTemplateAccordingToThemeSettings(payload.template),
+            content: modifyTemplateAccordingToThemeSettings(template),
             subject: '',
             subTitle: '',
           });

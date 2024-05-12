@@ -5,6 +5,7 @@ import { getImg } from '@extensions/AttributePanel/utils/getImg';
 import Color from 'color';
 import { PresetColorsContext } from '@extensions/AttributePanel/components/provider/PresetColorsProvider';
 import { ColorPickerContent } from './ColorPickerContent';
+import { TreeSelectDataType } from '@arco-design/web-react/es/TreeSelect/interface';
 
 export interface ColorPickerProps extends PopoverProps {
   onChange?: (val: string) => void;
@@ -13,6 +14,12 @@ export interface ColorPickerProps extends PopoverProps {
   children?: React.ReactNode;
   showInput?: boolean;
   fixed?: boolean;
+  showThemeColorDropdown?: boolean;
+  paletteTree?: TreeSelectDataType[];
+  isForBackgroundColor?: boolean;
+  resetToDefaultColor?: () => void;
+  resetToDefaultBackgroundColor?: () => void;
+  allowClear?: boolean;
 }
 
 const getCollapseItemEle = (node: HTMLElement | null): HTMLElement => {
@@ -67,6 +74,9 @@ export function ColorPicker(props: ColorPickerProps) {
           <ColorPickerContent
             value={adapterColor}
             onChange={onInputChange}
+            showThemeColorDropdown={props.showThemeColorDropdown}
+            paletteTree={props.paletteTree}
+            isForBackgroundColor={props.isForBackgroundColor}
           />
         )}
         getPopupContainer={getPopupContainer}
@@ -129,6 +139,7 @@ export function ColorPicker(props: ColorPickerProps) {
           value={inputColor}
           style={{ outline: 'none', flex: 1 }}
           onChange={onInputChange}
+          allowClear={props.allowClear}
         />
       )}
     </div>
