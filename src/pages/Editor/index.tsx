@@ -102,6 +102,19 @@ const Editor = () => {
   }, [theme]);
 
   // Functions:
+  const transform = (text: string, id?: string) => {
+    return text.replace(/{{([\s\S]+?)}}/g, (_, $1) => {
+      const input = document.createElement('input');
+      input.value = $1;
+      input.type = 'button';
+      input.className = 'easy-email-merge-tag-badge';
+      if (id) {
+        input.id = id;
+      }
+      return input.outerHTML.replace(/"/g, '\\"');
+    });
+};
+
   const onUploadImage = async (blob: Blob) => {
     const compressionFile = await (
       await imageCompression
@@ -127,6 +140,8 @@ const Editor = () => {
     };
   }) => {
     let content = JSON.parse(template.content);
+
+    // Modify the template according to theme settings
     content.attributes = {
       ...content.attributes,
       'background-color': template.themeSettings.background ?? content.attributes['background-color'],
@@ -193,9 +208,12 @@ const Editor = () => {
           const palettes = payload.template.themeSettings.palettes ?? [];
           setTemplateTheme(_templateTheme => ({ typography, palettes }));
           const template = updateThemeInstancesInTemplate(payload.template);
+          const modifiedTemplate = modifyTemplateAccordingToThemeSettings(template);
+          const transformedTemplate = transform(JSON.stringify(modifiedTemplate));
+          const val = JSON.parse(transformedTemplate);
 
           setTemplateData({
-            content: modifyTemplateAccordingToThemeSettings(template),
+            content: val,
             subject: '',
             subTitle: '',
           });

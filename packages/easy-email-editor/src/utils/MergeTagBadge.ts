@@ -1,9 +1,9 @@
 const transform = (text: string, id?: string) => {
   return text.replace(/{{([\s\S]+?)}}/g, (_, $1) => {
     const input = document.createElement('input');
-    input.className = 'easy-email-merge-tag';
     input.value = $1;
     input.type = 'button';
+    input.className = 'easy-email-merge-tag-badge'
     if (id) {
       input.id = id;
     }
