@@ -12,7 +12,6 @@ import mustachifyHTML from '@demo/utils/mustachifyHTML';
 import appendGridOrganizerScript from '@demo/utils/appendGridOrganizerScript';
 import getGridBlocksInJSON from '@demo/utils/getGridBlocksInJSON';
 import stylizeGridColumn from '@demo/utils/stylizeGridColumn';
-import { MergeTagBadge } from 'easy-email-editor';
 
 // Typescript:
 import { AdvancedType, BasicType, IPage } from 'easy-email-core';

@@ -140,7 +140,6 @@ const Editor = () => {
     };
   }) => {
     let content = JSON.parse(template.content);
-
     // Modify the template according to theme settings
     content.attributes = {
       ...content.attributes,
@@ -208,12 +207,9 @@ const Editor = () => {
           const palettes = payload.template.themeSettings.palettes ?? [];
           setTemplateTheme(_templateTheme => ({ typography, palettes }));
           const template = updateThemeInstancesInTemplate(payload.template);
-          const modifiedTemplate = modifyTemplateAccordingToThemeSettings(template);
-          const transformedTemplate = transform(JSON.stringify(modifiedTemplate));
-          const val = JSON.parse(transformedTemplate);
-
+          const modifiedTemplate = JSON.parse(transform(JSON.stringify(modifyTemplateAccordingToThemeSettings(template))));
           setTemplateData({
-            content: val,
+            content: modifiedTemplate,
             subject: '',
             subTitle: '',
           });
