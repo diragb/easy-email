@@ -523,24 +523,24 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
   useEffect(() => {
     window.addEventListener('message', onFlutterMessage);
     // NOTE: Uncomment the following lines to mock Flutter's responses.
-    window.addEventListener('message', onReactMessage);
-    (window as any).mockFlutterSave = () => {
-      const message: Message = {
-        conversationID: uuidv4(),
-        conversationType: ConversationType.SAVE,
-        callType: CallType.REQUEST,
-        payload: '',
-        sender: Sender.FLUTTER,
-        sentAt: new Date().getTime(),
-      };
+    // window.addEventListener('message', onReactMessage);
+    // (window as any).mockFlutterSave = () => {
+    //   const message: Message = {
+    //     conversationID: uuidv4(),
+    //     conversationType: ConversationType.SAVE,
+    //     callType: CallType.REQUEST,
+    //     payload: '',
+    //     sender: Sender.FLUTTER,
+    //     sentAt: new Date().getTime(),
+    //   };
 
-      window.parent.postMessage(JSON.stringify(message), '*');
-    };
+    //   window.parent.postMessage(JSON.stringify(message), '*');
+    // };
     announceReadiness();
 
     return () => {
       window.removeEventListener('message', onFlutterMessage);
-      window.removeEventListener('message', onReactMessage);
+      // window.removeEventListener('message', onReactMessage);
     };
   }, []);
 
