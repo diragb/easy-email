@@ -102,17 +102,17 @@ const Editor = () => {
   }, [theme]);
 
   // Functions:
-  const transformAttributesInTemplateContent = (text: string, id?: string) => {
+  const transformAttributesInTemplateContent = (text: string, attributes: string[]) => {
     const regex = /\{\{([a-zA-Z0-9_\-]+)\}\}/g;
-    return text.replace(regex, (_, $1) => {
-      const input = document.createElement('input');
-      input.value = $1;
-      input.type = 'button';
-      input.className = 'easy-email-merge-tag-badge';
-      if (id) {
-        input.id = id;
-      }
-      return input.outerHTML.replace(/"/g, '\\"');
+    return text.replace(regex, (match, attributeName) => {
+      if (attributes.includes(attributeName)) {
+        const input = document.createElement('input');
+        input.value = attributeName;
+        input.type = 'button';
+        input.className = 'easy-email-merge-tag-badge';
+        input.id = ((new Date()).getTime()).toString();
+        return input.outerHTML.replace(/"/g, '\\"');
+      } else return match;
     });
   };
 
@@ -208,7 +208,17 @@ const Editor = () => {
           const palettes = payload.template.themeSettings.palettes ?? [];
           setTemplateTheme(_templateTheme => ({ typography, palettes }));
           const template = updateThemeInstancesInTemplate(payload.template);
-          const modifiedTemplate = JSON.parse(transformAttributesInTemplateContent(JSON.stringify(modifyTemplateAccordingToThemeSettings(template))));
+          const modifiedTemplate = JSON.parse(
+            transformAttributesInTemplateContent(
+              JSON.stringify(
+                modifyTemplateAccordingToThemeSettings(template)
+              ),
+              [
+                ...payload.attributes.predefined,
+                ...payload.attributes.custom,
+              ]
+            )
+          );
           setTemplateData({
             content: modifiedTemplate,
             subject: '',
