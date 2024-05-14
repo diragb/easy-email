@@ -16,7 +16,7 @@ import stylizeGridColumn from '@demo/utils/stylizeGridColumn';
 // Typescript:
 import { AdvancedType, BasicType, IPage } from 'easy-email-core';
 import { BlockAttributeConfigurationManager, ExtensionProps } from 'easy-email-extensions';
-import { IEmailTemplate } from 'easy-email-editor';
+import { IEmailTemplate, useEditorProps } from 'easy-email-editor';
 
 // Components:
 import { EmailEditor } from 'easy-email-editor';
@@ -170,6 +170,19 @@ const InternalEditor = ({ values }: {
     return zipObject(filteredCustomAttributes, Array(filteredCustomAttributes.length).fill(''));
   };
 
+  const revertMergeTags = (content: string) => {
+    const container = document.createElement('div');
+    container.innerHTML = content;
+    container.querySelectorAll('.easy-email-merge-tag-badge').forEach((item: any) => {
+      item.parentNode?.replaceChild(
+        document.createTextNode(`{{${item.textContent}}}`),
+        item
+      );
+    });
+
+    return container.innerHTML
+  }
+
   // Effects:
   useEffect(() => {
     (window as any).templateJSON = values;
@@ -213,6 +226,12 @@ const InternalEditor = ({ values }: {
         const blockIDs = Object.values(JSON.parse(blockIDMap) as Record<string, string>);
         const themeSettings = extractThemeSettingsFromTemplate(values.content);
         const templateTheme = getTemplateTheme();
+        const transformedContent = JSON.stringify(values.content, (key, value) => {
+          if (typeof value === 'string') {
+            return revertMergeTags(value);
+          }
+          return value;
+        });
         sendMessageToFlutter({
           conversationID: message.conversationID,
           conversationType: message.conversationType,
@@ -220,7 +239,7 @@ const InternalEditor = ({ values }: {
           payload: {
             template: {
               type: templateType,
-              content: JSON.stringify(values.content),
+              content: transformedContent,
               themeSettings: {
                 ...themeSettings,
                 typography: templateTheme.typography,
