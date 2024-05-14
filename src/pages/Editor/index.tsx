@@ -103,7 +103,8 @@ const Editor = () => {
 
   // Functions:
   const transformAttributesInTemplateContent = (text: string, id?: string) => {
-    return text.replace(/{{([\s\S]+?)}}/g, (_, $1) => {
+    const regex = /\{\{([a-zA-Z0-9_\-]+)\}\}/g;
+    return text.replace(regex, (_, $1) => {
       const input = document.createElement('input');
       input.value = $1;
       input.type = 'button';
@@ -113,7 +114,7 @@ const Editor = () => {
       }
       return input.outerHTML.replace(/"/g, '\\"');
     });
-};
+  };
 
   const onUploadImage = async (blob: Blob) => {
     const compressionFile = await (
