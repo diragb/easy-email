@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useWindowSize } from 'react-use';
 import useConversationManager from '@demo/hooks/useConversationManager';
 import extractAttributes from '@demo/utils/extractAttributes';
-import { getPredefinedAttributes } from 'attribute-manager';
+import { getCustomAttributes, getPredefinedAttributes } from 'attribute-manager';
 import { useScreenshot } from 'use-react-screenshot';
 import { difference, zipObject } from 'lodash';
 import { isJSONStringValid } from '@demo/utils/isJSONStringValid';
@@ -148,13 +148,25 @@ const InternalEditor = ({ values }: {
     return template.content.children.length === 1 && template.content.children?.[0]?.type === 'advanced_wrapper' && (template.content.children?.[0]?.children?.length ?? 0) === 0;
   };
 
-  const onlyGetUsedCustomAttributes = (values: any) => {
+  const revertMergeTags = (content: string) => {
+    const container = document.createElement('div');
+    container.innerHTML = content;
+    container.querySelectorAll('.easy-email-merge-tag-badge').forEach((item: any) => {
+      item.parentNode?.replaceChild(
+        document.createTextNode(`{{${item.value ?? item.textContent}}}`),
+        item
+      );
+    });
+
+    return container.innerHTML;
+  };
+
+  const onlyGetUsedCustomAttributes = (content: any) => {
     // It's dirty, because it contains both predefined and custom attributes.
     // Essentially, any attribute being used in the template is returned here.
-    const gridBlocks = getGridBlocksInJSON(values?.content);
+    const gridBlocks = getGridBlocksInJSON(content);
 
-    // const extractedDirtyAttributesArray = extractAttributes(JSON.stringify(values?.content ?? {}));
-    let extractedDirtyAttributesArray = extractAttributes(JSON.stringify(values?.content ?? {}));
+    let extractedDirtyAttributesArray = extractAttributes(JSON.stringify(content ?? {}));
     for (const gridBlock of gridBlocks) {
       const dataSource: string[] = [gridBlock?.['attributes']?.['data-source']] ?? [];
       extractedDirtyAttributesArray = [
@@ -166,22 +178,14 @@ const InternalEditor = ({ values }: {
 
     const predefinedAttributesArray = Object.keys(getPredefinedAttributes());
     const filteredCustomAttributes = difference(extractedDirtyAttributesArray, predefinedAttributesArray);
-    // setCustomAttributes(AttributeModifier.React, _ => zipObject(filteredCustomAttributes, Array(filteredCustomAttributes.length).fill('')));
-    return zipObject(filteredCustomAttributes, Array(filteredCustomAttributes.length).fill(''));
+
+    // Now, we filter the extracted and filtered custom attributes again,
+    // based on whether they had been declared in the Page Attributes panel or not.
+    const declaredCustomAttributesArray = [...new Set(Object.keys(getCustomAttributes()))];
+    const usedCustomAttributes = filteredCustomAttributes.filter(attribute => declaredCustomAttributesArray.includes(attribute));
+
+    return zipObject(usedCustomAttributes, Array(usedCustomAttributes.length).fill(''));
   };
-
-  const revertMergeTags = (content: string) => {
-    const container = document.createElement('div');
-    container.innerHTML = content;
-    container.querySelectorAll('.easy-email-merge-tag-badge').forEach((item: any) => {
-      item.parentNode?.replaceChild(
-        document.createTextNode(`{{${item.textContent}}}`),
-        item
-      );
-    });
-
-    return container.innerHTML
-  }
 
   // Effects:
   useEffect(() => {
@@ -193,7 +197,13 @@ const InternalEditor = ({ values }: {
       try {
         Message.loading('Loading...');
         setTemplateWidth(values.content.attributes.width ?? '600px');
-        const customAttributes = onlyGetUsedCustomAttributes(values);
+        const transformedContent = JSON.stringify(values.content, (_key, value) => {
+          if (typeof value === 'string') {
+            return revertMergeTags(value);
+          }
+          return value;
+        });
+        const customAttributes = onlyGetUsedCustomAttributes(JSON.parse(transformedContent));
         const customAttributesArray = [...new Set(Object.keys(customAttributes))];
         const predefinedAttributesArray = [...new Set(Object.keys(getPredefinedAttributes()))];
 
@@ -219,19 +229,13 @@ const InternalEditor = ({ values }: {
           allowTaint: false,
           useCORS: true,
         });
-        // const preview = await generatePreviewOfTemplate(rawHTML);
         if (screenshotRef.current) screenshotRef.current.innerHTML = '';
 
         const blockIDMap = isJSONStringValid(sessionStorage.getItem('block-ids') ?? '{}') ? (sessionStorage.getItem('block-ids') ?? '{}') : '{}';
         const blockIDs = Object.values(JSON.parse(blockIDMap) as Record<string, string>);
         const themeSettings = extractThemeSettingsFromTemplate(values.content);
         const templateTheme = getTemplateTheme();
-        const transformedContent = JSON.stringify(values.content, (key, value) => {
-          if (typeof value === 'string') {
-            return revertMergeTags(value);
-          }
-          return value;
-        });
+
         sendMessageToFlutter({
           conversationID: message.conversationID,
           conversationType: message.conversationType,

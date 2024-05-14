@@ -279,6 +279,7 @@ export function Text() {
               name={`${focusIdx}.attributes.data-typography`}
               options={typographyList}
               allowClear
+              style={{ paddingRight: '5%' }}
             />
             <Grid.Row>
               <Grid.Col span={11}>

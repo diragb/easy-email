@@ -6,9 +6,9 @@ import styles from '../index.module.scss';
 import Color from 'color';
 
 import { PresetColorsContext } from '@extensions/AttributePanel/components/provider/PresetColorsProvider';
-import { useFocusIdx } from '@';
 import { TreeSelectField } from '@extensions/components/Form';
 import { TreeSelectDataType } from '@arco-design/web-react/es/TreeSelect/interface';
+import { useFocusIdx } from 'easy-email-editor';
 
 export interface ColorPickerContentProps {
   onChange: (val: string) => void;

@@ -13,8 +13,8 @@ export function ContainerBackgroundColor({
   title?: string;
   showThemeColorDropdown?: boolean;
   paletteTree?: TreeSelectDataType[];
-  resetToDefaultBackgroundColor: () => void;
-  allowClear: boolean;
+  resetToDefaultBackgroundColor?: () => void;
+  allowClear?: boolean;
 }) {
   const { focusIdx } = useFocusIdx();
 
