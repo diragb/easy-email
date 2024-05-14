@@ -170,18 +170,18 @@ const InternalEditor = ({ values }: {
     return zipObject(filteredCustomAttributes, Array(filteredCustomAttributes.length).fill(''));
   };
 
-  const revertMergeTags = (content: string, generateMergeTag: (s: string) => string) => {
+  const revertMergeTags = (content: string) => {
     const container = document.createElement('div');
     container.innerHTML = content;
     container.querySelectorAll('.easy-email-merge-tag-badge').forEach((item: any) => {
       item.parentNode?.replaceChild(
-        document.createTextNode(generateMergeTag(item.textContent)),
+        document.createTextNode(`{{${item.textContent}}}`),
         item
       );
     });
 
-    return container.innerHTML;
-  };
+    return container.innerHTML
+  }
 
   // Effects:
   useEffect(() => {
@@ -226,10 +226,9 @@ const InternalEditor = ({ values }: {
         const blockIDs = Object.values(JSON.parse(blockIDMap) as Record<string, string>);
         const themeSettings = extractThemeSettingsFromTemplate(values.content);
         const templateTheme = getTemplateTheme();
-        const mergeTags = Object.keys(combinedAttributeMap).map(tag => `{{${tag}}}`);
         const transformedContent = JSON.stringify(values.content, (key, value) => {
           if (typeof value === 'string') {
-            return revertMergeTags(value, (s) => mergeTags.find(tag => tag.includes(s)) || s);
+            return revertMergeTags(value);
           }
           return value;
         });

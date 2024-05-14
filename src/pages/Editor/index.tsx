@@ -102,7 +102,7 @@ const Editor = () => {
   }, [theme]);
 
   // Functions:
-  const transform = (text: string, id?: string) => {
+  const transformAttributesInTemplateContent = (text: string, id?: string) => {
     return text.replace(/{{([\s\S]+?)}}/g, (_, $1) => {
       const input = document.createElement('input');
       input.value = $1;
@@ -207,7 +207,7 @@ const Editor = () => {
           const palettes = payload.template.themeSettings.palettes ?? [];
           setTemplateTheme(_templateTheme => ({ typography, palettes }));
           const template = updateThemeInstancesInTemplate(payload.template);
-          const modifiedTemplate = JSON.parse(transform(JSON.stringify(modifyTemplateAccordingToThemeSettings(template))));
+          const modifiedTemplate = JSON.parse(transformAttributesInTemplateContent(JSON.stringify(modifyTemplateAccordingToThemeSettings(template))));
           setTemplateData({
             content: modifiedTemplate,
             subject: '',
