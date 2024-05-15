@@ -203,7 +203,7 @@ const InternalEditor = ({ values }: {
           }
           return value;
         });
-        const customAttributes = onlyGetUsedCustomAttributes(JSON.parse(transformedContent));
+        const customAttributes = onlyGetUsedCustomAttributes(values.content);
         const customAttributesArray = [...new Set(Object.keys(customAttributes))];
         const predefinedAttributesArray = [...new Set(Object.keys(getPredefinedAttributes()))];
 
