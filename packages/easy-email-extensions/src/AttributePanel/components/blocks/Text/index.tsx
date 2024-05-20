@@ -23,6 +23,7 @@ import { SelectField, TextField } from '@extensions/components/Form';
 import { isIDValid } from '@extensions/utils/blockIDManager';
 import { getTemplateTheme, Palette, Typography } from 'template-theme-manager';
 import { TreeSelectDataType } from '@arco-design/web-react/es/TreeSelect/interface';
+import ColorController from 'color';
 
 export function Text() {
   // Constants:
@@ -107,8 +108,21 @@ export function Text() {
         children: palette.colors.map(color => {
           return {
             title: (
-              <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-                <div style={{ height: '20px', aspectRatio: '1', backgroundColor: color.color }} />
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '5px',
+                  alignItems: 'center'
+                }}
+              >
+                <div
+                  style={{
+                    height: '20px',
+                    aspectRatio: '1',
+                    backgroundColor: color.color,
+                    border: `1px solid ${ColorController(color.color).isLight() ? '#000' : '#FFF'}`
+                  }}
+                />
                 {color.name}
               </div>
             ),
