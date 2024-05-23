@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Padding } from '@extensions/AttributePanel/components/attributes/Padding';
 import {
   ColorPickerField,
@@ -18,6 +18,7 @@ import { Stack, useEditorProps, useFocusIdx } from 'easy-email-editor';
 import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { imageHeightAdapter, pixelAdapter } from '../../adapter';
 import { isIDValid } from '@extensions/utils/blockIDManager';
+import { getTemplateTheme } from 'template-theme-manager';
 
 const fullWidthOnMobileAdapter = {
   format(obj: any) {
@@ -31,9 +32,20 @@ const fullWidthOnMobileAdapter = {
 };
 
 export function Image() {
+  // Constants:
   const { focusIdx } = useFocusIdx();
   const { onUploadImage } = useEditorProps();
 
+  // State:
+  const [imagesDropdownOptions, setImagesDropdownOptions] = useState<{ label: string, value: string; }[]>([]);
+
+  // Effects:
+  useEffect(() => {
+    const _images = getTemplateTheme()?.images ?? [];
+    setImagesDropdownOptions(_images.map(image => ({ label: image.name, value: image.url })));
+  }, []);
+
+  // Return:
   return (
     <AttributesPanelWrapper style={{ padding: 0 }}>
       <CollapseWrapper defaultActiveKey={['0', '1', '2', '3', '4']}>
@@ -63,6 +75,8 @@ export function Image() {
                 'The image suffix should be .jpg, jpeg, png, gif, etc. Otherwise, the picture may not be displayed normally.',
               )}
               uploadHandler={onUploadImage}
+              autoCompleteOptions={imagesDropdownOptions}
+              isImage
             />
             <ColorPickerField
               label={String('Background color')}

@@ -10,14 +10,15 @@ import {
   Spin,
   Button as ArcoButton,
 } from '@arco-design/web-react';
-import { IconPlus, IconEye, IconDelete, IconAt } from '@arco-design/web-react/icon';
+import { IconPlus, IconEye, IconDelete, IconImage, IconClose } from '@arco-design/web-react/icon';
 import styles from './index.module.scss';
 import { Uploader, UploaderServer } from '@extensions/AttributePanel/utils/Uploader';
 import { classnames } from '@extensions/AttributePanel/utils/classnames';
 import { previewLoadImage } from '@extensions/AttributePanel/utils/previewLoadImage';
 import { MergeTags } from '@extensions';
-import { IconFont } from 'easy-email-editor';
+import { IconFont, useFocusIdx } from 'easy-email-editor';
 import { AttributeModifier, generateUpdateCustomAttributeListener, generateUpdatePredefinedAttributeListener, getCustomAttributes, getPredefinedAttributes } from 'attribute-manager';
+import { useField, useForm } from 'react-final-form';
 
 export interface ImageUploaderProps {
   onChange: (val: string) => void;
@@ -25,6 +26,7 @@ export interface ImageUploaderProps {
   label: string;
   uploadHandler?: UploaderServer;
   autoCompleteOptions?: Array<{ value: string; label: React.ReactNode; }>;
+  isImage?: boolean;
 }
 
 export function ImageUploader(props: ImageUploaderProps) {
@@ -35,6 +37,9 @@ export function ImageUploader(props: ImageUploaderProps) {
   );
   const [predefinedAttributes, _setPredefinedAttributes] = useState(getPredefinedAttributes());
   const [customAttributes, _setCustomAttributes] = useState(getCustomAttributes());
+  const { change } = useForm();
+  const { focusIdx } = useFocusIdx();
+  const dataImageName = useField(`${focusIdx}.attributes.data-${props.isImage ? '' : 'background-'}image-name`);
 
   const updateCustomAttributes = generateUpdateCustomAttributeListener(AttributeModifier.EasyEmail, _setCustomAttributes);
   const updatePredefinedAttributes = generateUpdatePredefinedAttributeListener(AttributeModifier.EasyEmail, _setPredefinedAttributes);
@@ -174,23 +179,29 @@ export function ImageUploader(props: ImageUploaderProps) {
             onPaste={onPaste}
             value={props.value}
             onChange={onChange}
-            disabled={isUploading}
-
+            disabled={isUploading || !!dataImageName.input.value}
+            allowClear
           />
           {props.autoCompleteOptions && (
             <Dropdown
               position="tr"
               droplist={(
-                <Menu onClickMenuItem={(indexStr) => {
-                  if (!props.autoCompleteOptions) return;
-                  onChange(props.autoCompleteOptions[+indexStr]?.value);
-                }}
+                <Menu
+                  style={{ width: '300px' }}
+                  onClickMenuItem={(indexStr) => {
+                    if (!props.autoCompleteOptions) return;
+                    onChange(props.autoCompleteOptions[+indexStr]?.value);
+                    change(`${focusIdx}.attributes.data-${props.isImage ? '' : 'background-'}image-name`, props.autoCompleteOptions[+indexStr]?.label);
+                  }}
                 >
                   {
                     props.autoCompleteOptions.map((item, index) => {
                       return (
-                        <Menu.Item style={{ display: 'flex', alignItems: 'center' }} key={index.toString()}>
-                          <img src={item.value} style={{ width: 20, height: 20 }} />&emsp;<span>{item.label}</span>
+                        <Menu.Item
+                          style={{ display: 'flex', alignItems: 'center', margin: '10px 0px' }}
+                          key={index.toString()}
+                        >
+                          <img src={item.value} style={{ width: 50, height: 50 }} />&emsp;<span>{item.label}</span>
                         </Menu.Item>
                       );
                     })
@@ -198,7 +209,22 @@ export function ImageUploader(props: ImageUploaderProps) {
                 </Menu>
               )}
             >
-              <ArcoButton icon={<IconAt />} />
+              {
+                !!dataImageName.input.value ? (
+                  <ArcoButton
+                    onClick={() => {
+                      change(`${focusIdx}.attributes.data-${props.isImage ? '' : 'background-'}image-name`, '');
+                      change(props.isImage ? `${focusIdx}.attributes.src` : `${focusIdx}.attributes.background-url`, '');
+                    }}
+                    icon={<IconClose />}
+                  />
+                ) : (
+                  <ArcoButton
+                    icon={<IconImage />}
+                  />
+                )
+              }
+              {/* <ArcoButton icon={<IconImage />} /> */}
             </Dropdown>
           )}
         </Grid.Row>

@@ -374,7 +374,7 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
                     colors: [
                       {
                         name: 'Primary',
-                        color: '#AEAEAE',
+                        color: '#FFF',
                       },
                       {
                         name: 'Secondary',
@@ -396,6 +396,22 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
                     ],
                   },
                 ] as Palette[],
+                images: [
+                  {
+                    name: 'Banner',
+                    url: 'https://images.pexels.com/photos/14981339/pexels-photo-14981339/free-photo-of-a-man-standing-on-gray-rock.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+                  },
+                  {
+                    name: 'Logo',
+                    url: 'https://static.vecteezy.com/system/resources/thumbnails/008/214/517/small_2x/abstract-geometric-logo-or-infinity-line-logo-for-your-company-free-vector.jpg'
+                  },
+                ],
+                staticText: [
+                  {
+                    name: 'Legal Disclosure',
+                    text: 'The author assumes no responsibility or liability for any errors or omissions in the content of this site. The information contained in this site is provided on an "as is" basis with no guarantees of completeness, accuracy, usefulness or timeliness.',
+                  }
+                ]
               },
             },
             attributes: {

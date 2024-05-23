@@ -21,7 +21,7 @@ import { ClassName } from '../../attributes/ClassName';
 import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { SelectField, TextField } from '@extensions/components/Form';
 import { isIDValid } from '@extensions/utils/blockIDManager';
-import { getTemplateTheme, Palette, Typography } from 'template-theme-manager';
+import { getTemplateTheme, Palette, StaticText, Typography } from 'template-theme-manager';
 import { TreeSelectDataType } from '@arco-design/web-react/es/TreeSelect/interface';
 import ColorController from 'color';
 
@@ -44,6 +44,10 @@ export function Text() {
   const backgroundColor = useField(`${focusIdx}.attributes.container-background-color`);
   const dataBackgroundColorPaletteColorCode = useField(`${focusIdx}.attributes.data-background-color-palette-color-code`);
 
+  // For Static Text:
+  const dataStaticText = useField(`${focusIdx}.attributes.data-static-text`);
+  const textContent = useField(`${focusIdx}.data.value.content`);
+
   // State:
   const [visible, setVisible] = useState(false);
   const [typography, setTypography] = useState<Typography[]>([]);
@@ -56,6 +60,11 @@ export function Text() {
   const [defaultBackgroundColor, setDefaultBackgroundColor] = useState<string>();
   const [allowClearForColor, setAllowClearForColor] = useState(false);
   const [allowClearForBackgroundColor, setAllowClearForBackgroundColor] = useState(false);
+  const [staticText, setStaticText] = useState<StaticText[]>([]);
+  const [staticTextTree, setStaticTextTree] = useState<{
+    value: string;
+    label: React.ReactNode;
+  }[]>([]);
 
   // Functions:
   const resetToDefaultColor = () => {
@@ -64,6 +73,16 @@ export function Text() {
 
   const resetToDefaultBackgroundColor = () => {
     change(`${focusIdx}.attributes.container-background-color`, defaultBackgroundColor ?? '');
+  };
+
+  const setTextNode = (contentEditable: 'true' | 'false', value?: string) => {
+    const container = document.getElementById('VisualEditorEditMode');
+    const shadowRoot = container?.shadowRoot;
+    const textNode = shadowRoot?.querySelector(`[data-content_editable-idx="${focusIdx}.data.value.content"]`);
+    if (textNode) {
+      (textNode as HTMLDivElement).contentEditable = contentEditable;
+      if (value) (textNode as HTMLDivElement).innerText = value;
+    }
   };
 
   // Effects:
@@ -129,6 +148,26 @@ export function Text() {
             value: color.name,
           };
         })
+      };
+    }));
+  }, []);
+
+  useEffect(() => {
+    const _staticText = getTemplateTheme()?.staticText ?? [];
+    setStaticText(_staticText);
+    setStaticTextTree(_staticText.map(staticTextUnit => {
+      return {
+        label: (
+          <div style={{ display: 'flex' }}>
+            <div style={{ fontWeight: 'bold', paddingRight: '5px' }}>
+              {staticTextUnit.name}:
+            </div>
+            <div style={{ textOverflow: 'ellipsis', wordBreak: 'break-all', overflow: 'hidden' }}>
+              {staticTextUnit.text}
+            </div>
+          </div>
+        ),
+        value: staticTextUnit.name,
       };
     }));
   }, []);
@@ -217,6 +256,17 @@ export function Text() {
     }
   }, [dataBackgroundColorPaletteColorCode.input.value, backgroundColor.input.value]);
 
+  // For Static Text:
+  useEffect(() => {
+    if (dataStaticText.input.value?.trim().length > 0) {
+      const staticTextValue = staticText.find(_staticText => _staticText.name === dataStaticText.input.value);
+      setTextNode('false', staticTextValue?.text ?? '');
+      change(`${focusIdx}.data.value.content`, staticTextValue?.text ?? '');
+    } else {
+      setTextNode('true');
+    }
+  }, [dataStaticText.input.value, textContent.input.value, staticText]);
+
   // Return:
   return (
     <AttributesPanelWrapper
@@ -255,6 +305,18 @@ export function Text() {
             <Height />
             <Padding showResetAll />
           </Space>
+        </Collapse.Item>
+        <Collapse.Item
+          name='0'
+          header={String('Text')}
+        >
+          <SelectField
+            label={'Static Text'}
+            name={`${focusIdx}.attributes.data-static-text`}
+            options={staticTextTree}
+            allowClear
+            style={{ paddingRight: '5%' }}
+          />
         </Collapse.Item>
         <Collapse.Item
           name='1'

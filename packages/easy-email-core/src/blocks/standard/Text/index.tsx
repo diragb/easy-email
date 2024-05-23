@@ -20,6 +20,8 @@ export type IText = IBlockData<
     'data-background-color-palette-color-name'?: string;
     'data-background-color-palette-color-code'?: string;
 
+    'data-static-text'?: string;
+
     'data-id'?: string;
     'css-class'?: string;
     color?: string;

@@ -19,15 +19,29 @@ export interface Palette {
   colors: PaletteColor[];
 }
 
+export interface LibraryImage {
+  name: string;
+  url: string;
+}
+
+export interface StaticText {
+  name: string;
+  text: string;
+}
+
 export interface TemplateTheme {
-  typography: Typography[],
-  palettes: Palette[],
+  typography: Typography[];
+  palettes: Palette[];
+  images: LibraryImage[];
+  staticText: StaticText[];
 }
 
 // Constants:
 export const DEFAULT_TEMPLATE_THEME = {
   typography: [],
   palettes: [],
+  images: [],
+  staticText: [],
 } as TemplateTheme;
 
 // Functions:

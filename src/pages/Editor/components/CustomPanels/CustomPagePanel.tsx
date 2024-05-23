@@ -1,7 +1,7 @@
 // Packages:
 import React, { useEffect, useState } from 'react';
 import { pixelAdapter } from '../../../../utils/adapter';
-import { cloneDeep, set } from 'lodash';
+import { cloneDeep } from 'lodash';
 import {
   AttributeModifier,
   generateUpdateCustomAttributeListener,
@@ -59,7 +59,7 @@ const CustomPagePanel = ({ hideSubTitle, hideSubject }: PageProps) => {
     if (inputValue && !isCustomAttributeAlreadyDefined) {
       setCustomAttributes(AttributeModifier.React, _customAttributes => {
         const newCustomAttributes = cloneDeep(_customAttributes);
-        set(newCustomAttributes, inputValue, '');
+        newCustomAttributes[inputValue] = '';
         _setCustomAttributes(newCustomAttributes);
         return newCustomAttributes;
       });
@@ -79,7 +79,6 @@ const CustomPagePanel = ({ hideSubTitle, hideSubject }: PageProps) => {
     }
   };
 
-  // const updateMergeTags = generateUpdateAttributeListener(MergeTagModifier.EasyEmail, _setMergeTags);
   const updateCustomAttributes = generateUpdateCustomAttributeListener(AttributeModifier.EasyEmail, _setCustomAttributes);
   const updatePredefinedAttributes = generateUpdatePredefinedAttributeListener(AttributeModifier.EasyEmail, _setPredefinedAttributes);
 
@@ -107,20 +106,6 @@ const CustomPagePanel = ({ hideSubTitle, hideSubject }: PageProps) => {
             header={`${templateType} Setting`}
           >
             <Space direction='vertical'>
-              {/* {!hideSubject && (
-                <TextField
-                  label={'Subject')
-                  name={'subject'}
-                  inline
-                />
-              )}
-              {!hideSubTitle && (
-                <TextField
-                  label={'Subtitle')
-                  name={'subTitle'}
-                  inline
-                />
-              )} */}
               <InputWithUnitField
                 label={'Width'}
                 name={`${focusIdx}.attributes.width`}

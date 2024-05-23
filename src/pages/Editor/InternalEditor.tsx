@@ -214,6 +214,7 @@ const InternalEditor = ({ values }: {
 
         const templateType = sessionStorage.getItem('template-type') ?? 'EMAIL';
         const rawHTML = generateHTML(values, combinedAttributeMap);
+        const rawHTMLForPreview = generateHTML(values, combinedAttributeMap, true);
         const finalHTML = unsanitizeHTMLTags(
           mustachifyHTML(
             stylizeGridColumn(
@@ -222,7 +223,7 @@ const InternalEditor = ({ values }: {
           )
         );
 
-        const previewHTML = unsanitizeHTMLTags(stylizeGridColumn(rawHTML));
+        const previewHTML = unsanitizeHTMLTags(stylizeGridColumn(rawHTMLForPreview));
         if (screenshotRef.current) screenshotRef.current.innerHTML = previewHTML;
 
         const preview = await takeScreenshot(screenshotRef.current, {

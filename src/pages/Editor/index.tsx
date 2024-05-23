@@ -14,7 +14,7 @@ import {
   setPredefinedAttributes,
 } from 'attribute-manager';
 import { isJSONStringValid } from '@demo/utils/isJSONStringValid';
-import { setTemplateTheme } from 'template-theme-manager';
+import { LibraryImage, StaticText, setTemplateTheme } from 'template-theme-manager';
 import updateThemeInstancesInTemplate from '@demo/utils/updateThemeInstancesInTemplate';
 
 // Typescript:
@@ -190,6 +190,8 @@ const Editor = () => {
                 userStyle?: string;
                 typography?: Typography[];
                 palettes?: Palette[];
+                images?: LibraryImage[];
+                staticText?: StaticText[];
               };
             };
             attributes: {
@@ -206,7 +208,9 @@ const Editor = () => {
 
           const typography = payload.template.themeSettings.typography ?? [];
           const palettes = payload.template.themeSettings.palettes ?? [];
-          setTemplateTheme(_templateTheme => ({ typography, palettes }));
+          const images = payload.template.themeSettings.images ?? [];
+          const staticText = payload.template.themeSettings.staticText ?? [];
+          setTemplateTheme(_templateTheme => ({ typography, palettes, images, staticText }));
           const template = updateThemeInstancesInTemplate(payload.template);
           const modifiedTemplate = JSON.parse(
             transformAttributesInTemplateContent(

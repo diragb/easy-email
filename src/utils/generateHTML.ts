@@ -1,11 +1,12 @@
 // Packages:
 import { JsonToMjml } from 'easy-email-core';
 import mjml2html from 'mjml-browser';
+import gridShiftBackgroundImageFromSectionToColumn, { Node } from './gridShiftBackgroundImageFromSectionToColumn';
+import { cloneDeep } from 'lodash';
 
 // Typescript:
 import { IEmailTemplate } from 'easy-email-editor';
 import { Message } from '@arco-design/web-react';
-import gridShiftBackgroundImageFromSectionToColumn from './gridShiftBackgroundImageFromSectionToColumn';
 
 // Functions:
 const MJMLEncodedDataToHTMLAttributesObject = (MJMLEncodedData: string): Record<string, string> => {
@@ -87,9 +88,87 @@ export const unsanitizeHTMLTags = (sanitizedHTML: string) => {
   return '<!doctype html>' + sanitizedHTML;
 };
 
-const generateHTML = (templateData: IEmailTemplate, attributes: Record<string, string>) => {
+const replaceThemeInstancesWithEncoding = (_templateContent: Node) => {
+  const content = cloneDeep(_templateContent);
+
+  // Functions:
+  const findThemeInstancesInNode = (node: Node) => {
+    if (node.attributes?.['data-background-image-name']) {
+      const transformedNode = cloneDeep(node);
+
+      const backgroundImageName = transformedNode.attributes?.['data-background-image-name'];
+      if (backgroundImageName) {
+        const encodedBackgroundImageName = backgroundImageName.toLocaleLowerCase().split(' ').join('_');
+        transformedNode.attributes['background-url'] = `@@image-library.${encodedBackgroundImageName}@@`;
+      }
+
+      return transformedNode;
+    } if (['advanced_image', 'image'].includes(node.type)) {
+      const transformedNode = cloneDeep(node);
+
+      const imageName = transformedNode.attributes?.['data-image-name'];
+      if (imageName) {
+        const encodedImageName = imageName.toLocaleLowerCase().split(' ').join('_');
+        transformedNode.attributes['src'] = `@@image-library.${encodedImageName}@@`;
+      }
+
+      return transformedNode;
+    } if (['advanced_text', 'text'].includes(node.type)) {
+      const transformedNode = cloneDeep(node);
+
+      // Text Color:
+      const paletteName = transformedNode.attributes?.['data-color-palette-name'];
+      const colorName = transformedNode.attributes?.['data-color-palette-color-name'];
+      if (paletteName && colorName) {
+        const encodedPaletteName = paletteName.toLocaleLowerCase().split(' ').join('_');
+        const encodedColorName = colorName.toLocaleLowerCase().split(' ').join('_');
+        transformedNode.attributes['color'] = `@@${encodedPaletteName}.${encodedColorName}@@`;
+      }
+
+      // Background Color:
+      const backgroundPaletteName = transformedNode.attributes?.['data-background-color-palette-name'];
+      const backgroundPolorName = transformedNode.attributes?.['data-background-color-palette-color-name'];
+      if (paletteName && colorName) {
+        const encodedBackgroundPaletteName = backgroundPaletteName.toLocaleLowerCase().split(' ').join('_');
+        const encodedBackgroundColorName = backgroundPolorName.toLocaleLowerCase().split(' ').join('_');
+        transformedNode.attributes['container-background-color'] = `@@${encodedBackgroundPaletteName}.${encodedBackgroundColorName}@@`;
+      }
+
+      // Typography:
+      const typography = transformedNode.attributes?.['data-typography'];
+      if (typography) {
+        const encodedTypography = typography.toLocaleLowerCase().split(' ').join('_');
+        transformedNode.attributes['font-family'] = `@@${encodedTypography}.font-family@@`;
+        transformedNode.attributes['font-size'] = `@@${encodedTypography}.font-size@@`;
+        transformedNode.attributes['font-weight'] = `@@${encodedTypography}.font-weight@@`;
+      }
+
+      // Static Text:
+      const staticTextName = transformedNode.attributes?.['data-static-text'];
+      if (staticTextName) {
+        const encodedStaticTextName = staticTextName.toLocaleLowerCase().split(' ').join('_');
+        transformedNode.data.value.content = `@@static_text.${encodedStaticTextName}@@`;
+      }
+
+      return transformedNode;
+    } else {
+      node = {
+        ...node,
+        children: ((node.children ?? []) as Node[]).map(node => findThemeInstancesInNode(node))
+      };
+      return node;
+    }
+  };
+
+  return findThemeInstancesInNode(content);
+};
+
+const generateHTML = (templateData: IEmailTemplate, attributes: Record<string, string>, isPreview?: boolean) => {
   sessionStorage.setItem('isExporting', JSON.stringify(true));
-  const templateContent = gridShiftBackgroundImageFromSectionToColumn(templateData);
+  let templateContent = gridShiftBackgroundImageFromSectionToColumn(templateData);
+  if (!isPreview) {
+    templateContent = replaceThemeInstancesWithEncoding(templateContent);
+  }
 
   const mjmlString = JsonToMjml({
     data: templateContent,
