@@ -8,6 +8,7 @@ import {
   getValueByIdx,
   BlockManager,
   createBlockDataByType,
+  AdvancedType,
 } from 'easy-email-core';
 import { cloneDeep, debounce, get } from 'lodash';
 import { useCallback, useContext } from 'react';
@@ -100,7 +101,10 @@ export function useBlock() {
       }
 
       const fixedBlock = BlockManager.getBlockByType(child.type);
-      if (!fixedBlock?.validParentType.includes(parent.type)) {
+      if (
+        !fixedBlock?.validParentType.includes(parent.type)
+        && (fixedBlock?.type !== AdvancedType.WRAPPER && parent.type !== AdvancedType.WRAPPER)
+      ) {
         console.error(
           `${block.type} cannot be used inside ${parentBlock.type
           }, only inside: ${block.validParentType.join(', ')}`

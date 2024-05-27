@@ -32,8 +32,8 @@ export function generateAdvancedContentBlock<T extends IBlockData>(option: {
       const previewClassName =
         mode === 'testing'
           ? classnames(
-              index === 0 && idx && getPreviewClassName(idx, data.type)
-            )
+            index === 0 && idx && getPreviewClassName(idx, data.type)
+          )
           : '';
 
       const blockData = {

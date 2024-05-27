@@ -1,5 +1,6 @@
 import { IBlock, IBlockData } from '@core/typings';
 import { standardBlocks, advancedBlocks } from '@core/blocks';
+import { AdvancedType } from '@core/constants';
 
 export class BlockManager {
   private static blocksMap: Record<string, IBlock> = {
@@ -29,10 +30,11 @@ export class BlockManager {
       });
     };
 
-    Object.values(this.blocksMap).forEach((item) => {
-      paths[item.type] = [];
-      renderFullPath(item.type, paths[item.type], []);
+    Object.values(this.blocksMap).forEach((block) => {
+      paths[block.type] = [];
+      renderFullPath(block.type, paths[block.type], []);
     });
+    // console.log(paths)
     return paths;
   }
 
@@ -78,10 +80,11 @@ export class BlockManager {
     targetType: string
   ): Array<string> | null {
     const block = this.getBlockByType(type);
-    if (!block) {
-      throw new Error(`Can you register ${type} block`);
-    }
-    if (block.validParentType.includes(targetType)) {
+    if (!block) throw new Error(`Cannot register ${type} block!`);
+    if (
+      block.validParentType.includes(targetType)
+      || (block.type === AdvancedType.WRAPPER && targetType === AdvancedType.WRAPPER)
+    ) {
       return [];
     }
     const paths = this.getAutoCompleteFullPath()[type as any].find((item) =>
