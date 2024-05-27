@@ -51,15 +51,17 @@ const CustomPagePanel = ({ hideSubTitle, hideSubject }: PageProps) => {
 
   // Functions:
   const addCustomAttribute = () => {
+    const sanitizedInputValue = inputValue.replace(/\./g, '-').replace(/\s/g, '_');
+
     const isCustomAttributeAlreadyDefined = Object
       .keys(predefinedAttributes)
-      .some(predefinedAttribute => predefinedAttribute === inputValue) || Object
+      .some(predefinedAttribute => predefinedAttribute === sanitizedInputValue) || Object
         .keys(customAttributes)
-        .some(customAttribute => customAttribute === inputValue);
-    if (inputValue && !isCustomAttributeAlreadyDefined) {
+        .some(customAttribute => customAttribute === sanitizedInputValue);
+    if (sanitizedInputValue && !isCustomAttributeAlreadyDefined) {
       setCustomAttributes(AttributeModifier.React, _customAttributes => {
         const newCustomAttributes = cloneDeep(_customAttributes);
-        newCustomAttributes[inputValue] = '';
+        newCustomAttributes[sanitizedInputValue] = '';
         _setCustomAttributes(newCustomAttributes);
         return newCustomAttributes;
       });
