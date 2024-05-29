@@ -410,13 +410,17 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
                   {
                     name: 'Legal Disclosure',
                     text: 'The author assumes no responsibility or liability for any errors or omissions in the content of this site. The information contained in this site is provided on an "as is" basis with no guarantees of completeness, accuracy, usefulness or timeliness.',
-                  }
+                  },
+                  {
+                    name: 'Brand Catchline',
+                    text: 'At the speed of light.',
+                  },
                 ]
               },
             },
             attributes: {
               predefined: ['alpha', 'beta', 'sierra'],
-              custom: ["slab", "reward", "rewards"],
+              custom: ['slab', 'reward', 'rewards', 'rewards.slab'],
             },
             blockIDs: {
               map: "{}",

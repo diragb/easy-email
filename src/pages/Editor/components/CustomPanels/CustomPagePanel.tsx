@@ -216,15 +216,19 @@ const CustomPagePanel = ({ hideSubTitle, hideSubject }: PageProps) => {
               <Stack.Item>
                 <Space size={10} wrap>
                   {Object.keys(predefinedAttributes).map(tag => (<Tag key={tag}>{tag}</Tag>))}
-                  {Object.keys(customAttributes).map(customAttribute => (
-                    <Tag
-                      key={customAttribute}
-                      closable
-                      onClose={() => removeCustomAttribute(customAttribute)}
-                    >
-                      {customAttribute}
-                    </Tag>
-                  ))}
+                  {Object
+                    .keys(customAttributes)
+                    .filter(customAttribute => !customAttribute.includes('.'))
+                    .map(customAttribute => (
+                      <Tag
+                        key={customAttribute}
+                        closable
+                        onClose={() => removeCustomAttribute(customAttribute)}
+                      >
+                        {customAttribute}
+                      </Tag>
+                    )
+                    )}
                   {showInput ? (
                     <Input
                       autoFocus

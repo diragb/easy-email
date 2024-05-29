@@ -1,14 +1,28 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Tree, TreeSelect } from '@arco-design/web-react';
+import { Message, Tree, TreeSelect } from '@arco-design/web-react';
 import { get, isObject } from 'lodash';
-import { useEditorProps } from 'easy-email-editor';
-import { AttributeModifier, generateUpdateCustomAttributeListener, generateUpdatePredefinedAttributeListener, getCustomAttributes, getPredefinedAttributes } from 'attribute-manager';
+import { useBlock, useEditorProps, useFocusIdx } from 'easy-email-editor';
+import {
+  AttributeModifier,
+  generateUpdateCustomAttributeListener,
+  generateUpdatePredefinedAttributeListener,
+  getCustomAttributes,
+  getPredefinedAttributes,
+} from 'attribute-manager';
+import {
+  AdvancedType,
+  BasicType,
+  getAncestryByIdx,
+  getParentIdx
+} from '@core';
 
 export const MergeTags: React.FC<{
   onChange: (v: string) => void;
   value: string;
   isSelect?: boolean;
 }> = React.memo((props) => {
+  const { focusIdx } = useFocusIdx();
+  const { values } = useBlock();
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
   const {
     mergeTagGenerate,
@@ -63,6 +77,26 @@ export const MergeTags: React.FC<{
 
   const onSelect = useCallback(
     (key: string) => {
+      const isDataSourceProperty = key.includes('.');
+      if (isDataSourceProperty) {
+        const ancestors = getAncestryByIdx(values, getParentIdx(focusIdx) || '');
+        const lastCommonGridAncestor = ancestors.find(ancestor => [AdvancedType.GRID, BasicType.GRID].includes(ancestor.type as any));
+
+        if (!lastCommonGridAncestor) {
+          Message.clear();
+          Message.error('Cannot use Grid data source properties outside the Grid block!');
+          return;
+        } else {
+          const dataSource = lastCommonGridAncestor.attributes['data-source'];
+          const attributeDataSource = key.split('.')[0];
+          if (dataSource !== attributeDataSource) {
+            Message.clear();
+            Message.error('Cannot use different Grid data source properties!');
+            return;
+          }
+        }
+      }
+
       const mergeTags = {
         ...predefinedAttributes,
         ...customAttributes,
@@ -81,7 +115,15 @@ export const MergeTags: React.FC<{
       }
       return props.onChange(mergeTagGenerate(key));
     },
-    [predefinedAttributes, customAttributes, props, mergeTagGenerate]
+    [
+      values,
+      getParentIdx,
+      focusIdx,
+      predefinedAttributes,
+      customAttributes,
+      props,
+      mergeTagGenerate
+    ]
   );
 
   const mergeTagContent = useMemo(

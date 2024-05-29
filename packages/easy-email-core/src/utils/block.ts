@@ -44,14 +44,14 @@ export const getParentIdx = (idx: string) => {
 };
 
 export const getValueByIdx = <T extends IBlockData>(
-  values: { content: IBlockData },
+  values: { content: IBlockData; },
   idx: string
 ): T | null => {
   return get(values, idx);
 };
 
 export const getParentByIdx = <T extends IBlockData = IBlockData>(
-  values: { content: IBlockData },
+  values: { content: IBlockData; },
   idx: string
 ): T | null => {
   return get(values, getParentIdx(idx) || '');
@@ -65,7 +65,7 @@ export const getSiblingIdx = (sourceIndex: string, num: number) => {
 };
 
 export const getParentByType = <T extends IBlockData>(
-  context: { content: IBlockData },
+  context: { content: IBlockData; },
   idx: string,
   type: BlockType
 ): T | null => {
@@ -81,7 +81,7 @@ export const getParentByType = <T extends IBlockData>(
 };
 
 export const getSameParent = (
-  values: { content: IBlockData },
+  values: { content: IBlockData; },
   idx: string,
   dragType: string
 ): {
@@ -108,10 +108,10 @@ export const getSameParent = (
 
 // 找到插入的位置，例如 一个 2 column section，第二个 column/image，image占满column, 拖拽 一个column到 image的边缘，我们认为他是要插入一个column，获取这个插入的位置，我们这里是 第二个，所以 是 1
 export const getParenRelativeByType = <T extends IBlockData>(
-  context: { content: IBlockData },
+  context: { content: IBlockData; },
   idx: string,
   type: BlockType
-): { parentIdx: string; insertIndex: number; parent: IBlockData } | null => {
+): { parentIdx: string; insertIndex: number; parent: IBlockData; } | null => {
   let prevIdx = '';
   let parentIdx: string | undefined = idx;
   while (parentIdx) {
@@ -136,4 +136,21 @@ export const getValidChildBlocks = (type: BlockType): IBlock[] => {
   return BlockManager.getBlocks().filter((item) =>
     item.validParentType.includes(type)
   );
+};
+
+export const getAncestryByIdx = (values: { content: IBlockData; }, idx: string) => {
+  const nodes: IBlockData[] = [];
+  const indexSegments = idx.split('.');
+
+  while (indexSegments.length > 1) {
+    const node = getValueByIdx(values, indexSegments.join('.'));
+    if (node) nodes.push(node);
+    indexSegments.pop();
+    indexSegments.pop();
+  }
+
+  const parentNode = getValueByIdx(values, indexSegments[0]);
+  if (parentNode) nodes.push(parentNode);
+
+  return nodes;
 };

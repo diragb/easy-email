@@ -207,14 +207,9 @@ const InternalEditor = ({ values }: {
         const customAttributesArray = [...new Set(Object.keys(customAttributes))];
         const predefinedAttributesArray = [...new Set(Object.keys(getPredefinedAttributes()))];
 
-        const combinedAttributeMap = {
-          ...customAttributes,
-          ...getPredefinedAttributes(),
-        };
-
         const templateType = sessionStorage.getItem('template-type') ?? 'EMAIL';
-        const rawHTML = generateHTML(values, combinedAttributeMap);
-        const rawHTMLForPreview = generateHTML(values, combinedAttributeMap, true);
+        const rawHTML = generateHTML(values);
+        const rawHTMLForPreview = generateHTML(values, true);
         const finalHTML = unsanitizeHTMLTags(
           mustachifyHTML(
             stylizeGridColumn(
