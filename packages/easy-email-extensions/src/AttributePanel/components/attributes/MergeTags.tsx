@@ -14,7 +14,7 @@ import {
   BasicType,
   getAncestryByIdx,
   getParentIdx
-} from '@core';
+} from 'easy-email-core';
 
 export const MergeTags: React.FC<{
   onChange: (v: string) => void;
@@ -79,6 +79,7 @@ export const MergeTags: React.FC<{
     (key: string) => {
       const isDataSourceProperty = key.includes('.');
       if (isDataSourceProperty) {
+        // @ts-ignore
         const ancestors = getAncestryByIdx(values, getParentIdx(focusIdx) || '');
         const lastCommonGridAncestor = ancestors.find(ancestor => [AdvancedType.GRID, BasicType.GRID].includes(ancestor.type as any));
 

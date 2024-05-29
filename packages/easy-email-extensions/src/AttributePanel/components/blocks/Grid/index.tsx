@@ -203,6 +203,7 @@ export function Grid() {
         <Collapse.Item name='1' header={'Data Source Properties'} >
           {/** @ts-ignore */}
           <Stack vertical spacing='tight'>
+            {/** @ts-ignore */}
             <Stack.Item>
               <Space size={10} wrap>
                 {dataSource.input.value && Object
@@ -252,6 +253,7 @@ export function Grid() {
                   <div style={{ fontSize: '12px', marginLeft: '-10px' }}>Please add a data source to add properties.</div>
                 )}
               </Space>
+              {/** @ts-ignore */}
             </Stack.Item>
           </Stack>
         </Collapse.Item>
