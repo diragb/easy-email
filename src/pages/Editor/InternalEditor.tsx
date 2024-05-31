@@ -168,11 +168,12 @@ const InternalEditor = ({ values }: {
 
     let extractedDirtyAttributesArray = extractAttributes(JSON.stringify(content ?? {}));
     for (const gridBlock of gridBlocks) {
-      const dataSource: string[] = [gridBlock?.['attributes']?.['data-source']] ?? [];
+      // NOTE: We are no longer adding the datasource itself as an attribute. Rather, the properties of the datasource are added.
+      // const dataSource: string[] = [gridBlock?.['attributes']?.['data-source']] ?? [];
       extractedDirtyAttributesArray = [
         ...extractedDirtyAttributesArray,
         ...extractAttributes(JSON.stringify(gridBlock ?? {})),
-        ...dataSource,
+        // ...dataSource,
       ];
     }
 
