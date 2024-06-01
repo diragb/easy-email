@@ -41,7 +41,8 @@ export function generateAdvancedBlock<T extends AdvancedBlock>(option: {
     },
     render: params => {
       const { data, idx, mode, context, dataSource } = params;
-      const { iteration, condition } = data.data.value;
+      const iteration = data?.data?.value?.iteration;
+      const condition = data?.data?.value?.condition;
 
       const getBaseContent = (bIdx: string | null | undefined, index: number) =>
         option.getContent({

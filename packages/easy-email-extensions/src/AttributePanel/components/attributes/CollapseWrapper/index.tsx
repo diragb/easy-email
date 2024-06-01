@@ -15,7 +15,7 @@ export const CollapseWrapper: React.FC<CollapseWrapperProps> = props => {
   const [activeKeys, setActiveKeys] = useState<string[]>(props.defaultActiveKey);
 
   const { focusBlock } = useBlock();
-  const value = focusBlock?.data.value;
+  const value = focusBlock?.data?.value;
 
   const isAdvancedBlockType = isAdvancedBlock(focusBlock?.type);
 

@@ -6,6 +6,8 @@ import Color from 'color';
 import { PresetColorsContext } from '@extensions/AttributePanel/components/provider/PresetColorsProvider';
 import { ColorPickerContent } from './ColorPickerContent';
 import { TreeSelectDataType } from '@arco-design/web-react/es/TreeSelect/interface';
+import { useField } from 'react-final-form';
+import { useFocusIdx } from 'easy-email-editor';
 
 export interface ColorPickerProps extends PopoverProps {
   onChange?: (val: string) => void;
@@ -32,11 +34,20 @@ const getCollapseItemEle = (node: HTMLElement | null): HTMLElement => {
 const transparentColor = 'rgba(0,0,0,0)';
 
 export function ColorPicker(props: ColorPickerProps) {
+  // Constants:
+  const { value = '', onChange, children, showInput = true } = props;
   const { addCurrentColor } = useContext(PresetColorsContext);
+  const { focusIdx } = useFocusIdx();
+  const dataColorPaletteName = useField(`${focusIdx}.attributes.data-color-palette-name`);
+  const dataColorPaletteColorName = useField(`${focusIdx}.attributes.data-color-palette-color-name`);
+
+  const dataBackgroundColorPaletteName = useField(`${focusIdx}.attributes.data-background-color-palette-name`);
+  const dataBackgroundColorPaletteColorName = useField(`${focusIdx}.attributes.data-background-color-palette-color-name`);
+
+  // State:
   const [refEle, setRefEle] = useState<HTMLElement | null>(null);
 
-  const { value = '', onChange, children, showInput = true } = props;
-
+  // Functions:
   const onInputChange = useCallback(
     (value: string) => {
       onChange?.(value);
@@ -49,6 +60,7 @@ export function ColorPicker(props: ColorPickerProps) {
     return getCollapseItemEle(refEle);
   }, [refEle]);
 
+  // Memo:
   const inputColor = useMemo(() => {
     if (props.value?.startsWith('#') && props.value?.length === 7)
       return props.value?.replace('#', '');
@@ -64,6 +76,7 @@ export function ColorPicker(props: ColorPickerProps) {
     return value;
   }, [value]);
 
+  // Return:
   return (
     <div style={{ flex: 1, display: 'flex' }}>
       <Popover
@@ -80,6 +93,10 @@ export function ColorPicker(props: ColorPickerProps) {
           />
         )}
         getPopupContainer={getPopupContainer}
+        disabled={
+          (props.isForBackgroundColor && dataBackgroundColorPaletteName.input.value) ||
+          (!props.isForBackgroundColor && dataColorPaletteName.input.value)
+        }
         {...props}
       >
         {children || (
@@ -134,14 +151,32 @@ export function ColorPicker(props: ColorPickerProps) {
           </div>
         )}
       </Popover>
-      {showInput && (
-        <Input
-          value={inputColor}
-          style={{ outline: 'none', flex: 1 }}
-          onChange={onInputChange}
-          allowClear={props.allowClear}
-        />
-      )}
+      {showInput &&
+        ((
+          (props.isForBackgroundColor && dataBackgroundColorPaletteName.input.value) ||
+          (!props.isForBackgroundColor && dataColorPaletteName.input.value)
+        ) ?
+          (
+            <Input
+              value={
+                props.isForBackgroundColor ?
+                  `${dataBackgroundColorPaletteName.input.value}.${dataBackgroundColorPaletteColorName.input.value}` :
+                  `${dataColorPaletteName.input.value}.${dataColorPaletteColorName.input.value}`
+              }
+              style={{ outline: 'none', flex: 1 }}
+              disabled
+            />
+          )
+          :
+          (
+            <Input
+              value={inputColor}
+              style={{ outline: 'none', flex: 1 }}
+              onChange={onInputChange}
+              allowClear={props.allowClear}
+            />
+          ))
+      }
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   Popover,
   Spin,
   Button as ArcoButton,
+  Button,
 } from '@arco-design/web-react';
 import { IconPlus, IconEye, IconDelete, IconImage, IconClose } from '@arco-design/web-react/icon';
 import styles from './index.module.scss';
@@ -138,7 +139,13 @@ export function ImageUploader(props: ImageUploaderProps) {
             <a title={String('Preview')} onClick={() => setPreview(true)}>
               <IconEye />
             </a>
-            <a title={String('Remove')} onClick={() => onRemove()}>
+            <a
+              title={String('Remove')}
+              onClick={() => {
+                onRemove();
+                change(`${focusIdx}.attributes.data-${props.isImage ? '' : 'background-'}image-name`, '');
+              }}
+            >
               <IconDelete />
             </a>
           </div>
@@ -180,7 +187,6 @@ export function ImageUploader(props: ImageUploaderProps) {
             value={props.value}
             onChange={onChange}
             disabled={isUploading || !!dataImageName.input.value}
-            allowClear
           />
           {props.autoCompleteOptions && (
             <Dropdown
@@ -209,24 +215,22 @@ export function ImageUploader(props: ImageUploaderProps) {
                 </Menu>
               )}
             >
-              {
-                !!dataImageName.input.value ? (
-                  <ArcoButton
-                    onClick={() => {
-                      change(`${focusIdx}.attributes.data-${props.isImage ? '' : 'background-'}image-name`, '');
-                      change(props.isImage ? `${focusIdx}.attributes.src` : `${focusIdx}.attributes.background-url`, '');
-                    }}
-                    icon={<IconClose />}
-                  />
-                ) : (
-                  <ArcoButton
-                    icon={<IconImage />}
-                  />
-                )
-              }
-              {/* <ArcoButton icon={<IconImage />} /> */}
+              <ArcoButton icon={<IconImage />} />
             </Dropdown>
           )}
+          <Button
+            onClick={() => {
+              change(`${focusIdx}.attributes.data-${props.isImage ? '' : 'background-'}image-name`, '');
+              change(props.isImage ? `${focusIdx}.attributes.src` : `${focusIdx}.attributes.background-url`, '');
+            }}
+            disabled={!props.value || isUploading}
+            status='danger'
+            style={{
+              marginLeft: '0.5rem'
+            }}
+          >
+            Reset
+          </Button>
         </Grid.Row>
       </div>
       <Modal visible={preview} footer={null} onCancel={() => setPreview(false)}>

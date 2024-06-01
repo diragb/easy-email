@@ -18,20 +18,20 @@ export const HtmlEditor: React.FC<{
   const { focusBlock, setValueByIdx } = useBlock();
   const { pageData } = useEditorContext();
   const { focusIdx } = useFocusIdx();
-  const [content, setContent] = useState(focusBlock?.data.value.content);
+  const [content, setContent] = useState(focusBlock?.data?.value?.content);
 
   const isTable = focusBlock?.type === BasicType.TABLE;
 
   useEffect(() => {
-    setContent(focusBlock?.data.value.content);
-  }, [focusBlock?.data.value.content]);
+    setContent(focusBlock?.data?.value?.content);
+  }, [focusBlock?.data?.value?.content]);
 
   const onClose = () => {
     setVisible(false);
   };
 
   const onSave = () => {
-    if (!focusBlock) return;
+    if (!focusBlock || !focusBlock?.data?.value?.content) return;
     focusBlock.data.value.content = content;
     setValueByIdx(focusIdx, { ...focusBlock });
     onClose();

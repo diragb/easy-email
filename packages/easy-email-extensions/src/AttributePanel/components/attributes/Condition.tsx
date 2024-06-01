@@ -10,7 +10,7 @@ import { useField } from 'react-final-form';
 export function Condition() {
   const { focusIdx } = useFocusIdx();
   const { focusBlock, change, values } = useBlock();
-  const condition = focusBlock?.data.value?.condition as
+  const condition = focusBlock?.data?.value?.condition as
     | undefined
     | AdvancedBlock['data']['value']['condition'];
 

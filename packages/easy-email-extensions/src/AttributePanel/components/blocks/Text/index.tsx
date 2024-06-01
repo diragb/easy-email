@@ -29,6 +29,8 @@ export function Text() {
   // Constants:
   const { change } = useForm();
   const { focusIdx } = useFocusIdx();
+
+  // For Typography:
   const fontFamily = useField(`${focusIdx}.attributes.font-family`);
   const fontSize = useField(`${focusIdx}.attributes.font-size`);
   const fontWeight = useField(`${focusIdx}.attributes.font-weight`);
@@ -56,8 +58,6 @@ export function Text() {
   const [defaultTypographicStyling, setDefaultTypographicStyling] = useState<Typography>();
   const [palettes, setPalettes] = useState<Palette[]>([]);
   const [paletteTree, setPaletteTree] = useState<TreeSelectDataType[]>([]);
-  const [defaultColor, setDefaultColor] = useState<string>();
-  const [defaultBackgroundColor, setDefaultBackgroundColor] = useState<string>();
   const [allowClearForColor, setAllowClearForColor] = useState(false);
   const [allowClearForBackgroundColor, setAllowClearForBackgroundColor] = useState(false);
   const [staticText, setStaticText] = useState<StaticText[]>([]);
@@ -68,11 +68,13 @@ export function Text() {
 
   // Functions:
   const resetToDefaultColor = () => {
-    change(`${focusIdx}.attributes.color`, defaultColor ?? '');
+    change(`${focusIdx}.attributes.color`, '');
+    change(`${focusIdx}.attributes.data-color-palette-tree`, '');
   };
 
   const resetToDefaultBackgroundColor = () => {
-    change(`${focusIdx}.attributes.container-background-color`, defaultBackgroundColor ?? '');
+    change(`${focusIdx}.attributes.container-background-color`, '');
+    change(`${focusIdx}.attributes.data-background-color-palette-tree`, '');
   };
 
   const setTextNode = (contentEditable: 'true' | 'false', value?: string) => {
@@ -190,15 +192,10 @@ export function Text() {
       change(`${focusIdx}.attributes.data-color-palette-name`, '');
       change(`${focusIdx}.attributes.data-color-palette-color-name`, '');
       change(`${focusIdx}.attributes.data-color-palette-color-code`, '');
+      change(`${focusIdx}.attributes.color`, '');
       setAllowClearForColor(false);
     }
   }, [palettes, dataColorPaletteTree.input.value]);
-
-  useEffect(() => {
-    if (!dataColorPaletteTree.input.value) {
-      setDefaultColor(color.input.value);
-    }
-  }, [dataColorPaletteTree.input.value, color.input.value]);
 
   useEffect(() => {
     if (
@@ -232,15 +229,10 @@ export function Text() {
       change(`${focusIdx}.attributes.data-background-color-palette-name`, '');
       change(`${focusIdx}.attributes.data-background-color-palette-color-name`, '');
       change(`${focusIdx}.attributes.data-background-color-palette-color-code`, '');
+      change(`${focusIdx}.attributes.container-background-color`, '');
       setAllowClearForBackgroundColor(false);
     }
   }, [palettes, dataBackgroundColorPaletteTree.input.value]);
-
-  useEffect(() => {
-    if (!dataBackgroundColorPaletteTree.input.value) {
-      setDefaultBackgroundColor(backgroundColor.input.value);
-    }
-  }, [dataBackgroundColorPaletteTree.input.value, backgroundColor.input.value]);
 
   useEffect(() => {
     if (
@@ -260,8 +252,8 @@ export function Text() {
   useEffect(() => {
     if (dataStaticText.input.value?.trim().length > 0) {
       const staticTextValue = staticText.find(_staticText => _staticText.name === dataStaticText.input.value);
+      change(`${focusIdx}.data.value.content`, staticTextValue?.text);
       setTextNode('false', staticTextValue?.text ?? '');
-      change(`${focusIdx}.data.value.content`, staticTextValue?.text ?? '');
     } else {
       setTextNode('true');
     }
@@ -279,8 +271,8 @@ export function Text() {
         </Tooltip>
       )}
     >
-      <CollapseWrapper defaultActiveKey={['-1', '0', '1', '2']}>
-        <Collapse.Item name='-1' header={String('Settings')}>
+      <CollapseWrapper defaultActiveKey={['0', '1', '2', '3', '4']}>
+        <Collapse.Item name='0' header={String('Settings')}>
           {/* @ts-ignore */}
           <Stack vertical spacing='tight'>
             <TextField
@@ -297,32 +289,67 @@ export function Text() {
             />
           </Stack>
         </Collapse.Item>
-        <Collapse.Item
-          name='0'
-          header={String('Dimension')}
-        >
+        <Collapse.Item name='1' header={String('Dimension')}>
           <Space direction='vertical'>
             <Height />
             <Padding showResetAll />
           </Space>
         </Collapse.Item>
-        <Collapse.Item
-          name='0'
-          header={String('Text')}
-        >
-          <SelectField
-            label={'Static Text'}
-            name={`${focusIdx}.attributes.data-static-text`}
-            options={staticTextTree}
-            allowClear
-            style={{ paddingRight: '5%' }}
-          />
-        </Collapse.Item>
-        <Collapse.Item
-          name='1'
-          header={String('Color')}
-        >
-          <Grid.Row>
+        <Collapse.Item name='2' header={String('Color')}>
+          <Space direction='vertical' style={{ paddingBottom: '1rem' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'end',
+                flexDirection: 'row',
+                width: '18rem',
+              }}
+            >
+              <Color
+                showThemeColorDropdown
+                paletteTree={paletteTree}
+                resetToDefaultColor={resetToDefaultColor}
+                allowClear={allowClearForColor}
+              />
+              <Button
+                onClick={resetToDefaultColor}
+                disabled={!color.input.value}
+                status='danger'
+                style={{
+                  marginLeft: '1rem'
+                }}
+              >
+                Reset
+              </Button>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'end',
+                flexDirection: 'row',
+                width: '18rem',
+              }}
+            >
+              <ContainerBackgroundColor
+                title={'Background color'}
+                showThemeColorDropdown
+                paletteTree={paletteTree}
+                resetToDefaultBackgroundColor={resetToDefaultBackgroundColor}
+                allowClear={allowClearForBackgroundColor}
+              />
+              <Button
+                onClick={resetToDefaultBackgroundColor}
+                disabled={!backgroundColor.input.value}
+                status='danger'
+                style={{
+                  marginLeft: '1rem'
+                }}
+              >
+                Reset
+              </Button>
+            </div>
+          </Space>
+          {/* <Grid.Row>
             <Grid.Col span={11}>
               <Color
                 showThemeColorDropdown
@@ -343,20 +370,57 @@ export function Text() {
                 allowClear={allowClearForBackgroundColor}
               />
             </Grid.Col>
-          </Grid.Row>
+          </Grid.Row> */}
         </Collapse.Item>
-        <Collapse.Item
-          name='2'
-          header={String('Typography')}
-        >
+        <Collapse.Item name='3' header={String('Typography')}>
           <Space direction='vertical'>
-            <SelectField
-              label={'Typography Style'}
-              name={`${focusIdx}.attributes.data-typography`}
-              options={typographyList}
-              allowClear
-              style={{ paddingRight: '5%' }}
-            />
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'end',
+                flexDirection: 'row',
+                width: '19rem',
+              }}
+            >
+              <SelectField
+                label={'Theme Phrases'}
+                name={`${focusIdx}.attributes.data-static-text`}
+                options={staticTextTree}
+                style={{ width: '72%', paddingRight: '1rem' }}
+              />
+              <Button
+                onClick={() => {
+                  change(`${focusIdx}.attributes.data-static-text`, '');
+                  change(`${focusIdx}.data.value.content`, '');
+                }}
+                disabled={(dataStaticText.input.value?.trim().length ?? 0) === 0}
+                status='danger'
+              >
+                Reset
+              </Button>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'end',
+                flexDirection: 'row',
+                width: '19rem',
+              }}
+            >
+              <SelectField
+                label={'Theme Font Presets'}
+                name={`${focusIdx}.attributes.data-typography`}
+                options={typographyList}
+                style={{ width: '72%', paddingRight: '1rem' }}
+              />
+              <Button
+                onClick={() => change(`${focusIdx}.attributes.data-typography`, '')}
+                disabled={(dataTypography.input.value?.trim().length ?? 0) === 0}
+                status='danger'
+              >
+                Reset
+              </Button>
+            </div>
             <Grid.Row>
               <Grid.Col span={11}>
                 <FontFamily disabled={!!selectedTypography} />
@@ -406,10 +470,7 @@ export function Text() {
             </Grid.Row>
           </Space>
         </Collapse.Item>
-        <Collapse.Item
-          name='4'
-          header={String('Extra')}
-        >
+        <Collapse.Item name='4' header={String('Extra')}>
           <Grid.Col span={24}>
             <ClassName />
           </Grid.Col>

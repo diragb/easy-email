@@ -82,7 +82,7 @@ export const Text = createBlock<IText>({
         params={params}
         tag='mj-text'
       >
-        {data.data.value.content}
+        {data?.data?.value?.content}
       </BasicBlock>
     );
   },

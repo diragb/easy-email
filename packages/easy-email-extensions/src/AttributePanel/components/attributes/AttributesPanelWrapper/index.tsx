@@ -78,8 +78,8 @@ function EyeIcon() {
       setFocusBlock({
         ...focusBlock,
         data: {
-          ...focusBlock.data,
-          hidden: !focusBlock.data.hidden,
+          ...focusBlock?.data,
+          hidden: !focusBlock?.data?.hidden,
         },
       });
     },
@@ -88,9 +88,9 @@ function EyeIcon() {
 
   if (!focusBlock) return null;
 
-  if (focusBlock.type === BasicType.PAGE) return null;
+  if (focusBlock?.type === BasicType.PAGE) return null;
 
-  return focusBlock.data.hidden ? (
+  return focusBlock?.data?.hidden ? (
     <IconEyeInvisible
       style={{ cursor: 'pointer', fontSize: 18 }}
       onClick={onToggleVisible}

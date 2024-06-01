@@ -122,7 +122,7 @@ export function ColorPickerContent(props: ColorPickerContentProps) {
               label={'Theme Color'}
               name={`${focusIdx}.attributes.data${props.isForBackgroundColor ? '-background' : ''}-color-palette-tree`}
               treeData={props.paletteTree ?? []}
-              allowClear
+              placeholder='Select a color..'
             />
           )
         }

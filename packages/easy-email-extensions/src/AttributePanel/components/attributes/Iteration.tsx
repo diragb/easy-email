@@ -7,7 +7,7 @@ import React, { useCallback } from 'react';
 export function Iteration() {
   const { focusIdx } = useFocusIdx();
   const { focusBlock, change } = useBlock();
-  const iteration = focusBlock?.data.value?.iteration as
+  const iteration = focusBlock?.data?.value?.iteration as
     | undefined
     | AdvancedBlock['data']['value']['iteration'];
 

@@ -13,8 +13,8 @@ interface BlockDataItem extends Omit<
 export const BlockRenderer = (props: BlockDataItem) => {
   const { data } = props;
   const { mode, context, dataSource } = useEmailRenderContext();
-  if (data.data.hidden) return null;
-  const block = BlockManager.getBlockByType(data.type);
+  if (data?.data?.hidden) return null;
+  const block = BlockManager.getBlockByType(data?.type);
   if (!block) return null;
   return <>{block.render({ ...props, mode, context, dataSource })}</>;
 };
