@@ -94,6 +94,7 @@ export const StandardLayout: React.FC<ExtensionProps> = props => {
     categories = defaultCategories,
     jsonReadOnly = false,
     mjmlReadOnly = true,
+    isConditionalMapping = false,
   } = props;
 
   const { setFocusIdx } = useFocusIdx();
@@ -115,7 +116,7 @@ export const StandardLayout: React.FC<ExtensionProps> = props => {
       <ConfigProvider locale={enUS}>
         {/* @ts-ignore */}
         <Card
-          style={{ padding: 0 }}
+          style={{ width: '100%', padding: 0 }}
           bodyStyle={{
             padding: 0,
             height: containerHeight,
@@ -131,7 +132,7 @@ export const StandardLayout: React.FC<ExtensionProps> = props => {
               overflow: 'hidden',
             }}
           >
-            {compact && (
+            {(!isConditionalMapping && compact) && (
               // @ts-ignore
               <EditPanel
                 showSourceCode={showSourceCode}
@@ -141,7 +142,7 @@ export const StandardLayout: React.FC<ExtensionProps> = props => {
             )}
             {/* @ts-ignore */}
             <Layout style={{ height: containerHeight, flex: 1 }}>{props.children}</Layout>
-            {!compact && (
+            {(!isConditionalMapping && !compact) && (
               // @ts-ignore
               <EditPanel
                 showSourceCode={showSourceCode}
@@ -149,7 +150,7 @@ export const StandardLayout: React.FC<ExtensionProps> = props => {
                 mjmlReadOnly={mjmlReadOnly}
               />
             )}
-            {compact ? (
+            {(compact ? (
               // @ts-ignore
               <Layout.Sider
                 style={{
@@ -171,7 +172,7 @@ export const StandardLayout: React.FC<ExtensionProps> = props => {
             ) : (
               // @ts-ignore
               <Layout.Sider style={{ width: 0, overflow: 'hidden' }} />
-            )}
+            ))}
           </Layout>
         </Card>
         {/* @ts-ignore */}

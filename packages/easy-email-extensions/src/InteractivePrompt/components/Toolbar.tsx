@@ -4,12 +4,14 @@ import { useBlock, useFocusIdx, useEditorProps, isTextBlock } from 'easy-email-e
 import { classnames } from '@extensions/utils/classnames';
 import { useAddToCollection } from '@extensions/hooks/useAddToCollection';
 import { getBlockTitle } from '@extensions/utils/getBlockTitle';
+import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 
 export function Toolbar() {
   const { moveBlock, copyBlock, removeBlock, focusBlock } = useBlock();
   const { focusIdx, setFocusIdx } = useFocusIdx();
   const { modal, setModalVisible } = useAddToCollection();
   const props = useEditorProps();
+  const { isConditionalMapping = false } = useExtensionProps();
 
   const isPage = focusBlock?.type === BasicType.PAGE;
   const isText = isTextBlock(focusBlock?.type);
@@ -103,19 +105,25 @@ export function Toolbar() {
               pointerEvents: 'auto',
             }}
           >
-            <ToolItem
-              width={12}
-              iconName='icon-back-parent'
-              onClick={handleSelectParent}
-            />
-            <ToolItem iconName='icon-copy' onClick={handleCopy} />
-            {props.onAddCollection && (
-              <ToolItem
-                iconName='icon-collection'
-                onClick={handleAddToCollection}
-              />
-            )}
-            <ToolItem iconName='icon-delete' onClick={handleDelete} />
+            {
+              !isConditionalMapping && (
+                <>
+                  <ToolItem
+                    width={12}
+                    iconName='icon-back-parent'
+                    onClick={handleSelectParent}
+                  />
+                  <ToolItem iconName='icon-copy' onClick={handleCopy} />
+                  {props.onAddCollection && (
+                    <ToolItem
+                      iconName='icon-collection'
+                      onClick={handleAddToCollection}
+                    />
+                  )}
+                  <ToolItem iconName='icon-delete' onClick={handleDelete} />
+                </>
+              )
+            }
           </div>
         </div>
       </div>

@@ -14,9 +14,11 @@ import { ClassName } from '../../attributes/ClassName';
 import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { TextField } from '@extensions/components/Form';
 import { isIDValid } from '@extensions/utils/blockIDManager';
+import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 
 export function Divider() {
   const { focusIdx } = useFocusIdx();
+  const { isConditionalMapping = false } = useExtensionProps();
 
   return (
     <AttributesPanelWrapper>
@@ -32,6 +34,7 @@ export function Divider() {
                 )}
                 name={`${focusIdx}.attributes.data-id`}
                 validate={value => isIDValid(focusIdx, value)}
+                disabled={isConditionalMapping}
               />
               <Grid.Col span={11}>
                 <Width unitOptions='percent' />

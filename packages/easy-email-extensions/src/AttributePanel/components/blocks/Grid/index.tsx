@@ -22,10 +22,12 @@ import {
 import { cloneDeep, zipObject } from 'lodash';
 import { useField } from 'react-final-form';
 import { IconPlus } from '@arco-design/web-react/icon';
+import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 
 export function Grid() {
   // Constants:
   const { focusIdx } = useFocusIdx();
+  const { isConditionalMapping = false } = useExtensionProps();
   const dataSource = useField(`${focusIdx}.attributes.data-source`);
 
   // State:
@@ -148,6 +150,7 @@ export function Grid() {
               style={{
                 paddingBottom: '1rem',
               }}
+              disabled={isConditionalMapping}
             />
           </Stack>
           {/* @ts-ignore */}

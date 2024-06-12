@@ -3,12 +3,14 @@ import { useAddToCollection } from '@extensions/hooks/useAddToCollection';
 import { getParentIdx } from 'easy-email-core';
 import React from 'react';
 import { ToolItem } from './ToolItem';
+import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 
 export function BasicTools() {
   const { copyBlock, removeBlock } = useBlock();
   const { focusIdx, setFocusIdx } = useFocusIdx();
   const { modal, setModalVisible } = useAddToCollection();
   const { onAddCollection } = useEditorProps();
+  const { isConditionalMapping = false } = useExtensionProps();
 
   const handleAddToCollection = () => {
     if (document.activeElement instanceof HTMLElement) {
@@ -42,30 +44,36 @@ export function BasicTools() {
   return (
     <div style={{ marginRight: 40 }}>
       <span style={{ position: 'relative', marginRight: 10, color: '#fff', fontFamily: '-apple-system, BlinkMacSystemFont, San Francisco, Segoe UI' }}>Text</span>
-      <ToolItem
-        onClick={handleSelectParent}
-        title={String('Select parent block')}
-        icon={<IconFont iconName='icon-back-parent' />}
-      />
-      <ToolItem
-        onClick={handleCopy}
-        title={String('Copy')}
-        icon={<IconFont iconName='icon-copy' />}
-      />
       {
-        onAddCollection && (
-          <ToolItem
-            onClick={handleAddToCollection}
-            title={String('Add to collection')}
-            icon={<IconFont iconName='icon-collection' />}
-          />
+        !isConditionalMapping && (
+          <>
+            <ToolItem
+              onClick={handleSelectParent}
+              title={String('Select parent block')}
+              icon={<IconFont iconName='icon-back-parent' />}
+            />
+            <ToolItem
+              onClick={handleCopy}
+              title={String('Copy')}
+              icon={<IconFont iconName='icon-copy' />}
+            />
+            {
+              onAddCollection && (
+                <ToolItem
+                  onClick={handleAddToCollection}
+                  title={String('Add to collection')}
+                  icon={<IconFont iconName='icon-collection' />}
+                />
+              )
+            }
+            <ToolItem
+              onClick={handleDelete}
+              title={String('Delete')}
+              icon={<IconFont iconName='icon-delete' />}
+            />
+          </>
         )
       }
-      <ToolItem
-        onClick={handleDelete}
-        title={String('Delete')}
-        icon={<IconFont iconName='icon-delete' />}
-      />
       {modal}
     </div>
   );

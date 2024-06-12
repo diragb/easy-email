@@ -21,6 +21,9 @@
       "template-theme-manager": [
         "../../templateThemeManager.ts"
       ],
+      "conditional-mapping-manager": [
+        "../../conditionalMappingManager.ts"
+      ],
     }
   }
 }

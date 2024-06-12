@@ -10,6 +10,10 @@ export enum ConversationType {
   GET_TEMPLATE,
   ENABLE_PUBLISH,
   ENABLE_SAVE,
+  IMAGE_LIBRARY,
+  GET_IMAGE,
+  CONDITIONAL_MAPPING_STATUS,
+  LOAD_TEMPLATE,
 }
 
 export enum CallType {
@@ -48,6 +52,8 @@ export interface ConversationManagerValues {
   requestTemplateSave: (payload: any, callback: (message: Message) => void) => void;
   registerEventHandlers: {
     onRequestSave: (callback: (message: Message) => void) => void;
+    onConditionalMappingStatus: (callback: (newStatus: boolean) => void) => void;
+    onLoadTemplate: (callback: (message: Message) => void) => void;
   };
   sendMessageToFlutter: ({ conversationID, conversationType, callType, payload, sentAt, }: {
     conversationID: string;
@@ -85,6 +91,8 @@ const defaultProvider: ConversationManagerValues = {
   requestTemplateSave: () => { },
   registerEventHandlers: {
     onRequestSave: () => { },
+    onConditionalMappingStatus: () => { },
+    onLoadTemplate: () => { },
   },
   sendMessageToFlutter: () => { },
   enablePublish: () => { },
@@ -100,12 +108,112 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
   const RESEND_MESSAGE_TIMEOUT = 2000;
   const RESEND_MESSAGE_LIMIT = 5;
   const KILL_CONVERSATION_TIMEOUT = RESEND_MESSAGE_LIMIT * 1000;
+  const DEFAULT_TEMPLATE = {
+    template: {
+      type: 'IMG',
+      content: "{\"type\":\"page\",\"data\":{\"value\":{\"breakpoint\":\"480px\",\"headAttributes\":\"\",\"font-size\":\"20px\",\"font-weight\":\"600\",\"line-height\":\"2\",\"headStyles\":[],\"fonts\":[],\"responsive\":true,\"font-family\":\"'Inter'\",\"user-style\":{},\"text-color\":\"black\"}},\"attributes\":{\"width\":\"600px\",\"background-color\":\"#F3F3F3\"},\"children\":[{\"type\":\"advanced_wrapper\",\"data\":{\"value\":{}},\"attributes\":{\"padding\":\"20px 20px 20px 20px\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\",\"background-url\":\"https://i.imgur.com/szQzwot.png\",\"background-repeat\":\"no-repeat\",\"background-size\":\"cover\"},\"children\":[{\"type\":\"advanced_grid\",\"data\":{\"value\":{\"noWrap\":false}},\"attributes\":{\"padding\":\"100px 0px 220px 0px\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\",\"data-direction\":\"row\",\"data-threshold\":\"5\",\"data-type\":\"grid\",\"background-url\":\"https://i.imgur.com/DAnvNp1.png\",\"background-repeat\":\"no-repeat\",\"background-size\":\"contain\",\"data-source\":\"rewards\"},\"children\":[{\"type\":\"advanced_section\",\"data\":{\"value\":{\"noWrap\":false}},\"attributes\":{\"padding\":\"20px 0px 20px 0px\",\"background-repeat\":\"no-repeat\",\"background-size\":\"contain\",\"background-position\":\"top center\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\",\"background-url\":\"https://i.imgur.com/HpsWFqH.png\"},\"children\":[{\"type\":\"advanced_column\",\"data\":{\"value\":{}},\"attributes\":{\"padding\":\"35px 0px 35px 0px\",\"border\":\"none\",\"vertical-align\":\"top\"},\"children\":[{\"type\":\"advanced_text\",\"data\":{\"value\":{\"content\":\"<div style=\\\"text-align: center;\\\"><span style=\\\"background-color: initial; word-spacing: normal;\\\">{{slab}}</span></div>\"}},\"attributes\":{\"padding\":\"0px 0px 0px 0px\",\"align\":\"left\",\"font-size\":\"10px\",\"color\":\"white\", \"data-id\": \"slab-text\", \"data-conditional-mapping\": \"W3siaWQiOiJzbGFiLXRleHQiLCJmb2N1c0lkeCI6ImNvbnRlbnQuY2hpbGRyZW4uWzBdLmNoaWxkcmVuLlswXS5jaGlsZHJlbi5bMF0uY2hpbGRyZW4uWzBdLmNoaWxkcmVuLlswXSIsImF0dHJpYnV0ZXMiOnsiaGVpZ2h0IjoiMjAwcHgifSwiZmllbGRzIjpbeyJhdHRyaWJ1dGUiOiJhbHBoYSIsIm9wZXJhdG9yIjoiZXF1YWxzIiwidmFsdWUiOiI5MDAifV19XQ==\"},\"children\":[]},{\"type\":\"advanced_text\",\"data\":{\"value\":{\"content\":\"<div style=\\\"text-align: center;\\\"><span style=\\\"background-color: initial; word-spacing: normal;\\\">{{reward}}</span></div>\"}},\"attributes\":{\"padding\":\"25px 0px 0px 0px\",\"align\":\"left\",\"font-size\":\"8px\"},\"children\":[]}]}]}]}]}]}",
+      themeSettings: {
+        "width": "600px",
+        "breakpoint": "480px",
+        "fontFamily": "'Inter'",
+        "fontSize": "20px",
+        "lineHeight": "2",
+        "fontWeight": "600",
+        "textColor": "black",
+        "background": "#F3F3F3",
+        "userStyle": {},
+        typography: [
+          {
+            name: 'H1',
+            fontFamily: "'Roboto'",
+            fontSize: '60px',
+            fontWeight: '700',
+          }
+        ] as Typography[],
+        palettes: [
+          {
+            name: 'Utility Palette',
+            colors: [
+              {
+                name: 'Primary',
+                color: '#FFF',
+              },
+              {
+                name: 'Secondary',
+                color: '#03E3C1',
+              },
+            ],
+          },
+          {
+            name: 'Lucidity Palette',
+            colors: [
+              {
+                name: 'Primary',
+                color: '#121212',
+              },
+              {
+                name: 'Superluminary',
+                color: '#123456',
+              },
+            ],
+          },
+        ] as Palette[],
+        images: [
+          {
+            name: 'Banner',
+            url: 'https://images.pexels.com/photos/14981339/pexels-photo-14981339/free-photo-of-a-man-standing-on-gray-rock.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+          },
+          {
+            name: 'Logo',
+            url: 'https://static.vecteezy.com/system/resources/thumbnails/008/214/517/small_2x/abstract-geometric-logo-or-infinity-line-logo-for-your-company-free-vector.jpg'
+          },
+        ],
+        staticText: [
+          {
+            name: 'Legal Disclosure',
+            text: 'The author assumes no responsibility or liability for any errors or omissions in the content of this site. The information contained in this site is provided on an "as is" basis with no guarantees of completeness, accuracy, usefulness or timeliness.',
+          },
+          {
+            name: 'Brand Catchline',
+            text: 'At the speed of light.',
+          },
+        ]
+      },
+    },
+    attributes: {
+      predefined: ['alpha', 'beta', 'sierra'],
+      custom: ['slab', 'reward', 'rewards', 'rewards.slab'],
+    },
+    blockIDs: {
+      map: "{}",
+    },
+    conditionalMapping: {
+      boolean: [
+        {
+          id: 'slab-text',
+          focusIdx: 'content.children.[0].children.[0].children.[0].children.[0].children.[0]',
+          attributes: {
+            height: '200px'
+          } as Record<string, string>,
+          fields: [
+            {
+              attribute: 'alpha',
+              operator: 'equals',
+              value: '900',
+            }
+          ]
+        }
+      ],
+    }
+  };
 
   // State:
   const [conversations, setConversations] = useState<Record<string, ConversationState>>({});
   const [doesFlutterKnowThatReactIsReady, setDoesFlutterKnowThatReactIsReady] = useState(false);
   const [eventHandlers, setEventHandlers] = useState({
-    onRequestSave: (_message: Message) => { }
+    onRequestSave: (_message: Message) => { },
+    onConditionalMappingStatus: (_newStatus: boolean) => { },
+    onLoadTemplate: (_message: Message) => { },
   });
 
   // Functions:
@@ -301,6 +409,11 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
           case ConversationType.SAVE:
             eventHandlers.onRequestSave(message);
             break;
+          case ConversationType.CONDITIONAL_MAPPING_STATUS:
+            eventHandlers.onConditionalMappingStatus(JSON.parse(message.payload) ?? false);
+            break;
+          case ConversationType.LOAD_TEMPLATE:
+            eventHandlers.onLoadTemplate(message);
           default:
             break;
         }
@@ -346,86 +459,7 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
         const newMessage: Message = {
           ...message,
           callType: CallType.RESPONSE,
-          payload: JSON.stringify({
-            template: {
-              type: 'IMG',
-              content: "{\"type\":\"page\",\"data\":{\"value\":{\"breakpoint\":\"480px\",\"headAttributes\":\"\",\"font-size\":\"20px\",\"font-weight\":\"600\",\"line-height\":\"2\",\"headStyles\":[],\"fonts\":[],\"responsive\":true,\"font-family\":\"'Inter'\",\"user-style\":{},\"text-color\":\"black\"}},\"attributes\":{\"width\":\"600px\",\"background-color\":\"#F3F3F3\"},\"children\":[{\"type\":\"advanced_wrapper\",\"data\":{\"value\":{}},\"attributes\":{\"padding\":\"20px 20px 20px 20px\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\",\"background-url\":\"https://i.imgur.com/szQzwot.png\",\"background-repeat\":\"no-repeat\",\"background-size\":\"cover\"},\"children\":[{\"type\":\"advanced_grid\",\"data\":{\"value\":{\"noWrap\":false}},\"attributes\":{\"padding\":\"100px 0px 220px 0px\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\",\"data-direction\":\"row\",\"data-threshold\":\"5\",\"data-type\":\"grid\",\"background-url\":\"https://i.imgur.com/DAnvNp1.png\",\"background-repeat\":\"no-repeat\",\"background-size\":\"contain\",\"data-source\":\"rewards\"},\"children\":[{\"type\":\"advanced_section\",\"data\":{\"value\":{\"noWrap\":false}},\"attributes\":{\"padding\":\"20px 0px 20px 0px\",\"background-repeat\":\"no-repeat\",\"background-size\":\"contain\",\"background-position\":\"top center\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\",\"background-url\":\"https://i.imgur.com/HpsWFqH.png\"},\"children\":[{\"type\":\"advanced_column\",\"data\":{\"value\":{}},\"attributes\":{\"padding\":\"35px 0px 35px 0px\",\"border\":\"none\",\"vertical-align\":\"top\"},\"children\":[{\"type\":\"advanced_text\",\"data\":{\"value\":{\"content\":\"<div style=\\\"text-align: center;\\\"><span style=\\\"background-color: initial; word-spacing: normal;\\\">{{slab}}</span></div>\"}},\"attributes\":{\"padding\":\"0px 0px 0px 0px\",\"align\":\"left\",\"font-size\":\"10px\",\"color\":\"white\"},\"children\":[]},{\"type\":\"advanced_text\",\"data\":{\"value\":{\"content\":\"<div style=\\\"text-align: center;\\\"><span style=\\\"background-color: initial; word-spacing: normal;\\\">{{reward}}</span></div>\"}},\"attributes\":{\"padding\":\"25px 0px 0px 0px\",\"align\":\"left\",\"font-size\":\"8px\"},\"children\":[]}]}]}]}]}]}",
-              themeSettings: {
-                "width": "600px",
-                "breakpoint": "480px",
-                "fontFamily": "'Inter'",
-                "fontSize": "20px",
-                "lineHeight": "2",
-                "fontWeight": "600",
-                "textColor": "black",
-                "background": "#F3F3F3",
-                "userStyle": {},
-                typography: [
-                  {
-                    name: 'H1',
-                    fontFamily: "'Roboto'",
-                    fontSize: '60px',
-                    fontWeight: '700',
-                  }
-                ] as Typography[],
-                palettes: [
-                  {
-                    name: 'Utility Palette',
-                    colors: [
-                      {
-                        name: 'Primary',
-                        color: '#FFF',
-                      },
-                      {
-                        name: 'Secondary',
-                        color: '#03E3C1',
-                      },
-                    ],
-                  },
-                  {
-                    name: 'Lucidity Palette',
-                    colors: [
-                      {
-                        name: 'Primary',
-                        color: '#121212',
-                      },
-                      {
-                        name: 'Superluminary',
-                        color: '#123456',
-                      },
-                    ],
-                  },
-                ] as Palette[],
-                images: [
-                  {
-                    name: 'Banner',
-                    url: 'https://images.pexels.com/photos/14981339/pexels-photo-14981339/free-photo-of-a-man-standing-on-gray-rock.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
-                  },
-                  {
-                    name: 'Logo',
-                    url: 'https://static.vecteezy.com/system/resources/thumbnails/008/214/517/small_2x/abstract-geometric-logo-or-infinity-line-logo-for-your-company-free-vector.jpg'
-                  },
-                ],
-                staticText: [
-                  {
-                    name: 'Legal Disclosure',
-                    text: 'The author assumes no responsibility or liability for any errors or omissions in the content of this site. The information contained in this site is provided on an "as is" basis with no guarantees of completeness, accuracy, usefulness or timeliness.',
-                  },
-                  {
-                    name: 'Brand Catchline',
-                    text: 'At the speed of light.',
-                  },
-                ]
-              },
-            },
-            attributes: {
-              predefined: ['alpha', 'beta', 'sierra'],
-              custom: ['slab', 'reward', 'rewards', 'rewards.slab'],
-            },
-            blockIDs: {
-              map: "{}",
-            }
-          }),
+          payload: JSON.stringify(DEFAULT_TEMPLATE),
           sender: Sender.FLUTTER,
           sentAt: new Date().getTime(),
         };
@@ -509,6 +543,18 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
         return _eventHandlers;
       });
     },
+    onConditionalMappingStatus: (callback: (newStatus: boolean) => void) => {
+      setEventHandlers(_eventHandlers => {
+        _eventHandlers['onConditionalMappingStatus'] = callback;
+        return _eventHandlers;
+      });
+    },
+    onLoadTemplate: (callback: (message: Message) => void) => {
+      setEventHandlers(_eventHandlers => {
+        _eventHandlers['onLoadTemplate'] = callback;
+        return _eventHandlers;
+      });
+    }
   };
 
   const enablePublish = async (payload: boolean) => {
@@ -543,24 +589,48 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
   useEffect(() => {
     window.addEventListener('message', onFlutterMessage);
     // NOTE: Uncomment the following lines to mock Flutter's responses.
-    // window.addEventListener('message', onReactMessage);
-    // (window as any).mockFlutterSave = () => {
-    //   const message: Message = {
-    //     conversationID: uuidv4(),
-    //     conversationType: ConversationType.SAVE,
-    //     callType: CallType.REQUEST,
-    //     payload: '',
-    //     sender: Sender.FLUTTER,
-    //     sentAt: new Date().getTime(),
-    //   };
+    window.addEventListener('message', onReactMessage);
+    (window as any).mockFlutterSave = () => {
+      const message: Message = {
+        conversationID: uuidv4(),
+        conversationType: ConversationType.SAVE,
+        callType: CallType.REQUEST,
+        payload: '',
+        sender: Sender.FLUTTER,
+        sentAt: new Date().getTime(),
+      };
 
-    //   window.parent.postMessage(JSON.stringify(message), '*');
-    // };
+      window.parent.postMessage(JSON.stringify(message), '*');
+    };
+    (window as any).setConditionalMappingStatus = (newStatus: boolean) => {
+      const message: Message = {
+        conversationID: uuidv4(),
+        conversationType: ConversationType.CONDITIONAL_MAPPING_STATUS,
+        callType: CallType.REQUEST,
+        payload: JSON.stringify(newStatus),
+        sender: Sender.FLUTTER,
+        sentAt: new Date().getTime(),
+      };
+
+      window.parent.postMessage(JSON.stringify(message), '*');
+    };
+    (window as any).loadNewTemplate = () => {
+      const message: Message = {
+        conversationID: uuidv4(),
+        conversationType: ConversationType.LOAD_TEMPLATE,
+        callType: CallType.REQUEST,
+        payload: JSON.stringify(DEFAULT_TEMPLATE),
+        sender: Sender.FLUTTER,
+        sentAt: new Date().getTime(),
+      };
+
+      window.parent.postMessage(JSON.stringify(message), '*');
+    };
     announceReadiness();
 
     return () => {
       window.removeEventListener('message', onFlutterMessage);
-      // window.removeEventListener('message', onReactMessage);
+      window.removeEventListener('message', onReactMessage);
     };
   }, []);
 

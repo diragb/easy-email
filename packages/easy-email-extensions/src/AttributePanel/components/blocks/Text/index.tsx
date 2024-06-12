@@ -15,7 +15,7 @@ import { LetterSpacing } from '@extensions/AttributePanel/components/attributes/
 
 import { AttributesPanelWrapper } from '@extensions/AttributePanel/components/attributes/AttributesPanelWrapper';
 import { Collapse, Grid, Space, Tooltip, Button } from '@arco-design/web-react';
-import { IconFont, Stack, useFocusIdx } from 'easy-email-editor';
+import { IconFont, Stack, getShadowRoot, useFocusIdx } from 'easy-email-editor';
 import { HtmlEditor } from '../../UI/HtmlEditor';
 import { ClassName } from '../../attributes/ClassName';
 import { CollapseWrapper } from '../../attributes/CollapseWrapper';
@@ -24,11 +24,13 @@ import { isIDValid } from '@extensions/utils/blockIDManager';
 import { getTemplateTheme, Palette, StaticText, Typography } from 'template-theme-manager';
 import { TreeSelectDataType } from '@arco-design/web-react/es/TreeSelect/interface';
 import ColorController from 'color';
+import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 
 export function Text() {
   // Constants:
   const { change } = useForm();
   const { focusIdx } = useFocusIdx();
+  const { isConditionalMapping = false } = useExtensionProps();
 
   // For Typography:
   const fontFamily = useField(`${focusIdx}.attributes.font-family`);
@@ -259,6 +261,16 @@ export function Text() {
     }
   }, [dataStaticText.input.value, textContent.input.value, staticText]);
 
+  useEffect(() => {
+    if (isConditionalMapping) {
+      const shadowRoot = getShadowRoot();
+      const textNode = shadowRoot?.querySelector(`[data-content_editable-idx="${focusIdx}.data.value.content"]`);
+      if (textNode) {
+        (textNode as HTMLDivElement).contentEditable = 'false';
+      }
+    }
+  }, [focusIdx, isConditionalMapping]);
+
   // Return:
   return (
     <AttributesPanelWrapper
@@ -286,6 +298,7 @@ export function Text() {
               style={{
                 paddingBottom: '1rem',
               }}
+              disabled={isConditionalMapping}
             />
           </Stack>
         </Collapse.Item>

@@ -25,6 +25,7 @@ import { ISocial } from 'easy-email-core';
 import { ClassName } from '../../attributes/ClassName';
 import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { isIDValid } from '@extensions/utils/blockIDManager';
+import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 
 const options = [
   {
@@ -44,6 +45,7 @@ const options = [
 export function Social() {
   const { focusIdx } = useFocusIdx();
   const { focusBlock } = useBlock();
+  const { isConditionalMapping = false } = useExtensionProps();
   const value = focusBlock?.data.value as ISocial['data']['value'];
   if (!value) return null;
 
@@ -63,6 +65,7 @@ export function Social() {
               )}
               name={`${focusIdx}.attributes.data-id`}
               validate={value => isIDValid(focusIdx, value)}
+              disabled={isConditionalMapping}
             />
             <RadioGroupField
               label={String('Mode')}

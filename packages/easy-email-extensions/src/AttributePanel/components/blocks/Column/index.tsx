@@ -13,9 +13,11 @@ import { BackgroundColor } from '../../attributes';
 import { Stack, useFocusIdx } from 'easy-email-editor';
 import { TextField } from '@extensions/components/Form';
 import { isIDValid } from '@extensions/utils/blockIDManager';
+import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 
 export function Column() {
   const { focusIdx } = useFocusIdx();
+  const { isConditionalMapping = false } = useExtensionProps();
 
   return (
     <AttributesPanelWrapper>
@@ -34,6 +36,7 @@ export function Column() {
               style={{
                 paddingBottom: '1rem',
               }}
+              disabled={isConditionalMapping}
             />
           </Stack>
         </Collapse.Item>

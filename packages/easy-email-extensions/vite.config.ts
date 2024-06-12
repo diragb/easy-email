@@ -18,6 +18,7 @@ export default defineConfig({
       'easy-email-editor': path.resolve('../easy-email-editor/lib'),
       'attribute-manager': path.resolve('../../attributeManager.ts'),
       'template-theme-manager': path.resolve('../../templateThemeManager.ts'),
+      'conditional-mapping-manager': path.resolve('../../conditionalMappingManager.ts'),
     },
   },
   define: {},

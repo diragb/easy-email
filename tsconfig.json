@@ -57,6 +57,9 @@
       "template-theme-manager": [
         "./templateThemeManager.ts"
       ],
+      "conditional-mapping-manager": [
+        "./conditionalMappingManager.ts"
+      ],
     }
   },
   "include": [
@@ -64,7 +67,8 @@
     "./example",
     "./typings",
     "attributeManager.ts",
-    "templateThemeManager.ts"
+    "templateThemeManager.ts",
+    "conditionalMappingManager.ts"
   ],
   "exclude": [
     "node_modules"

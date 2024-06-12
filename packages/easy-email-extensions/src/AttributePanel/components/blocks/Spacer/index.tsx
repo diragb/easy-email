@@ -9,9 +9,11 @@ import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { TextField } from '@extensions/components/Form';
 import { isIDValid } from '@extensions/utils/blockIDManager';
 import { useFocusIdx } from 'easy-email-editor';
+import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 
 export function Spacer() {
   const { focusIdx } = useFocusIdx();
+  const { isConditionalMapping = false } = useExtensionProps();
 
   return (
     <AttributesPanelWrapper>
@@ -26,6 +28,7 @@ export function Spacer() {
               )}
               name={`${focusIdx}.attributes.data-id`}
               validate={value => isIDValid(focusIdx, value)}
+              disabled={isConditionalMapping}
             />
             <Height />
             <Padding />

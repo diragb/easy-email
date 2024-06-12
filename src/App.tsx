@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import Page from '@demo/components/Page';
 import store from '@demo/store';
 import '@demo/styles/common.scss';
+import './index.css';
 import { history } from './utils/history';
 import { ConversationManagerProvider } from './context/ConversationManagerContext';
 // import Home from '@demo/pages/Home';

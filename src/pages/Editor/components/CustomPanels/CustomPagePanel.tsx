@@ -10,6 +10,7 @@ import {
   getPredefinedAttributes,
   setCustomAttributes,
 } from 'attribute-manager';
+import { ActionOrigin, generateUpdateConditionalMappingIsActiveListener } from 'conditional-mapping-manager';
 
 // Typescript:
 interface PageProps {
@@ -48,6 +49,7 @@ const CustomPagePanel = ({ hideSubTitle, hideSubject }: PageProps) => {
   const [customAttributes, _setCustomAttributes] = useState(getCustomAttributes());
   const [showInput, setShowInput] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [conditionalMappingStatus, setConditionalMappingStatus] = useState(true);
 
   // Functions:
   const addCustomAttribute = () => {
@@ -83,15 +85,18 @@ const CustomPagePanel = ({ hideSubTitle, hideSubject }: PageProps) => {
 
   const updateCustomAttributes = generateUpdateCustomAttributeListener(AttributeModifier.EasyEmail, _setCustomAttributes);
   const updatePredefinedAttributes = generateUpdatePredefinedAttributeListener(AttributeModifier.EasyEmail, _setPredefinedAttributes);
+  const updateConditionalMappingIsActive = generateUpdateConditionalMappingIsActiveListener(ActionOrigin.React, setConditionalMappingStatus);
 
   // Effects:
   useEffect(() => {
     window.addEventListener('message', updateCustomAttributes);
     window.addEventListener('message', updatePredefinedAttributes);
+    window.addEventListener('message', updateConditionalMappingIsActive);
 
     return () => {
       window.removeEventListener('message', updateCustomAttributes);
       window.removeEventListener('message', updatePredefinedAttributes);
+      window.removeEventListener('message', updateConditionalMappingIsActive);
     };
   }, []);
 
@@ -204,66 +209,70 @@ const CustomPagePanel = ({ hideSubTitle, hideSubject }: PageProps) => {
               <Stack.Item />
             </Stack>
           </Collapse.Item>
-          <Collapse.Item
-            name='2'
-            header={'Attributes'}
-          >
-            {/** @ts-ignore */}
-            <Stack
-              vertical
-              spacing='tight'
-            >
-              <Stack.Item>
-                <Space size={10} wrap>
-                  {Object.keys(predefinedAttributes).map(tag => (<Tag key={tag}>{tag}</Tag>))}
-                  {Object
-                    .keys(customAttributes)
-                    .filter(customAttribute => !customAttribute.includes('.'))
-                    .map(customAttribute => (
-                      <Tag
-                        key={customAttribute}
-                        closable
-                        onClose={() => removeCustomAttribute(customAttribute)}
-                      >
-                        {customAttribute}
-                      </Tag>
-                    )
-                    )}
-                  {showInput ? (
-                    <Input
-                      autoFocus
-                      size='mini'
-                      value={inputValue}
-                      style={{ width: 84 }}
-                      onPressEnter={addCustomAttribute}
-                      onBlur={addCustomAttribute}
-                      onChange={setInputValue}
-                    />
-                  ) : (
-                    <Tag
-                      icon={<IconPlus />}
-                      style={{
-                        width: 'auto',
-                        backgroundColor: 'var(--color-fill-2)',
-                        border: '1px dashed var(--color-fill-3)',
-                        cursor: 'pointer',
-                      }}
-                      className='add-tag'
-                      tabIndex={0}
-                      onClick={() => setShowInput(true)}
-                      onKeyDown={event => {
-                        if (event.key === 'Enter') {
-                          setShowInput(true);
-                        }
-                      }}
-                    >
-                      Add Attribute
-                    </Tag>
-                  )}
-                </Space>
-              </Stack.Item>
-            </Stack>
-          </Collapse.Item>
+          {
+            !conditionalMappingStatus && (
+              <Collapse.Item
+                name='2'
+                header={'Attributes'}
+              >
+                {/** @ts-ignore */}
+                <Stack
+                  vertical
+                  spacing='tight'
+                >
+                  <Stack.Item>
+                    <Space size={10} wrap>
+                      {Object.keys(predefinedAttributes).map(tag => (<Tag key={tag}>{tag}</Tag>))}
+                      {Object
+                        .keys(customAttributes)
+                        .filter(customAttribute => !customAttribute.includes('.'))
+                        .map(customAttribute => (
+                          <Tag
+                            key={customAttribute}
+                            closable
+                            onClose={() => removeCustomAttribute(customAttribute)}
+                          >
+                            {customAttribute}
+                          </Tag>
+                        )
+                        )}
+                      {showInput ? (
+                        <Input
+                          autoFocus
+                          size='mini'
+                          value={inputValue}
+                          style={{ width: 84 }}
+                          onPressEnter={addCustomAttribute}
+                          onBlur={addCustomAttribute}
+                          onChange={setInputValue}
+                        />
+                      ) : (
+                        <Tag
+                          icon={<IconPlus />}
+                          style={{
+                            width: 'auto',
+                            backgroundColor: 'var(--color-fill-2)',
+                            border: '1px dashed var(--color-fill-3)',
+                            cursor: 'pointer',
+                          }}
+                          className='add-tag'
+                          tabIndex={0}
+                          onClick={() => setShowInput(true)}
+                          onKeyDown={event => {
+                            if (event.key === 'Enter') {
+                              setShowInput(true);
+                            }
+                          }}
+                        >
+                          Add Attribute
+                        </Tag>
+                      )}
+                    </Space>
+                  </Stack.Item>
+                </Stack>
+              </Collapse.Item>
+            )
+          }
         </Collapse>
       </Stack.Item>
     </AttributesPanelWrapper>

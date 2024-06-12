@@ -24,12 +24,14 @@ import { ClassName } from '../../attributes/ClassName';
 import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { isIDValid } from '@extensions/utils/blockIDManager';
 import { AttributeModifier, generateUpdateCustomAttributeListener, generateUpdatePredefinedAttributeListener, getCustomAttributes, getPredefinedAttributes } from 'attribute-manager';
+import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 
 export function Button() {
   const { focusIdx } = useFocusIdx();
   const { input } = useField(`${focusIdx}.data.value.content`, {
     parse: v => v,
   });
+  const { isConditionalMapping = false } = useExtensionProps();
 
   const [predefinedAttributes, _setPredefinedAttributes] = useState(getPredefinedAttributes());
   const [customAttributes, _setCustomAttributes] = useState(getCustomAttributes());
@@ -68,6 +70,7 @@ export function Button() {
               )}
               name={`${focusIdx}.attributes.data-id`}
               validate={value => isIDValid(focusIdx, value)}
+              disabled={isConditionalMapping}
             />
             <TextField
               label={(

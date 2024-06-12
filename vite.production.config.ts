@@ -15,6 +15,7 @@ export default defineConfig({
       'easy-email-extensions': path.resolve('./packages/easy-email-extensions'),
       'attribute-manager': path.resolve(__dirname, './attributeManager.ts'),
       'template-theme-manager': path.resolve(__dirname, './templateThemeManager.ts'),
+      'conditional-mapping-manager': path.resolve(__dirname, './conditionalMappingManager.ts'),
     },
   },
   optimizeDeps: {},

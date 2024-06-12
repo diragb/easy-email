@@ -8,9 +8,12 @@ import { Stack, useFocusIdx } from 'easy-email-editor';
 import { ClassName } from '../../attributes/ClassName';
 import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { isIDValid } from '@extensions/utils/blockIDManager';
+import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 
 export function Wrapper() {
   const { focusIdx } = useFocusIdx();
+  const { isConditionalMapping = false } = useExtensionProps();
+
   return (
     <AttributesPanelWrapper style={{ padding: 0 }}>
       <CollapseWrapper defaultActiveKey={['-1', '0', '1', '2']}>
@@ -28,6 +31,7 @@ export function Wrapper() {
               style={{
                 paddingBottom: '1rem',
               }}
+              disabled={isConditionalMapping}
             />
           </Stack>
         </Collapse.Item>

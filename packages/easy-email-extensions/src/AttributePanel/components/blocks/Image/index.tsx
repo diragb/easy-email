@@ -19,6 +19,7 @@ import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { imageHeightAdapter, pixelAdapter } from '../../adapter';
 import { isIDValid } from '@extensions/utils/blockIDManager';
 import { getTemplateTheme } from 'template-theme-manager';
+import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 
 const fullWidthOnMobileAdapter = {
   format(obj: any) {
@@ -34,6 +35,7 @@ const fullWidthOnMobileAdapter = {
 export function Image() {
   // Constants:
   const { focusIdx } = useFocusIdx();
+  const { isConditionalMapping = false } = useExtensionProps();
   const { onUploadImage } = useEditorProps();
 
   // State:
@@ -66,6 +68,7 @@ export function Image() {
               )}
               name={`${focusIdx}.attributes.data-id`}
               validate={value => isIDValid(focusIdx, value)}
+              disabled={isConditionalMapping}
             />
             <ImageUploaderField
               label={String('src')}

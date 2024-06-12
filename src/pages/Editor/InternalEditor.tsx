@@ -12,21 +12,27 @@ import mustachifyHTML from '@demo/utils/mustachifyHTML';
 import appendGridOrganizerScript from '@demo/utils/appendGridOrganizerScript';
 import getGridBlocksInJSON from '@demo/utils/getGridBlocksInJSON';
 import stylizeGridColumn from '@demo/utils/stylizeGridColumn';
+import { getTemplateTheme } from 'template-theme-manager';
+import {
+  ActionOrigin,
+  getConditionalMappingState,
+  setConditionalMappingIsActive
+} from 'conditional-mapping-manager';
 
 // Typescript:
 import { AdvancedType, BasicType, IPage } from 'easy-email-core';
 import { BlockAttributeConfigurationManager, ExtensionProps } from 'easy-email-extensions';
-import { IEmailTemplate, useEditorProps } from 'easy-email-editor';
+import { IEmailTemplate } from 'easy-email-editor';
 
 // Components:
 import { EmailEditor } from 'easy-email-editor';
 import { StandardLayout } from 'easy-email-extensions';
 import CustomPagePanel from './components/CustomPanels/CustomPagePanel';
 import { Message } from '@arco-design/web-react';
+import ConditionalMappingSection from './components/ConditionalMapping';
 
 // Context:
 import { CallType } from '@demo/context/ConversationManagerContext';
-import { getTemplateTheme } from 'template-theme-manager';
 
 // Functions:
 BlockAttributeConfigurationManager.add({
@@ -126,6 +132,7 @@ const InternalEditor = ({ values }: {
   const [enableFlutterPublish, setEnableFlutterPublish] = useState(false);
   const [enableFlutterSave, setEnableFlutterSave] = useState(false);
   const [templateWidth, setTemplateWidth] = useState('600px');
+  const [conditionalMappingStatus, setConditionalMappingStatus] = useState(false);
 
   // Functions:
   const extractThemeSettingsFromTemplate = (template: IPage) => {
@@ -190,10 +197,6 @@ const InternalEditor = ({ values }: {
 
   // Effects:
   useEffect(() => {
-    (window as any).templateJSON = values;
-  }, [values]);
-
-  useEffect(() => {
     registerEventHandlers.onRequestSave(async message => {
       try {
         Message.loading('Loading...');
@@ -232,6 +235,7 @@ const InternalEditor = ({ values }: {
         const blockIDs = Object.values(JSON.parse(blockIDMap) as Record<string, string>);
         const themeSettings = extractThemeSettingsFromTemplate(values.content);
         const templateTheme = getTemplateTheme();
+        const conditionalMappingState = getConditionalMappingState();
 
         sendMessageToFlutter({
           conversationID: message.conversationID,
@@ -256,7 +260,12 @@ const InternalEditor = ({ values }: {
               list: blockIDs,
             },
             preview,
-            html: finalHTML
+            html: finalHTML,
+            conditionalMapping: {
+              boolean: conditionalMappingState.conditions,
+              javascript: conditionalMappingState.javascript,
+              css: conditionalMappingState.css,
+            }
           },
         });
         Message.clear();
@@ -274,6 +283,13 @@ const InternalEditor = ({ values }: {
       }
     });
   }, [values, takeScreenshot]);
+
+  useEffect(() => {
+    registerEventHandlers.onConditionalMappingStatus(newStatus => {
+      setConditionalMappingStatus(newStatus);
+      setConditionalMappingIsActive(ActionOrigin.React, newStatus);
+    });
+  }, []);
 
   useEffect(() => {
     const extractedDirtyAttributesArray = extractAttributes(JSON.stringify(values?.content ?? {}));
@@ -312,13 +328,21 @@ const InternalEditor = ({ values }: {
           left: '-9999px',
         }}
       />
-      {/** @ts-ignore */}
-      <StandardLayout
-        compact={!(width < 1400)}
-        categories={defaultCategories}
-      >
-        <EmailEditor />
-      </StandardLayout>
+      <div style={{ position: 'relative', display: 'flex', flexDirection: 'row', width: '100vw', height: '100vh' }}>
+        {/* @ts-ignore */}
+        <StandardLayout
+          compact={!(width < 1400)}
+          categories={defaultCategories}
+          isConditionalMapping={conditionalMappingStatus}
+        >
+          <EmailEditor />
+        </StandardLayout>
+        {
+          conditionalMappingStatus && (
+            <ConditionalMappingSection />
+          )
+        }
+      </div>
     </>
   );
 };

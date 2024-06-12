@@ -10,10 +10,12 @@ import { ClassName } from '../../attributes/ClassName';
 import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { TextField } from '@extensions/components/Form';
 import { isIDValid } from '@extensions/utils/blockIDManager';
+import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 
 export function Section() {
   const { focusBlock, setFocusBlock } = useBlock();
   const { focusIdx } = useFocusIdx();
+  const { isConditionalMapping = false } = useExtensionProps();
 
   const noWrap = focusBlock?.data.value.noWrap;
 
@@ -62,6 +64,7 @@ export function Section() {
               style={{
                 paddingBottom: '1rem',
               }}
+              disabled={isConditionalMapping}
             />
           </Stack>
         </Collapse.Item>

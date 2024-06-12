@@ -9,9 +9,11 @@ import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { Stack, useFocusIdx } from 'easy-email-editor';
 import { TextField } from '@extensions/components/Form';
 import { isIDValid } from '@extensions/utils/blockIDManager';
+import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 
 export function Group() {
   const { focusIdx } = useFocusIdx();
+  const { isConditionalMapping = false } = useExtensionProps();
 
   return (
     <AttributesPanelWrapper>
@@ -30,6 +32,7 @@ export function Group() {
               style={{
                 paddingBottom: '1rem',
               }}
+              disabled={isConditionalMapping}
             />
           </Stack>
         </Collapse.Item>

@@ -25,10 +25,16 @@ declare global {
 }
 import {
   CallType,
+  Message,
   Palette,
   Sender,
   Typography,
 } from '@demo/context/ConversationManagerContext';
+import {
+  ActionOrigin,
+  Condition,
+  setConditionalMappingState,
+} from 'conditional-mapping-manager';
 
 // Imports:
 import 'easy-email-editor/lib/style.css';
@@ -45,7 +51,6 @@ import enUS from '@arco-design/web-react/es/locale/en-US';
 import { ConfigProvider } from '@arco-design/web-react';
 import { Loading } from '@demo/components/loading';
 import InternalEditor from './InternalEditor';
-// import './components/CustomBlocks';
 
 // Redux:
 import {
@@ -85,6 +90,7 @@ const Editor = () => {
     acknowledgeAndEndConversation,
     doesFlutterKnowThatReactIsReady,
     getTemplate,
+    registerEventHandlers,
   } = useConversationManager();
 
   // State:
@@ -164,83 +170,104 @@ const Editor = () => {
     return content;
   };
 
+  const loadTemplate = (message: Message) => {
+    const payload = JSON.parse(message.payload) as {
+      template: {
+        type: string;
+        content: string;
+        themeSettings: {
+          width?: string;
+          breakpoint?: string;
+          fontFamily?: string;
+          fontSize?: string;
+          lineHeight?: string;
+          fontWeight?: string;
+          textColor?: string;
+          background?: string;
+          contentBackground?: string;
+          userStyle?: string;
+          typography?: Typography[];
+          palettes?: Palette[];
+          images?: LibraryImage[];
+          staticText?: StaticText[];
+        };
+      };
+      attributes: {
+        predefined: string[];
+        custom: string[];
+      };
+      blockIDs: {
+        map: string;
+      };
+      conditionalMapping: {
+        boolean?: Condition[];
+        javascript?: string;
+        css?: string;
+      };
+    };
+
+    sessionStorage.setItem('template-type', payload.template.type ?? 'EMAIL');
+    sessionStorage.setItem('block-ids', isJSONStringValid(payload.blockIDs?.map) ? payload.blockIDs?.map : '{}');
+
+    const typography = payload.template.themeSettings.typography ?? [];
+    const palettes = payload.template.themeSettings.palettes ?? [];
+    const images = payload.template.themeSettings.images ?? [];
+    const staticText = payload.template.themeSettings.staticText ?? [];
+    setTemplateTheme(_templateTheme => ({ typography, palettes, images, staticText }));
+    const template = updateThemeInstancesInTemplate(payload.template);
+    const modifiedTemplate = JSON.parse(
+      transformAttributesInTemplateContent(
+        JSON.stringify(
+          modifyTemplateAccordingToThemeSettings(template)
+        ),
+        [
+          ...payload.attributes.predefined,
+          ...payload.attributes.custom,
+        ]
+      )
+    );
+    setTemplateData({
+      content: modifiedTemplate,
+      subject: '',
+      subTitle: '',
+    });
+    setCustomAttributes(AttributeModifier.React, _customAttributes => ({
+      ...zipObject(payload.attributes.custom, Array(payload.attributes.custom.length).fill('')),
+    }));
+    setPredefinedAttributes(AttributeModifier.React, _predefinedAttributes => ({
+      ...zipObject(payload.attributes.predefined, Array(payload.attributes.predefined.length).fill('')),
+      // example: 'https://images.pexels.com/photos/21936231/pexels-photo-21936231/free-photo-of-a-stork-is-sitting-on-top-of-a-nest.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    }));
+    setConditionalMappingState(ActionOrigin.React, _conditionalMappingState => ({
+      ..._conditionalMappingState,
+      isActive: false,
+      focusIdx: 'content',
+      focusBlock: {},
+      templateContent: payload.template.content,
+      conditions: payload.conditionalMapping.boolean ?? [],
+      javascript: payload.conditionalMapping.javascript,
+      css: payload.conditionalMapping.css,
+    }));
+    setIsLoading(false);
+    acknowledgeAndEndConversation(message.conversationID);
+  };
+
   // Effects:
   useEffect(() => {
     if (doesFlutterKnowThatReactIsReady && !templateData) {
-      getTemplate(async (message) => {
+      getTemplate(message => {
         if (
           message.callType === CallType.RESPONSE &&
           message.payload &&
           message.sender === Sender.FLUTTER
-        ) {
-          const payload = JSON.parse(message.payload) as {
-            template: {
-              type: string;
-              content: string;
-              themeSettings: {
-                width?: string;
-                breakpoint?: string;
-                fontFamily?: string;
-                fontSize?: string;
-                lineHeight?: string;
-                fontWeight?: string;
-                textColor?: string;
-                background?: string;
-                contentBackground?: string;
-                userStyle?: string;
-                typography?: Typography[];
-                palettes?: Palette[];
-                images?: LibraryImage[];
-                staticText?: StaticText[];
-              };
-            };
-            attributes: {
-              predefined: string[];
-              custom: string[];
-            };
-            blockIDs: {
-              map: string;
-            };
-          };
-
-          sessionStorage.setItem('template-type', payload.template.type ?? 'EMAIL');
-          sessionStorage.setItem('block-ids', isJSONStringValid(payload.blockIDs?.map) ? payload.blockIDs?.map : '{}');
-
-          const typography = payload.template.themeSettings.typography ?? [];
-          const palettes = payload.template.themeSettings.palettes ?? [];
-          const images = payload.template.themeSettings.images ?? [];
-          const staticText = payload.template.themeSettings.staticText ?? [];
-          setTemplateTheme(_templateTheme => ({ typography, palettes, images, staticText }));
-          const template = updateThemeInstancesInTemplate(payload.template);
-          const modifiedTemplate = JSON.parse(
-            transformAttributesInTemplateContent(
-              JSON.stringify(
-                modifyTemplateAccordingToThemeSettings(template)
-              ),
-              [
-                ...payload.attributes.predefined,
-                ...payload.attributes.custom,
-              ]
-            )
-          );
-          setTemplateData({
-            content: modifiedTemplate,
-            subject: '',
-            subTitle: '',
-          });
-          setCustomAttributes(AttributeModifier.React, _customAttributes => ({
-            ...zipObject(payload.attributes.custom, Array(payload.attributes.custom.length).fill('')),
-          }));
-          setPredefinedAttributes(AttributeModifier.React, _predefinedAttributes => ({
-            ...zipObject(payload.attributes.predefined, Array(payload.attributes.predefined.length).fill('')),
-            // example: 'https://images.pexels.com/photos/21936231/pexels-photo-21936231/free-photo-of-a-stork-is-sitting-on-top-of-a-nest.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-          }));
-          setIsLoading(false);
-          acknowledgeAndEndConversation(message.conversationID);
-        }
+        ) loadTemplate(message);
       });
     }
   }, [doesFlutterKnowThatReactIsReady, templateData]);
+
+  useEffect(() => {
+    registerEventHandlers.onLoadTemplate(loadTemplate);
+  }, []);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -273,7 +300,7 @@ const Editor = () => {
           fontList={fontList}
           // onChangeMergeTag={onChangeMergeTag}
           autoComplete
-          enabledLogic
+          enabledLogic={false}
           dashed={false}
           mergeTagGenerate={tag => `{{${tag}}}`}
           // onBeforePreview={onBeforePreview}

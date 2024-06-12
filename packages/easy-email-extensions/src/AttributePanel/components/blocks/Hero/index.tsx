@@ -11,6 +11,7 @@ import { AttributesPanelWrapper } from '@extensions/AttributePanel/components/at
 import { ClassName } from '../../attributes/ClassName';
 import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { isIDValid } from '@extensions/utils/blockIDManager';
+import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 
 const options = [
   {
@@ -30,6 +31,7 @@ const options = [
 export function Hero() {
   const { focusIdx } = useFocusIdx();
   const { onUploadImage } = useEditorProps();
+  const { isConditionalMapping = false } = useExtensionProps();
 
   return (
     <AttributesPanelWrapper>
@@ -47,6 +49,7 @@ export function Hero() {
               )}
               name={`${focusIdx}.attributes.data-id`}
               validate={value => isIDValid(focusIdx, value)}
+              disabled={isConditionalMapping}
             />
             <RadioGroupField
               label={String('Mode')}

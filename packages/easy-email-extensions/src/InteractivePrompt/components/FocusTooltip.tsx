@@ -1,18 +1,123 @@
-import React from 'react';
-
-import { BasicType } from 'easy-email-core';
+import React, { useEffect } from 'react';
+import { AdvancedType, BasicType } from 'easy-email-core';
 import { createPortal } from 'react-dom';
-import { IconFont, useBlock, useFocusIdx, BlockAvatarWrapper, useFocusBlockLayout } from 'easy-email-editor';
+import {
+  IconFont,
+  useBlock,
+  useFocusIdx,
+  BlockAvatarWrapper,
+  useFocusBlockLayout,
+  getShadowRoot,
+} from 'easy-email-editor';
 import { Toolbar } from './Toolbar';
+import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
+import {
+  ActionOrigin,
+  Condition,
+  generateUpdateConditionalMappingConditionsListener,
+  generateUpdateFocusIdxListener,
+  generateUpdateLastBlockModificationListener,
+  getCurrentFocusBlock,
+  getCurrentFocusIdx,
+  setCurrentFocusBlock,
+  setCurrentFocusIdx,
+  setLastBlockModification
+} from 'conditional-mapping-manager';
+import { useForm } from 'react-final-form';
+import { isEqual } from 'lodash';
 
-export function FocusTooltip() {
+export const FocusTooltip = () => {
+  // Constants:
+  const { change } = useForm();
   const { focusBlock } = useBlock();
-  const { focusIdx } = useFocusIdx();
+  const { focusIdx, setFocusIdx } = useFocusIdx();
   const { focusBlockNode } = useFocusBlockLayout();
   const isPage = focusBlock?.type === BasicType.PAGE;
+  const { isConditionalMapping = false } = useExtensionProps();
 
+  // Functions:
+  const updateBlock = (idx: string, attributes: Record<string, string>, isReset = false) => {
+    if (isReset) {
+      change(`${idx}.attributes`, attributes);
+    } else {
+      const attributeEntries = Object.entries(attributes);
+      for (const attributeEntry of attributeEntries) {
+        change(`${idx}.attributes.${attributeEntry[0]}`, attributeEntry[1]);
+      }
+    }
+  };
+
+  const updateBlockConditions = (_conditionalMappingConditions: Condition[]) => {
+    const specificConditions = _conditionalMappingConditions.filter(condition => {
+      const blockDataID = focusBlock?.attributes?.['data-id'];
+      if (blockDataID) return blockDataID === condition.id;
+      else return focusIdx === condition.focusIdx;
+    });
+    const encodedConditionString = window.btoa(JSON.stringify(specificConditions));
+    change(`${focusIdx}.attributes.data-conditional-mapping`, encodedConditionString);
+  };
+
+  const updateFocusIdx = generateUpdateFocusIdxListener(ActionOrigin.React, setFocusIdx);
+  const updateLastBlockModification = generateUpdateLastBlockModificationListener(
+    ActionOrigin.React,
+    ({ idx, attributes, isReset }) => updateBlock(idx, attributes, isReset)
+  );
+  const updateConditions = generateUpdateConditionalMappingConditionsListener(
+    ActionOrigin.React,
+    updateBlockConditions
+  );
+
+  // Effects:
+  // Makes text block uneditable during CM.
+  useEffect(() => {
+    if (!isConditionalMapping) return;
+    if ([AdvancedType.TEXT, BasicType.TEXT].includes(focusBlock?.type as any)) {
+      const shadowRoot = getShadowRoot();
+      const textNode = shadowRoot?.querySelector(`[data-content_editable-idx="${focusIdx}.data.value.content"]`);
+      if (textNode) {
+        (textNode as HTMLDivElement).contentEditable = 'false';
+      }
+    }
+  }, [isConditionalMapping, focusIdx, focusBlock]);
+
+  useEffect(() => {
+    const currentFocusIdx = getCurrentFocusIdx();
+    if (currentFocusIdx !== focusIdx) setCurrentFocusIdx(ActionOrigin.EasyEmail, focusIdx);
+  }, [focusIdx]);
+
+  useEffect(() => {
+    const currentFocusBlock = getCurrentFocusBlock();
+    if (!isEqual(currentFocusBlock, focusBlock)) setCurrentFocusBlock(ActionOrigin.EasyEmail, focusBlock);
+  }, [focusBlock]);
+
+  useEffect(() => {
+    setLastBlockModification(ActionOrigin.EasyEmail, {
+      idx: focusIdx,
+      attributes: focusBlock?.attributes ?? {},
+    });
+  }, [focusIdx, focusBlock]);
+
+  useEffect(() => {
+    window.addEventListener('message', updateFocusIdx);
+    window.addEventListener('message', updateLastBlockModification);
+
+    return () => {
+      window.removeEventListener('message', updateFocusIdx);
+      window.removeEventListener('message', updateLastBlockModification);
+    };
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('message', updateConditions);
+
+    return () => {
+      window.removeEventListener('message', updateConditions);
+    };
+  }, [focusIdx, focusBlock]);
+
+
+  // Return:
   if (!focusBlockNode || !focusBlock) return null;
-
   return (
     <>
       {createPortal(
@@ -36,46 +141,51 @@ export function FocusTooltip() {
 
             `}
           </style>
-          <div
-            style={{
-              position: 'absolute',
-              zIndex: 9999,
-              right: 0,
-              top: '50%',
-              display: isPage ? 'none' : undefined,
-            }}
-          >
-            <BlockAvatarWrapper
-              idx={focusIdx}
-              type={focusBlock.type}
-              action='move'
+          {/* drag */}
+          {!isConditionalMapping && (
+            <div
+              style={{
+                position: 'absolute',
+                zIndex: 9999,
+                right: 0,
+                top: '50%',
+                display: isPage ? 'none' : undefined,
+              }}
             >
-              <div
-                style={
-                  {
-                    position: 'absolute',
-                    backgroundColor: 'var(--selected-color)',
-                    color: '#ffffff',
-                    height: '28px',
-                    width: '28px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transform: 'translate(-50%, -50%)',
-                    borderRadius: '50%',
-                    cursor: 'grab',
-                    pointerEvents: 'auto',
-                    WebkitUserDrag: 'element',
-                  } as any
-                }
+              {/* @ts-ignore */}
+              <BlockAvatarWrapper
+                idx={focusIdx}
+                type={focusBlock.type}
+                action='move'
               >
-                <IconFont
-                  iconName='icon-move'
-                  style={{ color: '#fff', cursor: 'grab' }}
-                />
-              </div>
-            </BlockAvatarWrapper>
-          </div>
+                <div
+                  style={
+                    {
+                      position: 'absolute',
+                      backgroundColor: 'var(--selected-color)',
+                      color: '#ffffff',
+                      height: '28px',
+                      width: '28px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transform: 'translate(-50%, -50%)',
+                      borderRadius: '50%',
+                      cursor: 'grab',
+                      pointerEvents: 'auto',
+                      WebkitUserDrag: 'element',
+                    } as any
+                  }
+                >
+                  {/* @ts-ignore */}
+                  <IconFont
+                    iconName='icon-move'
+                    style={{ color: '#fff', cursor: 'grab' }}
+                  />
+                </div>
+              </BlockAvatarWrapper>
+            </div>
+          )}
 
           {/* outline */}
           <div
@@ -102,6 +212,7 @@ export function FocusTooltip() {
               height: '100%',
             }}
           >
+            {/* @ts-ignore */}
             <Toolbar />
           </div>
         </div>,
@@ -110,4 +221,4 @@ export function FocusTooltip() {
       )}
     </>
   );
-}
+};
