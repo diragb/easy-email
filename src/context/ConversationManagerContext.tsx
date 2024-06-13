@@ -46,7 +46,7 @@ export interface ConversationState {
 }
 
 export interface ConversationManagerValues {
-  acknowledgeAndEndConversation: (conversationID: string) => void;
+  acknowledgeAndEndConversation: (conversationID: string, message?: string) => void;
   doesFlutterKnowThatReactIsReady: boolean;
   getTemplate: (callback: (message: Message) => void) => void;
   requestTemplateSave: (payload: any, callback: (message: Message) => void) => void;
@@ -499,8 +499,9 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
     });
   };
 
-  const acknowledgeAndEndConversation = (conversationID: string) => {
+  const acknowledgeAndEndConversation = (conversationID: string, message?: string) => {
     const lastMessage = conversations[conversationID].messages.slice(-1)[0];
+    console.log(`[Conversation Manager - React] Acknowledged: ${message}`);
     sendMessageToFlutter({
       ...lastMessage,
       conversationID,
@@ -589,43 +590,43 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
   useEffect(() => {
     window.addEventListener('message', onFlutterMessage);
     // NOTE: Uncomment the following lines to mock Flutter's responses.
-    // window.addEventListener('message', onReactMessage);
-    // (window as any).mockFlutterSave = () => {
-    //   const message: Message = {
-    //     conversationID: uuidv4(),
-    //     conversationType: ConversationType.SAVE,
-    //     callType: CallType.REQUEST,
-    //     payload: '',
-    //     sender: Sender.FLUTTER,
-    //     sentAt: new Date().getTime(),
-    //   };
+    window.addEventListener('message', onReactMessage);
+    (window as any).mockFlutterSave = () => {
+      const message: Message = {
+        conversationID: uuidv4(),
+        conversationType: ConversationType.SAVE,
+        callType: CallType.REQUEST,
+        payload: '',
+        sender: Sender.FLUTTER,
+        sentAt: new Date().getTime(),
+      };
 
-    //   window.parent.postMessage(JSON.stringify(message), '*');
-    // };
-    // (window as any).setConditionalMappingStatus = (newStatus: boolean) => {
-    //   const message: Message = {
-    //     conversationID: uuidv4(),
-    //     conversationType: ConversationType.CONDITIONAL_MAPPING_STATUS,
-    //     callType: CallType.REQUEST,
-    //     payload: JSON.stringify(newStatus),
-    //     sender: Sender.FLUTTER,
-    //     sentAt: new Date().getTime(),
-    //   };
+      window.parent.postMessage(JSON.stringify(message), '*');
+    };
+    (window as any).setConditionalMappingStatus = (newStatus: boolean) => {
+      const message: Message = {
+        conversationID: uuidv4(),
+        conversationType: ConversationType.CONDITIONAL_MAPPING_STATUS,
+        callType: CallType.REQUEST,
+        payload: JSON.stringify(newStatus),
+        sender: Sender.FLUTTER,
+        sentAt: new Date().getTime(),
+      };
 
-    //   window.parent.postMessage(JSON.stringify(message), '*');
-    // };
-    // (window as any).loadNewTemplate = () => {
-    //   const message: Message = {
-    //     conversationID: uuidv4(),
-    //     conversationType: ConversationType.LOAD_TEMPLATE,
-    //     callType: CallType.REQUEST,
-    //     payload: JSON.stringify(DEFAULT_TEMPLATE),
-    //     sender: Sender.FLUTTER,
-    //     sentAt: new Date().getTime(),
-    //   };
+      window.parent.postMessage(JSON.stringify(message), '*');
+    };
+    (window as any).loadNewTemplate = () => {
+      const message: Message = {
+        conversationID: uuidv4(),
+        conversationType: ConversationType.LOAD_TEMPLATE,
+        callType: CallType.REQUEST,
+        payload: JSON.stringify(DEFAULT_TEMPLATE),
+        sender: Sender.FLUTTER,
+        sentAt: new Date().getTime(),
+      };
 
-    //   window.parent.postMessage(JSON.stringify(message), '*');
-    // };
+      window.parent.postMessage(JSON.stringify(message), '*');
+    };
     announceReadiness();
 
     return () => {

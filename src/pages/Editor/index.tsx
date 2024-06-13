@@ -249,7 +249,7 @@ const Editor = () => {
       css: payload.conditionalMapping.css,
     }));
     setIsLoading(false);
-    acknowledgeAndEndConversation(message.conversationID);
+    acknowledgeAndEndConversation(message.conversationID, 'Template has been received from Flutter.');
   };
 
   // Effects:
