@@ -18,6 +18,7 @@ import {
   getConditionalMappingState,
   setConditionalMappingIsActive
 } from 'conditional-mapping-manager';
+import addConditionalMappingScripts from '@demo/utils/addConditionalMappingScripts';
 
 // Typescript:
 import { AdvancedType, BasicType, IPage } from 'easy-email-core';
@@ -215,9 +216,11 @@ const InternalEditor = ({ values }: {
         const rawHTML = generateHTML(values);
         const rawHTMLForPreview = generateHTML(values, true);
         const finalHTML = unsanitizeHTMLTags(
-          mustachifyHTML(
-            stylizeGridColumn(
-              appendGridOrganizerScript(rawHTML)
+          addConditionalMappingScripts(
+            mustachifyHTML(
+              stylizeGridColumn(
+                appendGridOrganizerScript(rawHTML)
+              )
             )
           )
         );

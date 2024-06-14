@@ -195,8 +195,6 @@ const ConditionalMappingSection = () => {
     });
   };
 
-
-
   // Effects:
   useEffect(() => {
     _setConditions(getConditionalMappingConditions());
@@ -240,14 +238,15 @@ const ConditionalMappingSection = () => {
         <HiArrowLongLeft />
         <div className='text-sm font-bold'>Exit Conditional Mapping</div>
       </div>
-      <Tabs defaultValue='boolean-conditions' className='w-full h-[95%]'>
+      <Tabs defaultValue='conditions' className='w-full h-[95%]'>
         <div className='h-[2.5%]'>
           <TabsList className='w-full' style={{ boxShadow: '0px 2px 6px 0px #0F172A0F' }}>
-            <TabsTrigger className='w-[50%] rounded-l-sm mr-[1px]' value='boolean-conditions'>Boolean Conditions</TabsTrigger>
-            <TabsTrigger className='w-[50%] rounded-r-sm' value='javascript'>Javascript</TabsTrigger>
+            <TabsTrigger className='w-[33%] rounded-l-sm mr-[1px]' value='conditions'>Conditions</TabsTrigger>
+            <TabsTrigger className='w-[33%] rounded-r-sm' value='javascript'>Javascript</TabsTrigger>
+            <TabsTrigger className='w-[33%] rounded-r-sm' value='css'>CSS</TabsTrigger>
           </TabsList>
         </div>
-        <TabsContent value='boolean-conditions' className='h-[89%]'>
+        <TabsContent value='conditions' className='h-[89%]'>
           <ScrollArea className='h-full w-full mt-[5%] p-6 rounded-md bg-white'>
             <Accordion
               type='single'
@@ -437,6 +436,9 @@ const ConditionalMappingSection = () => {
           </div>
         </TabsContent>
         <TabsContent value='javascript' className='h-[80%]'>
+          Nothing to see here, for now.
+        </TabsContent>
+        <TabsContent value='css' className='h-[80%]'>
           Nothing to see here, for now.
         </TabsContent>
       </Tabs>

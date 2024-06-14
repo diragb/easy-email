@@ -121,7 +121,6 @@ export const FocusTooltip = () => {
     };
   }, [focusIdx, focusBlock]);
 
-
   // Return:
   if (!focusBlockNode || !focusBlock) return null;
   return (
