@@ -30,6 +30,7 @@ import { cloneDeep } from 'lodash';
 
 // Imports:
 import { RiDeleteBin6Fill } from 'react-icons/ri';
+import { HiArrowLongLeft } from 'react-icons/hi2';
 
 // Components:
 import {
@@ -54,9 +55,13 @@ import {
   AccordionTrigger,
 } from '@demo/shadcn/components/ui/accordion';
 import { Input } from '@demo/shadcn/components/ui/input';
+import useConversationManager from '@demo/hooks/useConversationManager';
 
 // Functions:
 const ConditionalMappingSection = () => {
+  // Constants:
+  const { exitConditionalMapping } = useConversationManager();
+
   // State:
   const [conditions, _setConditions] = useState<Condition[]>([]);
   const [predefinedAttributes, _setPredefinedAttributes] = useState(getPredefinedAttributes());
@@ -190,6 +195,8 @@ const ConditionalMappingSection = () => {
     });
   };
 
+
+
   // Effects:
   useEffect(() => {
     _setConditions(getConditionalMappingConditions());
@@ -229,7 +236,11 @@ const ConditionalMappingSection = () => {
   // Return:
   return (
     <div className='flex flex-col w-[30vw] h-full px-3 py-4 bg-[#F8FAFC]'>
-      <Tabs defaultValue='boolean-conditions' className='w-full h-full'>
+      <div className='flex justify-start items-center gap-2 w-full h-[2.5%] pb-[1rem] cursor-pointer hover:underline' onClick={exitConditionalMapping}>
+        <HiArrowLongLeft />
+        <div className='text-sm font-bold'>Exit Conditional Mapping</div>
+      </div>
+      <Tabs defaultValue='boolean-conditions' className='w-full h-[95%]'>
         <div className='h-[2.5%]'>
           <TabsList className='w-full' style={{ boxShadow: '0px 2px 6px 0px #0F172A0F' }}>
             <TabsTrigger className='w-[50%] rounded-l-sm mr-[1px]' value='boolean-conditions'>Boolean Conditions</TabsTrigger>

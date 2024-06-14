@@ -14,6 +14,7 @@ export enum ConversationType {
   GET_IMAGE,
   CONDITIONAL_MAPPING_STATUS,
   LOAD_TEMPLATE,
+  EXIT_CONDITIONAL_MAPPING,
 }
 
 export enum CallType {
@@ -64,6 +65,7 @@ export interface ConversationManagerValues {
   }) => void;
   enablePublish: (payload: boolean) => void;
   enableSave: (payload: boolean) => void;
+  exitConditionalMapping: () => void;
 }
 
 export interface Typography {
@@ -97,6 +99,7 @@ const defaultProvider: ConversationManagerValues = {
   sendMessageToFlutter: () => { },
   enablePublish: () => { },
   enableSave: () => { },
+  exitConditionalMapping: () => { },
 };
 
 // Context:
@@ -586,6 +589,15 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
     });
   };
 
+  const exitConditionalMapping = async () => {
+    console.log('[Conversation Manager - React] Flutter should exit Conditional Mapping.');
+
+    await beginConversation({
+      conversationType: ConversationType.EXIT_CONDITIONAL_MAPPING,
+      payload: '',
+    });
+  };
+
   // Effects:
   useEffect(() => {
     window.addEventListener('message', onFlutterMessage);
@@ -647,6 +659,7 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
         sendMessageToFlutter,
         enablePublish,
         enableSave,
+        exitConditionalMapping,
       }}
     >
       {children}
