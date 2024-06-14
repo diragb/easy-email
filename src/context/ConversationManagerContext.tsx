@@ -219,7 +219,7 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
   // Functions:
   const addConversation = (conversationID: string, state: ConversationState) => {
     if (typeof conversations[conversationID] !== 'undefined') {
-      console.error('[Conversation Manager - React]: Conversation already exists - restarting conversation: ', conversationID);
+      console.error(`[Conversation Manager - React]: Conversation already exists - restarting conversation: ${conversationID}. It relates to ${conversations[conversationID].messages[0].conversationType} first sent by ${conversations[conversationID].messages[0].sender} as a ${conversations[conversationID].messages[0].callType}. This conversation contains ${conversations[conversationID].messages.length} messages.`);
 
       endConversation(conversationID);
     }
