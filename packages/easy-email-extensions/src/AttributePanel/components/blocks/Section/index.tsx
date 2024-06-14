@@ -9,13 +9,16 @@ import { BasicType, BlockManager } from 'easy-email-core';
 import { ClassName } from '../../attributes/ClassName';
 import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { TextField } from '@extensions/components/Form';
-import { isIDValid } from '@extensions/utils/blockIDManager';
+import { validateBlockID } from '@extensions/utils/blockIDManager';
 import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
+import { getConditionalMappingConditions } from 'conditional-mapping-manager';
+import useBlockID from '@extensions/AttributePanel/hooks/useBlockID';
 
 export function Section() {
   const { focusBlock, setFocusBlock } = useBlock();
   const { focusIdx } = useFocusIdx();
   const { isConditionalMapping = false } = useExtensionProps();
+  const { lastValidDataID, onBlurCapture } = useBlockID();
 
   const noWrap = focusBlock?.data.value.noWrap;
 
@@ -60,11 +63,22 @@ export function Section() {
                 </Space>
               )}
               name={`${focusIdx}.attributes.data-id`}
-              validate={value => isIDValid(focusIdx, value)}
+              validate={value => {
+                const validationMessage = validateBlockID(focusIdx, value);
+                if (
+                  !validationMessage &&
+                  (!value || (value ?? '').length === 0)
+                ) {
+                  const conditions = getConditionalMappingConditions();
+                  const isDataIDUsedInAnyCondition = conditions.findIndex(condition => condition.id === lastValidDataID) !== -1;
+                  if (isDataIDUsedInAnyCondition) return 'If ID is left empty, all conditions related to this block will be removed!';
+                } else return validationMessage;
+              }}
               style={{
                 paddingBottom: '1rem',
               }}
               disabled={isConditionalMapping}
+              onBlurCapture={onBlurCapture}
             />
           </Stack>
         </Collapse.Item>

@@ -14,6 +14,7 @@ import {
   ConditionField,
   fieldConditions,
   generateUpdateConditionalMappingConditionsListener,
+  generateUpdateEnableAddConditionButtonListener,
   generateUpdateFocusBlockListener,
   generateUpdateFocusIdxListener,
   generateUpdateLastBlockModificationListener,
@@ -67,6 +68,7 @@ const ConditionalMappingSection = () => {
   const [focusedConditionIndex, setFocusedConditionIndex] = useState<number>(-1);
   const [focusIdx, _setFocusIdx] = useState('');
   const [focusBlock, _setFocusBlock] = useState<any>();
+  const [enableAddConditionButton, _setEnableAddConditionButton] = useState(false);
 
   // Functions:
   const updateCustomAttributes = generateUpdateCustomAttributeListener(AttributeModifier.EasyEmail, _setCustomAttributes);
@@ -74,6 +76,7 @@ const ConditionalMappingSection = () => {
   const updateFocusIdx = generateUpdateFocusIdxListener(ActionOrigin.EasyEmail, _setFocusIdx);
   const updateFocusBlock = generateUpdateFocusBlockListener(ActionOrigin.EasyEmail, _setFocusBlock);
   const updateConditions = generateUpdateConditionalMappingConditionsListener(ActionOrigin.EasyEmail, _setConditions);
+  const updateEnableAddConditionButton = generateUpdateEnableAddConditionButtonListener(ActionOrigin.EasyEmail, _setEnableAddConditionButton);
 
   const updateConditionAttributes = (idx: string, attributes: Record<string, string>) => {
     if (focusIdx !== idx || focusedConditionIndex === -1) return;
@@ -195,6 +198,7 @@ const ConditionalMappingSection = () => {
     window.addEventListener('message', updateFocusIdx);
     window.addEventListener('message', updateFocusBlock);
     window.addEventListener('message', updateConditions);
+    window.addEventListener('message', updateEnableAddConditionButton);
 
     return () => {
       window.removeEventListener('message', updateCustomAttributes);
@@ -202,6 +206,7 @@ const ConditionalMappingSection = () => {
       window.removeEventListener('message', updateFocusIdx);
       window.removeEventListener('message', updateFocusBlock);
       window.removeEventListener('message', updateConditions);
+      window.removeEventListener('message', updateEnableAddConditionButton);
     };
   }, []);
 
@@ -231,7 +236,7 @@ const ConditionalMappingSection = () => {
             <TabsTrigger className='w-[50%] rounded-r-sm' value='javascript'>Javascript</TabsTrigger>
           </TabsList>
         </div>
-        <TabsContent value='boolean-conditions' className='h-[90%]'>
+        <TabsContent value='boolean-conditions' className='h-[89%]'>
           <ScrollArea className='h-full w-full mt-[5%] p-6 rounded-md bg-white'>
             <Accordion
               type='single'
@@ -404,13 +409,20 @@ const ConditionalMappingSection = () => {
               }
             </Accordion>
           </ScrollArea>
-          <div className='h-[2.5%] mt-[5%]'>
+          <div className='h-[3.5%] mt-[5%]'>
             <Button
-              className='h-10 px-12 py-0 text-white'
+              className='h-10 px-12 py-0 text-white transition-all'
               onClick={addCondition}
+              disabled={!enableAddConditionButton}
             >
               Add Condition
             </Button>
+            <div
+              className='mt-2 text-xs font-bold text-gray-500 transition-colors'
+              style={{ filter: `opacity(${enableAddConditionButton ? 0 : 1})` }}
+            >
+              Cannot add condition since block does not contain an ID.
+            </div>
           </div>
         </TabsContent>
         <TabsContent value='javascript' className='h-[80%]'>

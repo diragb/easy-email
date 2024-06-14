@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { Collapse, Grid as _Grid, Space, Dropdown, Tag, Input } from '@arco-design/web-react';
+import { Collapse, Grid as _Grid, Space, Tag, Input } from '@arco-design/web-react';
 import { AttributesPanelWrapper } from '@extensions/AttributePanel/components/attributes/AttributesPanelWrapper';
 import { Padding } from '@extensions/AttributePanel/components/attributes/Padding';
 import { Width } from '@extensions/AttributePanel/components/attributes/Width';
@@ -11,8 +11,7 @@ import { ClassName } from '../../attributes/ClassName';
 import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { Stack, useFocusIdx } from 'easy-email-editor';
 import { SelectField, TextField } from '@extensions/components/Form';
-import { isIDValid } from '@extensions/utils/blockIDManager';
-import { isNumber } from '@extensions/AttributePanel/utils/InputNumberAdapter';
+import { validateBlockID } from '@extensions/utils/blockIDManager';
 import {
   AttributeModifier,
   generateUpdateCustomAttributeListener,
@@ -23,12 +22,15 @@ import { cloneDeep, zipObject } from 'lodash';
 import { useField } from 'react-final-form';
 import { IconPlus } from '@arco-design/web-react/icon';
 import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
+import { getConditionalMappingConditions } from 'conditional-mapping-manager';
+import useBlockID from '@extensions/AttributePanel/hooks/useBlockID';
 
 export function Grid() {
   // Constants:
   const { focusIdx } = useFocusIdx();
   const { isConditionalMapping = false } = useExtensionProps();
   const dataSource = useField(`${focusIdx}.attributes.data-source`);
+  const { lastValidDataID, onBlurCapture } = useBlockID();
 
   // State:
   const [customAttributes, _setCustomAttributes] = useState(getCustomAttributes());
@@ -146,11 +148,22 @@ export function Grid() {
                 </Space>
               )}
               name={`${focusIdx}.attributes.data-id`}
-              validate={value => isIDValid(focusIdx, value)}
+              validate={value => {
+                const validationMessage = validateBlockID(focusIdx, value);
+                if (
+                  !validationMessage &&
+                  (!value || (value ?? '').length === 0)
+                ) {
+                  const conditions = getConditionalMappingConditions();
+                  const isDataIDUsedInAnyCondition = conditions.findIndex(condition => condition.id === lastValidDataID) !== -1;
+                  if (isDataIDUsedInAnyCondition) return 'If ID is left empty, all conditions related to this block will be removed!';
+                } else return validationMessage;
+              }}
               style={{
                 paddingBottom: '1rem',
               }}
               disabled={isConditionalMapping}
+              onBlurCapture={onBlurCapture}
             />
           </Stack>
           {/* @ts-ignore */}

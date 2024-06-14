@@ -21,6 +21,7 @@ import {
   getCurrentFocusIdx,
   setCurrentFocusBlock,
   setCurrentFocusIdx,
+  setEnableAddConditionButton,
   setLastBlockModification
 } from 'conditional-mapping-manager';
 import { useForm } from 'react-final-form';
@@ -96,6 +97,11 @@ export const FocusTooltip = () => {
       attributes: focusBlock?.attributes ?? {},
     });
   }, [focusIdx, focusBlock]);
+
+  useEffect(() => {
+    const blockDataID = focusBlock?.attributes?.['data-id'];
+    setEnableAddConditionButton(ActionOrigin.EasyEmail, !!blockDataID);
+  }, [focusBlock]);
 
   useEffect(() => {
     window.addEventListener('message', updateFocusIdx);

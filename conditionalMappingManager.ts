@@ -23,6 +23,7 @@ export interface ConditionalMappingState {
   conditions: Condition[];
   javascript?: string;
   css?: string;
+  enableAddConditionButton: boolean;
 }
 
 export const operators = [
@@ -106,6 +107,13 @@ export const getConditionalMappingConditions = () => {
   return conditions;
 };
 
+export const getEnableAddConditionButton = () => {
+  const conditionalMappingState = getConditionalMappingState();
+  const enableAddConditionButton = !!conditionalMappingState['enableAddConditionButton'];
+
+  return enableAddConditionButton;
+};
+
 // Setters:
 export const setConditionalMappingState = (origin: ActionOrigin, callback: (_conditionalMappingState: ConditionalMappingState) => ConditionalMappingState) => {
   const _conditionalMappingState = cloneDeep(getConditionalMappingState());
@@ -185,6 +193,16 @@ export const setConditionalMappingConditions = (origin: ActionOrigin, callback: 
     subtype: 'conditions',
     conditionalMappingState: _newConditionalMappingState
   }), '*');
+};
+
+export const setEnableAddConditionButton = (origin: ActionOrigin, _enableAddConditionButton: boolean) => {
+  const _conditionalMappingState = cloneDeep(getConditionalMappingState());
+  const _newConditionalMappingState = {
+    ..._conditionalMappingState,
+    enableAddConditionButton: _enableAddConditionButton,
+  };
+  sessionStorage.setItem('conditional-mapping', JSON.stringify(_newConditionalMappingState));
+  window.postMessage(JSON.stringify({ origin, type: 'conditional-mapping', subtype: 'enable-add-condition-button', conditionalMappingState: _newConditionalMappingState }), '*');
 };
 
 // Listeners:
@@ -268,6 +286,20 @@ export const generateUpdateConditionalMappingConditionsListener = (listenFor: Ac
       message.type === 'conditional-mapping' &&
       message.subtype === 'conditions'
     ) callback(message.conditionalMappingState.conditions);
+  } catch (error) {
+  }
+};
+
+export const generateUpdateEnableAddConditionButtonListener = (listenFor: ActionOrigin, callback: (__enableAddConditionButton: boolean) => void) => (event: MessageEvent<any>) => {
+  try {
+    if (typeof event.data !== 'string') return;
+    if (event.data.trim().length === 0) return;
+    const message = JSON.parse(event.data) as any;
+    if (
+      message.origin === listenFor &&
+      message.type === 'conditional-mapping' &&
+      message.subtype === 'enable-add-condition-button'
+    ) callback(message.conditionalMappingState.enableAddConditionButton);
   } catch (error) {
   }
 };

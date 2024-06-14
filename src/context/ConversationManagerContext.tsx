@@ -185,7 +185,7 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
       custom: ['slab', 'reward', 'rewards', 'rewards.slab'],
     },
     blockIDs: {
-      map: "{}",
+      map: "{\"content.children.[0].children.[0].children.[0].children.[0].children.[0]\": \"slab-text\"}",
     },
     conditionalMapping: {
       boolean: [

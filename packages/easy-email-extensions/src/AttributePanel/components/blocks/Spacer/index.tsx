@@ -7,13 +7,16 @@ import { Collapse, Grid, Space } from '@arco-design/web-react';
 import { ClassName } from '../../attributes/ClassName';
 import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { TextField } from '@extensions/components/Form';
-import { isIDValid } from '@extensions/utils/blockIDManager';
+import { validateBlockID } from '@extensions/utils/blockIDManager';
 import { useFocusIdx } from 'easy-email-editor';
 import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
+import { getConditionalMappingConditions } from 'conditional-mapping-manager';
+import useBlockID from '@extensions/AttributePanel/hooks/useBlockID';
 
 export function Spacer() {
   const { focusIdx } = useFocusIdx();
   const { isConditionalMapping = false } = useExtensionProps();
+  const { lastValidDataID, onBlurCapture } = useBlockID();
 
   return (
     <AttributesPanelWrapper>
@@ -27,8 +30,19 @@ export function Spacer() {
                 </Space>
               )}
               name={`${focusIdx}.attributes.data-id`}
-              validate={value => isIDValid(focusIdx, value)}
+              validate={value => {
+                const validationMessage = validateBlockID(focusIdx, value);
+                if (
+                  !validationMessage &&
+                  (!value || (value ?? '').length === 0)
+                ) {
+                  const conditions = getConditionalMappingConditions();
+                  const isDataIDUsedInAnyCondition = conditions.findIndex(condition => condition.id === lastValidDataID) !== -1;
+                  if (isDataIDUsedInAnyCondition) return 'If ID is left empty, all conditions related to this block will be removed!';
+                } else return validationMessage;
+              }}
               disabled={isConditionalMapping}
+              onBlurCapture={onBlurCapture}
             />
             <Height />
             <Padding />

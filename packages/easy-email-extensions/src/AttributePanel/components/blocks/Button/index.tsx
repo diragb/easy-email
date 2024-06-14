@@ -16,15 +16,17 @@ import { LineHeight } from '../../attributes/LineHeight';
 import { LetterSpacing } from '../../attributes/LetterSpacing';
 import { Collapse, Grid, Popover, Space, Button as ArcoButton } from '@arco-design/web-react';
 import { TextField } from '../../../../components/Form';
-import { IconFont, useEditorProps, useFocusIdx } from 'easy-email-editor';
+import { IconFont, useFocusIdx } from 'easy-email-editor';
 import { AttributesPanelWrapper } from '../../attributes/AttributesPanelWrapper';
 import { MergeTags } from '../../attributes';
 import { useField } from 'react-final-form';
 import { ClassName } from '../../attributes/ClassName';
 import { CollapseWrapper } from '../../attributes/CollapseWrapper';
-import { isIDValid } from '@extensions/utils/blockIDManager';
+import { validateBlockID } from '@extensions/utils/blockIDManager';
 import { AttributeModifier, generateUpdateCustomAttributeListener, generateUpdatePredefinedAttributeListener, getCustomAttributes, getPredefinedAttributes } from 'attribute-manager';
 import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
+import useBlockID from '@extensions/AttributePanel/hooks/useBlockID';
+import { getConditionalMappingConditions } from 'conditional-mapping-manager';
 
 export function Button() {
   const { focusIdx } = useFocusIdx();
@@ -32,6 +34,7 @@ export function Button() {
     parse: v => v,
   });
   const { isConditionalMapping = false } = useExtensionProps();
+  const { lastValidDataID, onBlurCapture } = useBlockID();
 
   const [predefinedAttributes, _setPredefinedAttributes] = useState(getPredefinedAttributes());
   const [customAttributes, _setCustomAttributes] = useState(getCustomAttributes());
@@ -69,8 +72,19 @@ export function Button() {
                 </Space>
               )}
               name={`${focusIdx}.attributes.data-id`}
-              validate={value => isIDValid(focusIdx, value)}
+              validate={value => {
+                const validationMessage = validateBlockID(focusIdx, value);
+                if (
+                  !validationMessage &&
+                  (!value || (value ?? '').length === 0)
+                ) {
+                  const conditions = getConditionalMappingConditions();
+                  const isDataIDUsedInAnyCondition = conditions.findIndex(condition => condition.id === lastValidDataID) !== -1;
+                  if (isDataIDUsedInAnyCondition) return 'If ID is left empty, all conditions related to this block will be removed!';
+                } else return validationMessage;
+              }}
               disabled={isConditionalMapping}
+              onBlurCapture={onBlurCapture}
             />
             <TextField
               label={(
