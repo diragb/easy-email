@@ -49,7 +49,7 @@ const CustomPagePanel = ({ hideSubTitle, hideSubject }: PageProps) => {
   const [customAttributes, _setCustomAttributes] = useState(getCustomAttributes());
   const [showInput, setShowInput] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const [conditionalMappingStatus, setConditionalMappingStatus] = useState(true);
+  const [conditionalMappingStatus, setConditionalMappingStatus] = useState(false);
 
   // Functions:
   const addCustomAttribute = () => {
