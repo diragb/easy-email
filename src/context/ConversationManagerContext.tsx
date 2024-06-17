@@ -336,7 +336,7 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
       sentAt: createdAt,
     };
 
-    console.log(`[Conversation Manager - React]: Beginning a conversation of type ${conversationType}: `, JSON.stringify(message));
+    // console.log(`[Conversation Manager - React]: Beginning a conversation of type ${conversationType}: `, JSON.stringify(message));
     addConversation(conversationID, {
       createdAt,
       messages: [message],
@@ -415,7 +415,7 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
             eventHandlers.onRequestSave(message);
             break;
           case ConversationType.CONDITIONAL_MAPPING_STATUS:
-            console.log('[Conversation Manager - React]: Received request for Conditional Mapping Status: ', JSON.stringify(message));
+            // console.log('[Conversation Manager - React]: Received request for Conditional Mapping Status: ', JSON.stringify(message));
             eventHandlers.onConditionalMappingStatus(JSON.parse(message.payload) ?? false);
             break;
           case ConversationType.LOAD_TEMPLATE:

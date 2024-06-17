@@ -69,27 +69,32 @@ const addConditionalMappingScripts = (html: string) => {
     const attributeEntries = Object.entries(condition.attributes);
     let attributeEvaluations = '';
     for (const attributeEntry of attributeEntries) {
+      // Don't evaluate entries with no value.
+      if (attributeEntry[1].trim().length === 0) continue;
+
       if (attributeEntry[0] === 'container-background-color') {
-        attributeEvaluations = `
-          ${attributeEvaluations}
-          element.style['backgroundColor'] = '${attributeEntry[1]}';
-        `;
+        attributeEvaluations = `${attributeEvaluations}
+          element.style['backgroundColor'] = '${attributeEntry[1]}';`;
+        continue;
+      }
+
+      if (attributeEntry[0] === 'align') {
+        attributeEvaluations = `${attributeEvaluations}
+          element.style['textAlign'] = '${attributeEntry[1]}';`;
         continue;
       }
 
       // Don't evaluate data tags.
       if (attributeEntry[0].split('-')[0] === 'data') continue;
 
-      const normalizeAttributeKey = attributeEntry[0].split('-').length > 1 ? attributeEntry[0].split('-').reduce((acc, cur) => {
-        cur = cur[0].toLocaleUpperCase() + cur.slice(1);
+      const normalizeAttributeKey = attributeEntry[0].split('-').length > 1 ? attributeEntry[0].split('-').reduce((acc, cur, idx) => {
+        cur = (idx > 0 ? cur[0].toLocaleUpperCase() : cur[0]) + cur.slice(1);
         acc = acc + cur;
         return acc;
       }, '') : attributeEntry[0];
 
-      attributeEvaluations = `
-        ${attributeEvaluations}
-        element.style['${normalizeAttributeKey}'] = '${attributeEntry[1]}';
-      `;
+      attributeEvaluations = `${attributeEvaluations}
+        element.style['${normalizeAttributeKey}'] = '${attributeEntry[1]}';`;
     }
 
     conditionToEvaluate = conditionToEvaluate.trim();

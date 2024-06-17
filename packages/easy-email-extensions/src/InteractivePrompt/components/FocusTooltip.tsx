@@ -48,25 +48,25 @@ export const FocusTooltip = () => {
     }
   };
 
-  const updateBlockConditions = (_conditionalMappingConditions: Condition[]) => {
-    const specificConditions = _conditionalMappingConditions.filter(condition => {
-      const blockDataID = focusBlock?.attributes?.['data-id'];
-      if (blockDataID) return blockDataID === condition.id;
-      else return focusIdx === condition.focusIdx;
-    });
-    const encodedConditionString = window.btoa(JSON.stringify(specificConditions));
-    change(`${focusIdx}.attributes.data-conditional-mapping`, encodedConditionString);
-  };
+  // const updateBlockConditions = (_conditionalMappingConditions: Condition[]) => {
+  //   const specificConditions = _conditionalMappingConditions.filter(condition => {
+  //     const blockDataID = focusBlock?.attributes?.['data-id'];
+  //     if (blockDataID) return blockDataID === condition.id;
+  //     else return focusIdx === condition.focusIdx;
+  //   });
+  //   const encodedConditionString = window.btoa(JSON.stringify(specificConditions));
+  //   change(`${focusIdx}.attributes.data-conditional-mapping`, encodedConditionString);
+  // };
 
   const updateFocusIdx = generateUpdateFocusIdxListener(ActionOrigin.React, setFocusIdx);
   const updateLastBlockModification = generateUpdateLastBlockModificationListener(
     ActionOrigin.React,
     ({ idx, attributes, isReset }) => updateBlock(idx, attributes, isReset)
   );
-  const updateConditions = generateUpdateConditionalMappingConditionsListener(
-    ActionOrigin.React,
-    updateBlockConditions
-  );
+  // const updateConditions = generateUpdateConditionalMappingConditionsListener(
+  //   ActionOrigin.React,
+  //   updateBlockConditions
+  // );
 
   // Effects:
   // Makes text block uneditable during CM.
@@ -113,13 +113,13 @@ export const FocusTooltip = () => {
     };
   }, []);
 
-  useEffect(() => {
-    window.addEventListener('message', updateConditions);
+  // useEffect(() => {
+  //   window.addEventListener('message', updateConditions);
 
-    return () => {
-      window.removeEventListener('message', updateConditions);
-    };
-  }, [focusIdx, focusBlock]);
+  //   return () => {
+  //     window.removeEventListener('message', updateConditions);
+  //   };
+  // }, [focusIdx, focusBlock]);
 
   // Return:
   if (!focusBlockNode || !focusBlock) return null;

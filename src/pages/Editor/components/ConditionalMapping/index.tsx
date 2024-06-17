@@ -26,7 +26,7 @@ import {
   setCurrentFocusIdx,
   setLastBlockModification,
 } from 'conditional-mapping-manager';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 
 // Imports:
 import { RiDeleteBin6Fill } from 'react-icons/ri';
@@ -85,12 +85,15 @@ const ConditionalMappingSection = () => {
 
   const updateConditionAttributes = (idx: string, attributes: Record<string, string>) => {
     if (focusIdx !== idx || focusedConditionIndex === -1) return;
-    const _conditions = cloneDeep(conditions);
-    _conditions[focusedConditionIndex].attributes = {
-      ..._conditions[focusedConditionIndex].attributes,
-      ...attributes,
-    };
-    _setConditions(_conditions);
+    setConditionalMappingConditions(ActionOrigin.React, conditions => {
+      const _conditions = cloneDeep(conditions);
+      _conditions[focusedConditionIndex].attributes = {
+        ..._conditions[focusedConditionIndex].attributes,
+        ...attributes,
+      };
+      _setConditions(_conditions);
+      return _conditions;
+    });
   };
 
   const updateLastBlockModification = generateUpdateLastBlockModificationListener(ActionOrigin.EasyEmail, ({ idx, attributes }) => updateConditionAttributes(idx, attributes));
@@ -115,6 +118,7 @@ const ConditionalMappingSection = () => {
   const onConditionsTouched = (conditionIndex?: string) => {
     const _conditionIndex = parseInt(conditionIndex ?? '');
     if (!isNaN(_conditionIndex)) {
+      if (focusedConditionIndex !== -1) resetBlockAttributes(conditions[_conditionIndex].focusIdx);
       fillBlockAttributes(conditions[_conditionIndex].focusIdx, conditions[_conditionIndex].attributes);
       setCurrentFocusIdx(ActionOrigin.React, conditions[_conditionIndex].focusIdx);
       _setFocusIdx(conditions[_conditionIndex].focusIdx);
