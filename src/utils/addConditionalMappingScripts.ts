@@ -21,6 +21,7 @@ const getSymbolFromFieldCondition = (fieldCondition: typeof fieldConditions[numb
     case 'and': return '&&';
     case 'not': return '!';
     case 'or': return '||';
+    default: return '';
   }
 };
 
@@ -56,10 +57,10 @@ const addConditionalMappingScripts = (html: string) => {
       if (field.condition) {
         const fieldCondition = getSymbolFromFieldCondition(field.condition);
 
-        if (field.condition !== 'not') {
+        if (field.condition !== 'not' && condition.fields.length > 1) {
           fieldStatement = `${fieldCondition} (${fieldStatement})`;
-        } else {
-          fieldStatement = `${fieldCondition}(${fieldStatement})`;
+        } else if (field.condition === 'not') {
+          fieldStatement = `&& ${fieldCondition}(${fieldStatement})`;
         }
       }
 
@@ -73,14 +74,12 @@ const addConditionalMappingScripts = (html: string) => {
       if (attributeEntry[1].trim().length === 0) continue;
 
       if (attributeEntry[0] === 'container-background-color') {
-        attributeEvaluations = `${attributeEvaluations}
-          element.style['backgroundColor'] = '${attributeEntry[1]}';`;
+        attributeEvaluations = `${attributeEvaluations} element.style['backgroundColor'] = '${attributeEntry[1]}';`;
         continue;
       }
 
       if (attributeEntry[0] === 'align') {
-        attributeEvaluations = `${attributeEvaluations}
-          element.style['textAlign'] = '${attributeEntry[1]}';`;
+        attributeEvaluations = `${attributeEvaluations} element.style['textAlign'] = '${attributeEntry[1]}';`;
         continue;
       }
 
@@ -93,34 +92,23 @@ const addConditionalMappingScripts = (html: string) => {
         return acc;
       }, '') : attributeEntry[0];
 
-      attributeEvaluations = `${attributeEvaluations}
-        element.style['${normalizeAttributeKey}'] = '${attributeEntry[1]}';`;
+      attributeEvaluations = `${attributeEvaluations} element.style['${normalizeAttributeKey}'] = '${attributeEntry[1]}';`;
     }
 
     conditionToEvaluate = conditionToEvaluate.trim();
-    conditionScript = conditionScript + `
-    const evaluationResult = new Function('data', 'return (${conditionToEvaluate});')(data);
-    if (evaluationResult) {
-      ${attributeEvaluations}
-    }
-    `;
+    attributeEvaluations = attributeEvaluations.trim();
+    conditionScript = conditionScript + ` const evaluationResult = new Function('data', \`return (${conditionToEvaluate});\`)(data); if (evaluationResult) { ${attributeEvaluations} }`;
 
     conditionScripts.push(conditionScript);
   }
 
-  console.log(conditionScripts);
+  const conditionsScriptArrayString = `[${conditionScripts.map(conditionScript => `'${window.btoa(conditionScript)}'`).join(', ')}]`;
 
-  // const script = document.createElement('script');
-  // script.textContent = `
-  //   const applyConditionalMapping = (data) => {
+  const script = document.createElement('script');
+  script.textContent = `const applyConditionalMapping = (data) => { const evalStrings = ${conditionsScriptArrayString}; for (const evalString of evalStrings) { new Function('data', window.atob(evalString))(data); } }; window.applyConditionalMapping = applyConditionalMapping;`;
 
-  //   };
-
-  //   window.applyConditionalMapping = applyConditionalMapping;
-  // `;
-  // container.appendChild(script);
-  // Operations
-
+  const xbody = container.getElementsByTagName('x-body');
+  xbody[0]?.appendChild(script);
   const finalHTML = container.innerHTML;
 
   document.body.removeChild(container);
