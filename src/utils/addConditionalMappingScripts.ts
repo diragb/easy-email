@@ -50,6 +50,17 @@ const addConditionalMappingCSS = (container: HTMLDivElement) => {
   xhead[0]?.appendChild(style);
 };
 
+const addIndexToGridDataSourceReference = (dataSourceReference: string) => {
+  const referenceBits = dataSourceReference.split('.');
+  const dataSource = referenceBits[0];
+  referenceBits.shift();
+  let finalReference = `data['${dataSource}'][index]` + referenceBits.reduce((acc, cur) => {
+    acc = acc + `['${cur}']`;
+    return acc;
+  }, '');
+  return finalReference;
+};
+
 const addConditionalMappingScripts = (html: string) => {
   const conditions = getConditionalMappingConditions();
   if (conditions.length === 0) return html;
@@ -65,18 +76,26 @@ const addConditionalMappingScripts = (html: string) => {
   // Operations
   let conditionScripts: string[] = [];
   for (const condition of conditions) {
-    let conditionScript = `const element = document.querySelector('[data-id="${condition.id}"]');`;
+    let conditionScript = `const elements = document.querySelectorAll('[data-id="${condition.id}"]');`;
+    conditionScript = `${conditionScript} elements.forEach((element, index) => {`;
     let conditionToEvaluate = '';
 
     for (const field of condition.fields) {
       if (field.operator === '') continue;
-      let fieldStatement = `data['${field.attribute}']`;
+      const doesFieldAttributeReferenceGridDataSource = field.attribute.includes('.');
+      const doesFieldValueReferenceGridDataSource = field.isValueAnAttribute && field.value?.includes('.');
+
+      let fieldStatement = doesFieldAttributeReferenceGridDataSource ? addIndexToGridDataSourceReference(field.attribute) : `data['${field.attribute}']`;
       const symbol = getSymbolFromOperator(field.operator);
       if (['is null', 'is not null'].includes(field.operator)) {
         fieldStatement = `${fieldStatement} ${symbol}`;
       } else {
-        if (field.isValueAnAttribute) fieldStatement = `${fieldStatement} ${symbol} data['${field.value}']`;
-        else fieldStatement = `${fieldStatement} ${symbol} '${field.value}'`;
+        if (typeof field.value === 'string') {
+          if (field.isValueAnAttribute) {
+            const wrappedFieldValue = doesFieldValueReferenceGridDataSource ? addIndexToGridDataSourceReference(field.value) : `data['${field.value}']`;
+            fieldStatement = `${fieldStatement} ${symbol} ${wrappedFieldValue}`;
+          } else fieldStatement = `${fieldStatement} ${symbol} '${field.value}'`;
+        }
       }
 
       if (field.condition) {
@@ -122,7 +141,7 @@ const addConditionalMappingScripts = (html: string) => {
 
     conditionToEvaluate = conditionToEvaluate.trim();
     attributeEvaluations = attributeEvaluations.trim();
-    conditionScript = conditionScript + ` const evaluationResult = new Function('data', \`return (${conditionToEvaluate});\`)(data); if (evaluationResult) { ${attributeEvaluations} }`;
+    conditionScript = conditionScript + ` const evaluationResult = new Function('data', 'index', \`return (${conditionToEvaluate});\`)(data, index); if (evaluationResult) { ${attributeEvaluations} } });`;
 
     conditionScripts.push(conditionScript);
   }
