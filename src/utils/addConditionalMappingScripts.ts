@@ -50,8 +50,8 @@ const addConditionalMappingScripts = (html: string) => {
       if (['is null', 'is not null'].includes(field.operator)) {
         fieldStatement = `${fieldStatement} ${symbol}`;
       } else {
-        // TODO: This can be another attribute. In which case, extend this in the future.
-        fieldStatement = `${fieldStatement} ${symbol} '${field.value}'`;
+        if (field.isValueAnAttribute) fieldStatement = `${fieldStatement} ${symbol} data['${field.value}']`;
+        else fieldStatement = `${fieldStatement} ${symbol} '${field.value}'`;
       }
 
       if (field.condition) {

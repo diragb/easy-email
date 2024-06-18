@@ -141,6 +141,7 @@ const ConditionalMappingSection = () => {
           operator: '',
           value: '',
           condition: 'and' as typeof fieldConditions[number],
+          isValueAnAttribute: false,
         }
       ];
       _setConditions(_conditions);
@@ -334,7 +335,8 @@ const ConditionalMappingSection = () => {
                                     fieldIndex,
                                     shouldSetValueToUndefined ? {
                                       operator: value as typeof operators[number],
-                                      value: undefined
+                                      value: undefined,
+                                      isValueAnAttribute: false,
                                     } : {
                                       operator: value as typeof operators[number]
                                     }
@@ -352,26 +354,43 @@ const ConditionalMappingSection = () => {
                                   }
                                 </SelectContent>
                               </Select>
-                              {/* <Select>
-                                <SelectTrigger className='w-full'>
-                                  <SelectValue placeholder='Select an attribute' />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {
-                                    Object.keys(attributes).map((attribute, attributeIndex) => (
-                                      <SelectItem key={`condition-${conditionIndex}-field-${fieldIndex}-attribute-${attributeIndex}-secondary-operand`} value={attribute}>{attribute}</SelectItem>
-                                    ))
-                                  }
-                                </SelectContent>
-                              </Select> */}
                               {
                                 (!(['is null', 'is not null']).includes(field.operator)) && (
-                                  <Input
-                                    className='w-full'
-                                    placeholder='Enter a value'
-                                    value={field.value}
-                                    onInput={event => updateConditionField(conditionIndex, fieldIndex, { value: event.currentTarget.value })}
-                                  />
+                                  <div className='relative'>
+                                    <Select
+                                      value={field.isValueAnAttribute ? field.value : ''}
+                                      onValueChange={value => {
+                                        updateConditionField(
+                                          conditionIndex,
+                                          fieldIndex,
+                                          {
+                                            value,
+                                            isValueAnAttribute: true,
+                                          }
+                                        );
+                                      }}
+                                    >
+                                      <Input
+                                        className='w-full'
+                                        placeholder='Enter a value'
+                                        value={field.value}
+                                        onInput={event => {
+                                          updateConditionField(conditionIndex, fieldIndex, {
+                                            value: event.currentTarget.value,
+                                            isValueAnAttribute: false,
+                                          });
+                                        }}
+                                        endAdornment={<SelectTrigger className='w-10 mr-2 border-none'></SelectTrigger>}
+                                      />
+                                      <SelectContent>
+                                        {
+                                          Object.keys(attributes).map((attribute, attributeIndex) => (
+                                            <SelectItem key={`condition-${conditionIndex}-field-${fieldIndex}-attribute-${attributeIndex}-secondary-operand`} value={attribute}>{attribute}</SelectItem>
+                                          ))
+                                        }
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
                                 )
                               }
                             </div>

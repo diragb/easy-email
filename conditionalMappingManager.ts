@@ -44,6 +44,7 @@ export interface ConditionField {
   operator: typeof operators[number] | '';
   value?: string;
   condition?: typeof fieldConditions[number];
+  isValueAnAttribute: boolean;
 }
 
 export interface Condition {
