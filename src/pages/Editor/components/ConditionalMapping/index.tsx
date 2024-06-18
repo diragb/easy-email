@@ -19,14 +19,19 @@ import {
   generateUpdateFocusIdxListener,
   generateUpdateLastBlockModificationListener,
   getBlockByIdx,
+  getConditionalMappingCSS,
   getConditionalMappingConditions,
+  getConditionalMappingJavascript,
   getDefaultTemplateContent,
   operators,
+  setConditionalMappingCSS,
   setConditionalMappingConditions,
+  setConditionalMappingJavascript,
   setCurrentFocusIdx,
   setLastBlockModification,
 } from 'conditional-mapping-manager';
-import { cloneDeep, isEqual } from 'lodash';
+import { cloneDeep } from 'lodash';
+import useConversationManager from '@demo/hooks/useConversationManager';
 
 // Imports:
 import { RiDeleteBin6Fill } from 'react-icons/ri';
@@ -55,7 +60,7 @@ import {
   AccordionTrigger,
 } from '@demo/shadcn/components/ui/accordion';
 import { Input } from '@demo/shadcn/components/ui/input';
-import useConversationManager from '@demo/hooks/useConversationManager';
+import { Textarea } from '@demo/shadcn/components/ui/textarea';
 
 // Functions:
 const ConditionalMappingSection = () => {
@@ -74,6 +79,8 @@ const ConditionalMappingSection = () => {
   const [focusIdx, _setFocusIdx] = useState('');
   const [focusBlock, _setFocusBlock] = useState<any>();
   const [enableAddConditionButton, _setEnableAddConditionButton] = useState(false);
+  const [javascript, setJavascript] = useState(getConditionalMappingJavascript());
+  const [CSS, setCSS] = useState(getConditionalMappingCSS());
 
   // Functions:
   const updateCustomAttributes = generateUpdateCustomAttributeListener(AttributeModifier.EasyEmail, _setCustomAttributes);
@@ -458,11 +465,29 @@ const ConditionalMappingSection = () => {
             </div>
           </div>
         </TabsContent>
-        <TabsContent value='javascript' className='h-[80%]'>
-          Nothing to see here, for now.
+        <TabsContent value='javascript' className='h-[95%]'>
+          <Textarea
+            value={javascript}
+            onChange={event => {
+              const value = event.currentTarget.value;
+              setConditionalMappingJavascript(ActionOrigin.React, () => value);
+              setJavascript(value);
+            }}
+            className='h-full mt-4 resize-none'
+            placeholder='Enter JavaScript code..'
+          />
         </TabsContent>
-        <TabsContent value='css' className='h-[80%]'>
-          Nothing to see here, for now.
+        <TabsContent value='css' className='h-[95%]'>
+          <Textarea
+            value={CSS}
+            onChange={event => {
+              const value = event.currentTarget.value;
+              setConditionalMappingCSS(ActionOrigin.React, () => value);
+              setCSS(value);
+            }}
+            className='h-full mt-4 resize-none'
+            placeholder='Enter CSS'
+          />
         </TabsContent>
       </Tabs>
     </div>

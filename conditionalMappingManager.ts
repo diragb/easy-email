@@ -115,6 +115,20 @@ export const getEnableAddConditionButton = () => {
   return enableAddConditionButton;
 };
 
+export const getConditionalMappingJavascript = () => {
+  const conditionalMappingState = getConditionalMappingState();
+  const javascript = conditionalMappingState['javascript'] ?? '';
+
+  return javascript;
+};
+
+export const getConditionalMappingCSS = () => {
+  const conditionalMappingState = getConditionalMappingState();
+  const css = conditionalMappingState['css'] ?? '';
+
+  return css;
+};
+
 // Setters:
 export const setConditionalMappingState = (origin: ActionOrigin, callback: (_conditionalMappingState: ConditionalMappingState) => ConditionalMappingState) => {
   const _conditionalMappingState = cloneDeep(getConditionalMappingState());
@@ -204,6 +218,36 @@ export const setEnableAddConditionButton = (origin: ActionOrigin, _enableAddCond
   };
   sessionStorage.setItem('conditional-mapping', JSON.stringify(_newConditionalMappingState));
   window.postMessage(JSON.stringify({ origin, type: 'conditional-mapping', subtype: 'enable-add-condition-button', conditionalMappingState: _newConditionalMappingState }), '*');
+};
+
+export const setConditionalMappingJavascript = (origin: ActionOrigin, callback: (_conditionalMappingJavascript: string) => string) => {
+  const _conditionalMappingState = cloneDeep(getConditionalMappingState());
+  const _newConditionalMappingState = {
+    ..._conditionalMappingState,
+    javascript: callback(_conditionalMappingState.javascript ?? ''),
+  } as ConditionalMappingState;
+  sessionStorage.setItem('conditional-mapping', JSON.stringify(_newConditionalMappingState));
+  window.postMessage(JSON.stringify({
+    origin,
+    type: 'conditional-mapping',
+    subtype: 'javascript',
+    conditionalMappingState: _newConditionalMappingState
+  }), '*');
+};
+
+export const setConditionalMappingCSS = (origin: ActionOrigin, callback: (_conditionalMappingCSS: string) => string) => {
+  const _conditionalMappingState = cloneDeep(getConditionalMappingState());
+  const _newConditionalMappingState = {
+    ..._conditionalMappingState,
+    css: callback(_conditionalMappingState.css ?? ''),
+  } as ConditionalMappingState;
+  sessionStorage.setItem('conditional-mapping', JSON.stringify(_newConditionalMappingState));
+  window.postMessage(JSON.stringify({
+    origin,
+    type: 'conditional-mapping',
+    subtype: 'css',
+    conditionalMappingState: _newConditionalMappingState
+  }), '*');
 };
 
 // Listeners:

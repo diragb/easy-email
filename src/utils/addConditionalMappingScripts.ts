@@ -1,5 +1,11 @@
 // Packages:
-import { fieldConditions, getConditionalMappingConditions, operators } from 'conditional-mapping-manager';
+import {
+  fieldConditions,
+  getConditionalMappingCSS,
+  getConditionalMappingConditions,
+  getConditionalMappingJavascript,
+  operators
+} from 'conditional-mapping-manager';
 
 // Functions:
 const getSymbolFromOperator = (operator: typeof operators[number]) => {
@@ -23,6 +29,25 @@ const getSymbolFromFieldCondition = (fieldCondition: typeof fieldConditions[numb
     case 'or': return '||';
     default: return '';
   }
+};
+
+const addConditionalMappingJavascript = (container: HTMLDivElement) => {
+  const xbody = container.getElementsByTagName('x-body');
+  const javascriptString = getConditionalMappingJavascript();
+
+  const script = document.createElement('script');
+  script.textContent = javascriptString;
+
+  xbody[0]?.appendChild(script);
+};
+
+const addConditionalMappingCSS = (container: HTMLDivElement) => {
+  const xhead = container.getElementsByTagName('x-head');
+  const CSSString = getConditionalMappingCSS();
+
+  const style = document.createElement('style');
+  style.textContent = CSSString;
+  xhead[0]?.appendChild(style);
 };
 
 const addConditionalMappingScripts = (html: string) => {
@@ -109,6 +134,10 @@ const addConditionalMappingScripts = (html: string) => {
 
   const xbody = container.getElementsByTagName('x-body');
   xbody[0]?.appendChild(script);
+
+  addConditionalMappingJavascript(container);
+  addConditionalMappingCSS(container);
+
   const finalHTML = container.innerHTML;
 
   document.body.removeChild(container);
