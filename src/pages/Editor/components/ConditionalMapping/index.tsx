@@ -49,6 +49,7 @@ import { Button } from '@demo/shadcn/components/ui/button';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -65,7 +66,7 @@ import { Textarea } from '@demo/shadcn/components/ui/textarea';
 // Functions:
 const ConditionalMappingSection = () => {
   // Constants:
-  const { exitConditionalMapping } = useConversationManager();
+  const { exitConditionalMapping, enableSave } = useConversationManager();
 
   // State:
   const [conditions, _setConditions] = useState<Condition[]>([]);
@@ -81,6 +82,7 @@ const ConditionalMappingSection = () => {
   const [enableAddConditionButton, _setEnableAddConditionButton] = useState(false);
   const [javascript, setJavascript] = useState(getConditionalMappingJavascript());
   const [CSS, setCSS] = useState(getConditionalMappingCSS());
+  const [areConditionsErrorFree, setAreConditionsErrorFree] = useState(false);
 
   // Functions:
   const updateCustomAttributes = generateUpdateCustomAttributeListener(AttributeModifier.EasyEmail, _setCustomAttributes);
@@ -242,6 +244,32 @@ const ConditionalMappingSection = () => {
   //   if (highlightedConditionIndex !== -1 && highlightedConditionIndex !== focusedConditionIndex) setFocusedConditionIndex(highlightedConditionIndex);
   //   else if (highlightedConditionIndex === -1 && highlightedConditionIndex !== focusedConditionIndex) setFocusedConditionIndex(-1);
   // }, [focusIdx, focusedConditionIndex]);
+
+  useEffect(() => {
+    let containsErrors = false;
+    for (const condition of conditions) {
+      for (const [fieldIndex, field] of condition.fields.entries()) {
+        if (
+          (field.attribute.length === 0) ||
+          (!field.operator || field.operator.length === 0) ||
+          (!['is not null', 'is null'].includes(field.operator) && (!field.value || field.value.length === 0)) ||
+          (fieldIndex > 0 && (!field.condition || field.condition.length === 0))
+        ) {
+          containsErrors = true;
+          break;
+        }
+      }
+
+      if (containsErrors) break;
+    }
+
+    if (containsErrors && areConditionsErrorFree) setAreConditionsErrorFree(false);
+    else if (!containsErrors && !areConditionsErrorFree) setAreConditionsErrorFree(true);
+  }, [conditions]);
+
+  useEffect(() => {
+    enableSave(areConditionsErrorFree);
+  }, [areConditionsErrorFree]);
 
   // Return:
   return (
