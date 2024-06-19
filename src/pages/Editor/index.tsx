@@ -4,7 +4,7 @@ import React, {
   useMemo,
   useState
 } from 'react';
-import { zipObject } from 'lodash';
+import { zipObject, difference } from 'lodash';
 import services from '@demo/services';
 import useConversationManager from '@demo/hooks/useConversationManager';
 const imageCompression = import('browser-image-compression');
@@ -231,12 +231,13 @@ const Editor = () => {
       subject: '',
       subTitle: '',
     });
+
+    const trueCustomAttributes = difference(payload.attributes.custom, payload.attributes.predefined);
     setCustomAttributes(AttributeModifier.React, _customAttributes => ({
-      ...zipObject(payload.attributes.custom, Array(payload.attributes.custom.length).fill('')),
+      ...zipObject(trueCustomAttributes, Array(trueCustomAttributes.length).fill('')),
     }));
     setPredefinedAttributes(AttributeModifier.React, _predefinedAttributes => ({
       ...zipObject(payload.attributes.predefined, Array(payload.attributes.predefined.length).fill('')),
-      // example: 'https://images.pexels.com/photos/21936231/pexels-photo-21936231/free-photo-of-a-stork-is-sitting-on-top-of-a-nest.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
     }));
     setConditionalMappingState(ActionOrigin.React, _conditionalMappingState => ({
       ..._conditionalMappingState,

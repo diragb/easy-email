@@ -169,31 +169,52 @@ const InternalEditor = ({ values }: {
     return container.innerHTML;
   };
 
-  const onlyGetUsedCustomAttributes = (content: any) => {
-    // It's dirty, because it contains both predefined and custom attributes.
-    // Essentially, any attribute being used in the template is returned here.
-    const gridBlocks = getGridBlocksInJSON(content);
+  // const onlyGetUsedCustomAttributes = (content: any) => {
+  //   // It's dirty, because it contains both predefined and custom attributes.
+  //   // Essentially, any attribute being used in the template is returned here.
+  //   const gridBlocks = getGridBlocksInJSON(content);
 
-    let extractedDirtyAttributesArray = extractAttributes(JSON.stringify(content ?? {}));
+  //   let extractedDirtyAttributesArray = extractAttributes(JSON.stringify(content ?? {}));
+  //   for (const gridBlock of gridBlocks) {
+  //     // NOTE: We are no longer adding the datasource itself as an attribute. Rather, the properties of the datasource are added.
+  //     // const dataSource: string[] = [gridBlock?.['attributes']?.['data-source']] ?? [];
+  //     extractedDirtyAttributesArray = [
+  //       ...extractedDirtyAttributesArray,
+  //       ...extractAttributes(JSON.stringify(gridBlock ?? {})),
+  //       // ...dataSource,
+  //     ];
+  //   }
+
+  //   const predefinedAttributesArray = Object.keys(getPredefinedAttributes());
+  //   const filteredCustomAttributes = difference(extractedDirtyAttributesArray, predefinedAttributesArray);
+
+  //   // Now, we filter the extracted and filtered custom attributes again,
+  //   // based on whether they had been declared in the Page Attributes panel or not.
+  //   const declaredCustomAttributesArray = [...new Set(Object.keys(getCustomAttributes()))];
+  //   const usedCustomAttributes = filteredCustomAttributes.filter(attribute => declaredCustomAttributesArray.includes(attribute));
+
+  //   return zipObject(usedCustomAttributes, Array(usedCustomAttributes.length).fill(''));
+  // };
+
+  const onlyGetUsedAttributes = (content: any) => {
+    const gridBlocks = getGridBlocksInJSON(content);
+    let extractedAttributesArray = extractAttributes(JSON.stringify(content ?? {}));
     for (const gridBlock of gridBlocks) {
-      // NOTE: We are no longer adding the datasource itself as an attribute. Rather, the properties of the datasource are added.
-      // const dataSource: string[] = [gridBlock?.['attributes']?.['data-source']] ?? [];
-      extractedDirtyAttributesArray = [
-        ...extractedDirtyAttributesArray,
+      extractedAttributesArray = [
+        ...extractedAttributesArray,
         ...extractAttributes(JSON.stringify(gridBlock ?? {})),
-        // ...dataSource,
       ];
     }
 
-    const predefinedAttributesArray = Object.keys(getPredefinedAttributes());
-    const filteredCustomAttributes = difference(extractedDirtyAttributesArray, predefinedAttributesArray);
-
-    // Now, we filter the extracted and filtered custom attributes again,
+    // Now, we filter the extracted attributes again,
     // based on whether they had been declared in the Page Attributes panel or not.
-    const declaredCustomAttributesArray = [...new Set(Object.keys(getCustomAttributes()))];
-    const usedCustomAttributes = filteredCustomAttributes.filter(attribute => declaredCustomAttributesArray.includes(attribute));
+    const declaredAttributesArray = [
+      ...new Set(Object.keys(getCustomAttributes())),
+      ...new Set(Object.keys(getPredefinedAttributes()))
+    ];
+    const usedAttributes = extractedAttributesArray.filter(attribute => declaredAttributesArray.includes(attribute));
 
-    return zipObject(usedCustomAttributes, Array(usedCustomAttributes.length).fill(''));
+    return zipObject(usedAttributes, Array(usedAttributes.length).fill(''));
   };
 
   // Effects:
@@ -208,7 +229,7 @@ const InternalEditor = ({ values }: {
           }
           return value;
         });
-        const customAttributes = onlyGetUsedCustomAttributes(values.content);
+        const customAttributes = onlyGetUsedAttributes(values.content);
         const customAttributesArray = [...new Set(Object.keys(customAttributes))];
         const predefinedAttributesArray = [...new Set(Object.keys(getPredefinedAttributes()))];
 
