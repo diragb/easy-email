@@ -274,7 +274,11 @@ const ConditionalMappingSection = () => {
   // Return:
   return (
     <div className='flex flex-col w-[30vw] h-full px-3 py-4 bg-[#F8FAFC]'>
-      <div className='flex justify-start items-center gap-2 w-full h-[2.5%] pb-[1rem] cursor-pointer hover:underline' onClick={exitConditionalMapping}>
+      <div
+        className='flex justify-start items-center gap-2 w-full h-[2.5%] pb-[1rem] cursor-pointer hover:underline'
+        style={{ visibility: areConditionsErrorFree ? 'visible' : 'hidden', pointerEvents: areConditionsErrorFree ? 'all' : 'none' }}
+        onClick={areConditionsErrorFree ? exitConditionalMapping : () => { }}
+      >
         <HiArrowLongLeft />
         <div className='text-sm font-bold'>Exit Conditional Mapping</div>
       </div>
