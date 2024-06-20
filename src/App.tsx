@@ -7,6 +7,7 @@ import '@demo/styles/common.scss';
 import './index.css';
 import { history } from './utils/history';
 import { ConversationManagerProvider } from './context/ConversationManagerContext';
+import { Toaster } from './shadcn/components/ui/toaster';
 // import Home from '@demo/pages/Home';
 
 const Editor = React.lazy(() => import('@demo/pages/Editor'));
@@ -56,6 +57,7 @@ function App() {
                 />
               </Switch>
             </Router>
+            <Toaster />
           </Suspense>
         </Page>
       </ConversationManagerProvider>

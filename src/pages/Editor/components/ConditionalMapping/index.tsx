@@ -32,6 +32,7 @@ import {
 } from 'conditional-mapping-manager';
 import { cloneDeep } from 'lodash';
 import useConversationManager from '@demo/hooks/useConversationManager';
+import { useToast } from '@demo/shadcn/components/ui/use-toast';
 
 // Imports:
 import { RiDeleteBin6Fill } from 'react-icons/ri';
@@ -67,6 +68,7 @@ import { Textarea } from '@demo/shadcn/components/ui/textarea';
 const ConditionalMappingSection = () => {
   // Constants:
   const { exitConditionalMapping, enableSave } = useConversationManager();
+  const { toast } = useToast();
 
   // State:
   const [conditions, _setConditions] = useState<Condition[]>([]);
@@ -276,8 +278,7 @@ const ConditionalMappingSection = () => {
     <div className='flex flex-col w-[30vw] h-full px-3 py-4 bg-[#F8FAFC]'>
       <div
         className='flex justify-start items-center gap-2 w-full h-[2.5%] pb-[1rem] cursor-pointer hover:underline'
-        style={{ visibility: areConditionsErrorFree ? 'visible' : 'hidden', pointerEvents: areConditionsErrorFree ? 'all' : 'none' }}
-        onClick={areConditionsErrorFree ? exitConditionalMapping : () => { }}
+        onClick={areConditionsErrorFree ? exitConditionalMapping : () => toast({ title: 'Uh oh! Cannot exit Conditional Mapping.', description: 'Please fix the errors on this page to go back.', variant: 'destructive' })}
       >
         <HiArrowLongLeft />
         <div className='text-sm font-bold'>Exit Conditional Mapping</div>
