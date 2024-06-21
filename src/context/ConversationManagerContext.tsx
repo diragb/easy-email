@@ -114,7 +114,7 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
   const DEFAULT_TEMPLATE = {
     template: {
       type: 'IMG',
-      content: "{\"type\":\"page\",\"data\":{\"value\":{\"breakpoint\":\"480px\",\"headAttributes\":\"\",\"font-size\":\"20px\",\"font-weight\":\"600\",\"line-height\":\"2\",\"headStyles\":[],\"fonts\":[],\"responsive\":true,\"font-family\":\"'Inter'\",\"user-style\":{},\"text-color\":\"black\"}},\"attributes\":{\"width\":\"600px\",\"background-color\":\"#F3F3F3\"},\"children\":[{\"type\":\"advanced_wrapper\",\"data\":{\"value\":{}},\"attributes\":{\"padding\":\"20px 20px 20px 20px\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\",\"background-url\":\"https://i.imgur.com/szQzwot.png\",\"background-repeat\":\"no-repeat\",\"background-size\":\"cover\"},\"children\":[{\"type\":\"advanced_grid\",\"data\":{\"value\":{\"noWrap\":false}},\"attributes\":{\"padding\":\"100px 0px 220px 0px\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\",\"data-direction\":\"row\",\"data-threshold\":\"5\",\"data-type\":\"grid\",\"background-url\":\"https://i.imgur.com/DAnvNp1.png\",\"background-repeat\":\"no-repeat\",\"background-size\":\"contain\",\"data-source\":\"rewards\"},\"children\":[{\"type\":\"advanced_section\",\"data\":{\"value\":{\"noWrap\":false}},\"attributes\":{\"padding\":\"20px 0px 20px 0px\",\"background-repeat\":\"no-repeat\",\"background-size\":\"contain\",\"background-position\":\"top center\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\",\"background-url\":\"https://i.imgur.com/HpsWFqH.png\"},\"children\":[{\"type\":\"advanced_column\",\"data\":{\"value\":{}},\"attributes\":{\"padding\":\"35px 0px 35px 0px\",\"border\":\"none\",\"vertical-align\":\"top\"},\"children\":[{\"type\":\"advanced_text\",\"data\":{\"value\":{\"content\":\"<div style=\\\"text-align: center;\\\"><span style=\\\"background-color: initial; word-spacing: normal;\\\">{{slab}}</span></div>\"}},\"attributes\":{\"padding\":\"0px 0px 0px 0px\",\"align\":\"left\",\"font-size\":\"10px\",\"color\":\"white\", \"data-id\": \"slab-text\", \"data-conditional-mapping\": \"W3siaWQiOiJzbGFiLXRleHQiLCJmb2N1c0lkeCI6ImNvbnRlbnQuY2hpbGRyZW4uWzBdLmNoaWxkcmVuLlswXS5jaGlsZHJlbi5bMF0uY2hpbGRyZW4uWzBdLmNoaWxkcmVuLlswXSIsImF0dHJpYnV0ZXMiOnsiaGVpZ2h0IjoiMjAwcHgifSwiZmllbGRzIjpbeyJhdHRyaWJ1dGUiOiJhbHBoYSIsIm9wZXJhdG9yIjoiZXF1YWxzIiwidmFsdWUiOiI5MDAifV19XQ==\"},\"children\":[]},{\"type\":\"advanced_text\",\"data\":{\"value\":{\"content\":\"<div style=\\\"text-align: center;\\\"><span style=\\\"background-color: initial; word-spacing: normal;\\\">{{reward}}</span></div>\"}},\"attributes\":{\"padding\":\"25px 0px 0px 0px\",\"align\":\"left\",\"font-size\":\"8px\"},\"children\":[]}]}]}]}]}]}",
+      content: "{\"type\":\"page\",\"data\":{\"value\":{\"breakpoint\":\"480px\",\"headAttributes\":\"\",\"font-size\":\"20px\",\"font-weight\":\"600\",\"line-height\":\"2\",\"headStyles\":[],\"fonts\":[],\"responsive\":true,\"font-family\":\"'Inter'\",\"user-style\":{},\"text-color\":\"black\"}},\"attributes\":{\"width\":\"600px\",\"background-color\":\"#F3F3F3\"},\"children\":[{\"type\":\"advanced_wrapper\",\"data\":{\"value\":{}},\"attributes\":{\"padding\":\"20px 20px 20px 20px\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\",\"background-url\":\"https://i.imgur.com/szQzwot.png\",\"background-repeat\":\"no-repeat\",\"background-size\":\"cover\"},\"children\":[{\"type\":\"advanced_grid\",\"data\":{\"value\":{\"noWrap\":false}},\"attributes\":{\"padding\":\"100px 0px 220px 0px\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\",\"data-direction\":\"row\",\"data-threshold\":\"5\",\"data-type\":\"grid\",\"background-url\":\"https://i.imgur.com/DAnvNp1.png\",\"background-repeat\":\"no-repeat\",\"background-size\":\"contain\",\"data-source\":\"rewards\"},\"children\":[{\"type\":\"advanced_section\",\"data\":{\"value\":{\"noWrap\":false}},\"attributes\":{\"padding\":\"20px 0px 20px 0px\",\"background-repeat\":\"no-repeat\",\"background-size\":\"contain\",\"background-position\":\"top center\",\"border\":\"none\",\"direction\":\"ltr\",\"text-align\":\"center\",\"background-url\":\"https://i.imgur.com/HpsWFqH.png\"},\"children\":[{\"type\":\"advanced_column\",\"data\":{\"value\":{}},\"attributes\":{\"padding\":\"35px 0px 35px 0px\",\"border\":\"none\",\"vertical-align\":\"top\"},\"children\":[{\"type\":\"advanced_text\",\"data\":{\"value\":{\"content\":\"<div style=\\\"text-align: center;\\\"><span style=\\\"background-color: initial; word-spacing: normal;\\\">{{slab}}</span></div>\"}},\"attributes\":{\"padding\":\"0px 0px 0px 0px\",\"align\":\"left\",\"font-size\":\"10px\",\"color\":\"white\", \"data-id\": \"slab-text\"},\"children\":[]},{\"type\":\"advanced_text\",\"data\":{\"value\":{\"content\":\"<div style=\\\"text-align: center;\\\"><span style=\\\"background-color: initial; word-spacing: normal;\\\">{{reward}}</span></div>\"}},\"attributes\":{\"padding\":\"25px 0px 0px 0px\",\"align\":\"left\",\"font-size\":\"8px\"},\"children\":[]}]}]}]}]}]}",
       themeSettings: {
         "width": "600px",
         "breakpoint": "480px",
@@ -196,17 +196,34 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
           id: 'slab-text',
           focusIdx: 'content.children.[0].children.[0].children.[0].children.[0].children.[0]',
           attributes: {
-            height: '200px'
-          } as Record<string, string>,
+            height: '',
+            padding: '0px 0px 0px 0px',
+            align: 'left',
+            'font-size': '14px',
+            color: '#03E3C1',
+            'data-id': 'slab-text',
+            'font-family': '',
+            'font-weight': '500',
+            'data-color-palette-name': 'Utility Palette',
+            'data-color-palette-color-name': 'Secondary',
+            'data-color-palette-color-code': '#03E3C1',
+            'data-background-color-palette-name': 'Lucidity Palette',
+            'data-background-color-palette-color-name': 'Superluminary',
+            'data-background-color-palette-color-code': '#123456',
+            'container-background-color': '#123456',
+            'data-color-palette-tree': '-0-1',
+            'data-background-color-palette-tree': '-1-1',
+            'font-style': 'italic'
+          },
           fields: [
             {
               attribute: 'alpha',
               operator: 'equals',
-              value: '900',
+              value: '900'
             }
           ]
         }
-      ],
+      ]
     }
   };
 

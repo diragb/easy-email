@@ -1,6 +1,6 @@
 import React from 'react';
 import { IBlock, IBlockData } from '@core/typings';
-import { BasicType } from '@core/constants';
+import { AdvancedType, BasicType } from '@core/constants';
 import { createBlock } from '@core/utils/createBlock';
 import { merge } from 'lodash';
 import { t } from '@core/utils';
@@ -39,7 +39,7 @@ export const Group: IBlock<IGroup> = createBlock({
   render(params) {
     if (JSON.parse(sessionStorage.getItem('isExporting') ?? 'false')) {
       const rawAttributes = params.data.attributes;
-      const dataAttributes = {} as Record<string, string>;
+      const dataAttributes = { 'data-block-type': AdvancedType.GROUP } as Record<string, string>;
       for (const attributeEntry of Object.entries(rawAttributes)) {
         if (/^data-.*$/.test(attributeEntry[0])) dataAttributes[attributeEntry[0]] = attributeEntry[1];
       }

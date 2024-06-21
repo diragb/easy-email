@@ -234,7 +234,7 @@ const InternalEditor = ({ values }: {
         const predefinedAttributesArray = [...new Set(Object.keys(getPredefinedAttributes()))];
 
         const templateType = sessionStorage.getItem('template-type') ?? 'EMAIL';
-        const rawHTML = generateHTML(values);
+        const rawHTML = generateHTML({ ...values, content: JSON.parse(transformedContent) });
         const rawHTMLForPreview = generateHTML(values, true);
         const finalHTML = unsanitizeHTMLTags(
           addConditionalMappingScripts(

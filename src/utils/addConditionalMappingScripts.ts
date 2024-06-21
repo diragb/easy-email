@@ -6,6 +6,7 @@ import {
   getConditionalMappingJavascript,
   operators
 } from 'conditional-mapping-manager';
+import { AdvancedType } from 'easy-email-core';
 
 // Functions:
 const getSymbolFromOperator = (operator: typeof operators[number]) => {
@@ -50,6 +51,10 @@ const addConditionalMappingCSS = (container: HTMLDivElement) => {
   xhead[0]?.appendChild(style);
 };
 
+const recursiveStyleApplication = `const recursiveStyleApplication = (element, styles) => { Object.entries(styles).forEach(([property, value]) => { element.style.setProperty(property, value); }); for (let child of element.children) { recursiveStyleApplication(child, styles); } };`;
+
+const filterNonEmptyValues = `const filterNonEmptyValues = (targetObject) => Object.fromEntries(Object.entries(targetObject).filter(([_, value]) => value !== ''));`;
+
 const addIndexToGridDataSourceReference = (dataSourceReference: string) => {
   const referenceBits = dataSourceReference.split('.');
   const dataSource = referenceBits[0];
@@ -80,6 +85,7 @@ const addConditionalMappingScripts = (html: string) => {
     conditionScript = `${conditionScript} elements.forEach((element, index) => {`;
     let conditionToEvaluate = '';
 
+    // NOTE: Building the condition fields string here.
     for (const field of condition.fields) {
       if (field.operator === '') continue;
       const doesFieldAttributeReferenceGridDataSource = field.attribute.includes('.');
@@ -111,9 +117,13 @@ const addConditionalMappingScripts = (html: string) => {
       conditionToEvaluate = conditionToEvaluate + ' ' + fieldStatement;
     }
 
+    // NOTE: Building the attribute evaluations string here.
     const attributeEntries = Object.entries(condition.attributes);
     let attributeEvaluations = '';
     for (const attributeEntry of attributeEntries) {
+      // Don't evaluate data tags.
+      if (attributeEntry[0].split('-')[0] === 'data') continue;
+
       // Don't evaluate entries with no value.
       if (attributeEntry[1].trim().length === 0) continue;
 
@@ -127,9 +137,6 @@ const addConditionalMappingScripts = (html: string) => {
         continue;
       }
 
-      // Don't evaluate data tags.
-      if (attributeEntry[0].split('-')[0] === 'data') continue;
-
       const normalizeAttributeKey = attributeEntry[0].split('-').length > 1 ? attributeEntry[0].split('-').reduce((acc, cur, idx) => {
         cur = (idx > 0 ? cur[0].toLocaleUpperCase() : cur[0]) + cur.slice(1);
         acc = acc + cur;
@@ -138,6 +145,10 @@ const addConditionalMappingScripts = (html: string) => {
 
       attributeEvaluations = `${attributeEvaluations} element.style['${normalizeAttributeKey}'] = '${attributeEntry[1]}';`;
     }
+
+    // NOTE: Building the depth attribute.
+    let depthAttributeEvaluator = `if (['${AdvancedType.TEXT}'].includes(element.dataset['blockType'])) { const parentStyle = filterNonEmptyValues(element.style); for (let child of element.children) { recursiveStyleApplication(child, parentStyle); } }`;
+    attributeEvaluations = `${attributeEvaluations} ${depthAttributeEvaluator}`;
 
     conditionToEvaluate = conditionToEvaluate.trim();
     attributeEvaluations = attributeEvaluations.trim();
@@ -149,7 +160,7 @@ const addConditionalMappingScripts = (html: string) => {
   const conditionsScriptArrayString = `[${conditionScripts.map(conditionScript => `'${window.btoa(conditionScript)}'`).join(', ')}]`;
 
   const script = document.createElement('script');
-  script.textContent = `const applyConditionalMapping = (data) => { const evalStrings = ${conditionsScriptArrayString}; for (const evalString of evalStrings) { new Function('data', window.atob(evalString))(data); } }; window.applyConditionalMapping = applyConditionalMapping;`;
+  script.textContent = `${recursiveStyleApplication} ${filterNonEmptyValues} const applyConditionalMapping = (data) => { const evalStrings = ${conditionsScriptArrayString}; for (const evalString of evalStrings) { new Function('data', window.atob(evalString))(data); } }; window.applyConditionalMapping = applyConditionalMapping;`;
 
   const xbody = container.getElementsByTagName('x-body');
   xbody[0]?.appendChild(script);
