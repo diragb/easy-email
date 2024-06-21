@@ -100,7 +100,10 @@ const addConditionalMappingScripts = (html: string) => {
           if (field.isValueAnAttribute) {
             const wrappedFieldValue = doesFieldValueReferenceGridDataSource ? addIndexToGridDataSourceReference(field.value) : `data['${field.value}']`;
             fieldStatement = `${fieldStatement} ${symbol} ${wrappedFieldValue}`;
-          } else fieldStatement = `${fieldStatement} ${symbol} '${field.value}'`;
+          } else {
+            const wrappedFieldValue = isNaN(parseFloat(field.value)) ? `'${field.value}'` : parseFloat(field.value);
+            fieldStatement = `${fieldStatement} ${symbol} ${wrappedFieldValue}`;
+          }
         }
       }
 
