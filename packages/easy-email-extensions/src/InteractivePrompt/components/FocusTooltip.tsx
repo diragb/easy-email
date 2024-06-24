@@ -75,7 +75,7 @@ export const FocusTooltip = () => {
     if (!isConditionalMapping) return;
     if ([AdvancedType.TEXT, BasicType.TEXT].includes(focusBlock?.type as any)) {
       const shadowRoot = getShadowRoot();
-      const textNodes = shadowRoot?.querySelectorAll(`[data-content_editable-idx="${focusIdx}.data.value.content"]`);
+      const textNodes = shadowRoot?.querySelectorAll(`[data-content_editable-idx="${focusIdx}.data.value.content"]`) ?? [];
       for (const textNode of textNodes) {
         if (textNode) {
           (textNode as HTMLDivElement).contentEditable = 'false';
