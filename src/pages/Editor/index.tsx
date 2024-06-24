@@ -109,7 +109,7 @@ const Editor = () => {
 
   // Functions:
   const transformAttributesInTemplateContent = (text: string, attributes: string[]) => {
-    const regex = /\{\{([a-zA-Z0-9_\-]+)\}\}/g;
+    const regex = /\{\{([a-zA-Z0-9._\-]+)\}\}/g;
     return text.replace(regex, (match, attributeName) => {
       if (attributes.includes(attributeName)) {
         const input = document.createElement('input');
