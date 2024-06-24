@@ -8,6 +8,7 @@ import { isButtonBlock } from './isButtonBlock';
 import { getContentEditableIdxFromClassName, getContentEditableTypeFromClassName } from './contenteditable';
 import { getContentEditableClassName } from './getContentEditableClassName';
 import { isNavbarBlock } from './isNavbarBlock';
+import { getConditionalMappingIsActive } from 'conditional-mapping-manager';
 
 const domParser = new DOMParser();
 
@@ -158,6 +159,7 @@ function createElement(
 }
 
 function makeBlockNodeContentEditable(node: ChildNode) {
+  const isConditionalMapping = getConditionalMappingIsActive();
   if (!(node instanceof Element)) return;
   const type = getContentEditableTypeFromClassName(node.classList);
   const idx = getContentEditableIdxFromClassName(node.classList);
@@ -165,19 +167,19 @@ function makeBlockNodeContentEditable(node: ChildNode) {
   if (isTextBlock(type)) {
     const editNode = node.querySelector('div');
     if (editNode) {
-      editNode.setAttribute('contentEditable', 'true');
+      editNode.setAttribute('contentEditable', isConditionalMapping ? 'false' : 'true');
       editNode.setAttribute(DATA_CONTENT_EDITABLE_TYPE, ContentEditableType.RichText);
       editNode.setAttribute(DATA_CONTENT_EDITABLE_IDX, idx);
     }
   } else if (isButtonBlock(type)) {
     const editNode = node.querySelector('a') || node.querySelector('p');
     if (editNode) {
-      editNode.setAttribute('contentEditable', 'true');
+      editNode.setAttribute('contentEditable', isConditionalMapping ? 'false' : 'true');
       editNode.setAttribute(DATA_CONTENT_EDITABLE_TYPE, ContentEditableType.Text);
       editNode.setAttribute(DATA_CONTENT_EDITABLE_IDX, idx);
     }
   } else if (isNavbarBlock(type)) {
-    node.setAttribute('contentEditable', 'true');
+    node.setAttribute('contentEditable', isConditionalMapping ? 'false' : 'true');
     node.setAttribute(DATA_CONTENT_EDITABLE_TYPE, ContentEditableType.Text);
     node.setAttribute(DATA_CONTENT_EDITABLE_IDX, idx);
 

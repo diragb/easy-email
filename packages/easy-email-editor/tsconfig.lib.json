@@ -13,7 +13,10 @@
       ],
       "attribute-manager": [
         "../../attributeManager.ts"
-      ]
+      ],
+      "conditional-mapping-manager": [
+        "../../conditionalMappingManager.ts"
+      ],
     }
   }
 }

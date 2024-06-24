@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AdvancedType, BasicType } from 'easy-email-core';
 import { createPortal } from 'react-dom';
 import {
@@ -13,8 +13,6 @@ import { Toolbar } from './Toolbar';
 import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 import {
   ActionOrigin,
-  Condition,
-  generateUpdateConditionalMappingConditionsListener,
   generateUpdateFocusIdxListener,
   generateUpdateLastBlockModificationListener,
   getCurrentFocusBlock,
@@ -35,6 +33,9 @@ export const FocusTooltip = () => {
   const { focusBlockNode } = useFocusBlockLayout();
   const isPage = focusBlock?.type === BasicType.PAGE;
   const { isConditionalMapping = false } = useExtensionProps();
+
+  // State:
+  const [isUpdatingAttributesForBlock, setIsUpdatingAttributesForBlock] = useState(false);
 
   // Functions:
   const updateBlock = (idx: string, attributes: Record<string, string>, isReset = false) => {
@@ -74,9 +75,11 @@ export const FocusTooltip = () => {
     if (!isConditionalMapping) return;
     if ([AdvancedType.TEXT, BasicType.TEXT].includes(focusBlock?.type as any)) {
       const shadowRoot = getShadowRoot();
-      const textNode = shadowRoot?.querySelector(`[data-content_editable-idx="${focusIdx}.data.value.content"]`);
-      if (textNode) {
-        (textNode as HTMLDivElement).contentEditable = 'false';
+      const textNodes = shadowRoot?.querySelectorAll(`[data-content_editable-idx="${focusIdx}.data.value.content"]`);
+      for (const textNode of textNodes) {
+        if (textNode) {
+          (textNode as HTMLDivElement).contentEditable = 'false';
+        }
       }
     }
   }, [isConditionalMapping, focusIdx, focusBlock]);
@@ -88,14 +91,16 @@ export const FocusTooltip = () => {
 
   useEffect(() => {
     const currentFocusBlock = getCurrentFocusBlock();
-    if (!isEqual(currentFocusBlock, focusBlock)) setCurrentFocusBlock(ActionOrigin.EasyEmail, focusBlock);
-  }, [focusBlock]);
+    if (!isEqual(currentFocusBlock, focusBlock) && !isUpdatingAttributesForBlock) setCurrentFocusBlock(ActionOrigin.EasyEmail, focusBlock);
+  }, [focusBlock, isUpdatingAttributesForBlock]);
 
   useEffect(() => {
+    setIsUpdatingAttributesForBlock(true);
     setLastBlockModification(ActionOrigin.EasyEmail, {
       idx: focusIdx,
       attributes: focusBlock?.attributes ?? {},
     });
+    setIsUpdatingAttributesForBlock(false);
   }, [focusIdx, focusBlock]);
 
   useEffect(() => {

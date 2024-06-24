@@ -33,8 +33,8 @@ import {
 import { cloneDeep } from 'lodash';
 import useConversationManager from '@demo/hooks/useConversationManager';
 import { useToast } from '@demo/shadcn/components/ui/use-toast';
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 // Imports:
 import { RiDeleteBin6Fill } from 'react-icons/ri';
@@ -52,7 +52,6 @@ import { Button } from '@demo/shadcn/components/ui/button';
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -67,9 +66,7 @@ import { Input } from '@demo/shadcn/components/ui/input';
 import { Textarea } from '@demo/shadcn/components/ui/textarea';
 
 // Functions:
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 
 const ConditionalMappingSection = () => {
   // Constants:

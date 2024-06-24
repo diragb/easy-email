@@ -260,9 +260,9 @@ export function Text() {
       change(`${focusIdx}.data.value.content`, staticTextValue?.text);
       setTextNode('false', staticTextValue?.text ?? '');
     } else {
-      setTextNode('true');
+      setTextNode(isConditionalMapping ? 'false' : 'true');
     }
-  }, [dataStaticText.input.value, textContent.input.value, staticText]);
+  }, [dataStaticText.input.value, textContent.input.value, staticText, isConditionalMapping]);
 
   useEffect(() => {
     if (isConditionalMapping) {
