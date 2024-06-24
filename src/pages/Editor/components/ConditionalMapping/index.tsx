@@ -33,6 +33,8 @@ import {
 import { cloneDeep } from 'lodash';
 import useConversationManager from '@demo/hooks/useConversationManager';
 import { useToast } from '@demo/shadcn/components/ui/use-toast';
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 // Imports:
 import { RiDeleteBin6Fill } from 'react-icons/ri';
@@ -65,6 +67,10 @@ import { Input } from '@demo/shadcn/components/ui/input';
 import { Textarea } from '@demo/shadcn/components/ui/textarea';
 
 // Functions:
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 const ConditionalMappingSection = () => {
   // Constants:
   const { exitConditionalMapping, enableSave } = useConversationManager();
@@ -278,7 +284,7 @@ const ConditionalMappingSection = () => {
     <div className='flex flex-col w-[30vw] h-full px-3 py-4 bg-[#F8FAFC]'>
       <div
         className='flex justify-start items-center gap-2 w-full h-[2.5%] pb-[1rem] cursor-pointer hover:underline'
-        onClick={areConditionsErrorFree ? exitConditionalMapping : () => toast({ title: 'Uh oh! Cannot exit Conditional Mapping.', description: 'Please fix the errors on this page to go back.', variant: 'destructive' })}
+        onClick={areConditionsErrorFree ? exitConditionalMapping : () => toast({ title: 'Uh oh! Cannot exit Conditional Mapping.', description: 'Please fix the errors on this page to go back.', variant: 'destructive', className: cn('top-0 right-0 flex fixed md:max-w-[420px] md:top-4 md:right-4') })}
       >
         <HiArrowLongLeft />
         <div className='text-sm font-bold'>Exit Conditional Mapping</div>
