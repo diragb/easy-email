@@ -279,13 +279,13 @@ const Editor = () => {
   }, [isDarkMode]);
 
   // Return:
-  if (!templateData && isLoading) {
-    return (
-      <Loading loading={isLoading}>
-        <div style={{ height: '100vh' }} />
-      </Loading>
-    );
-  }
+  // if (!templateData && isLoading) {
+  //   return (
+  //     <Loading loading={isLoading}>
+  //       <div style={{ height: '100vh' }} />
+  //     </Loading>
+  //   );
+  // }
 
   if (!templateData) return null;
 
