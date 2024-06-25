@@ -94,7 +94,7 @@ describe('Test parseXml', () => {
     expect(
       parseXMLtoBlock(`
     <mj-text font-size="13px" padding="0px 0px 0px 0px" line-height="1" align="left">
-     <div style="color:#fff;">Make it easy for everyone to compose emails!</div>
+     <div style="color:#fff;">Enter your text here!</div>
     </mj-text>
   `)
     ).toMatchSnapshot();
@@ -110,7 +110,7 @@ describe('Test parseXml', () => {
     expect(() =>
       parseXMLtoBlock(`
     <mj-button font-size="13px" padding="0px 0px 0px 0px" line-height="1" align="left">
-     <div style="color:#fff;">Make it easy for everyone to compose emails!</div>
+     <div style="color:#fff;">Enter your text here!</div>
     </mj-button>
   `)
     ).toThrowError('Invalid content');

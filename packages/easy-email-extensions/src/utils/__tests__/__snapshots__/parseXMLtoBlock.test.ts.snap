@@ -232,7 +232,7 @@ Object {
   "data": Object {
     "value": Object {
       "content": "
-     <div style=\\"color:#fff;\\">Make it easy for everyone to compose emails!</div>
+     <div style=\\"color:#fff;\\">Enter your text here!</div>
     ",
     },
   },

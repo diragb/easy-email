@@ -139,7 +139,7 @@
   "Text padding": "Metin doldurma",
   "vertical": "dikey",
   "horizontal": "yatay",
-  "Make it easy for everyone to compose emails!": "Herkesin e-posta yazmasını kolaylaştırın!",
+  "Enter your text here!": "Herkesin e-posta yazmasını kolaylaştırın!",
   "Edit": "Düzenle",
   "This block allows you to display text in your email": "Bu blok, e-postanızda metin görüntülemenizi sağlar",
   "Displays a responsive image in your email. It is similar to the HTML '&lt;img/&gt;' tag. Note that if no width is provided, the image will use the parent column width.": "E-postanızda duyarlı bir resim görüntüler. '&lt;img/&gt;' HTML'sine benzer. Genişlik sağlanmazsa görüntünün üst sütun genişliğini kullanacağını unutmayın.",
