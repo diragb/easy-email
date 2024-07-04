@@ -16,6 +16,7 @@ import {
 import { isJSONStringValid } from '@demo/utils/isJSONStringValid';
 import { LibraryImage, StaticText, setTemplateTheme } from 'template-theme-manager';
 import updateThemeInstancesInTemplate from '@demo/utils/updateThemeInstancesInTemplate';
+import { setConditionalMappingState } from 'conditional-mapping-manager';
 
 // Typescript:
 declare global {
@@ -33,8 +34,8 @@ import {
 import {
   ActionOrigin,
   Condition,
-  setConditionalMappingState,
 } from 'conditional-mapping-manager';
+import { Node } from '../../utils/gridShiftBackgroundImageFromSectionToColumn';
 
 // Imports:
 import 'easy-email-editor/lib/style.css';
@@ -49,7 +50,6 @@ import enUS from '@arco-design/web-react/es/locale/en-US';
 
 // Components:
 import { ConfigProvider } from '@arco-design/web-react';
-import { Loading } from '@demo/components/loading';
 import InternalEditor from './InternalEditor';
 
 // Redux:
@@ -108,18 +108,54 @@ const Editor = () => {
   }, [theme]);
 
   // Functions:
-  const transformAttributesInTemplateContent = (text: string, attributes: string[]) => {
-    const regex = /\{\{([a-zA-Z0-9._\-]+)\}\}/g;
-    return text.replace(regex, (match, attributeName) => {
-      if (attributes.includes(attributeName)) {
-        const input = document.createElement('input');
-        input.value = attributeName;
-        input.type = 'button';
-        input.className = 'easy-email-merge-tag-badge';
-        input.id = ((new Date()).getTime()).toString();
-        return input.outerHTML.replace(/"/g, '\\"');
-      } else return match;
-    });
+  // const transformAttributesInTemplateContent = (text: string, attributes: string[]) => {
+  //   const regex = /\{\{([a-zA-Z0-9._\-]+)\}\}/g;
+  //   return text.replace(regex, (match, attributeName) => {
+  //     if (attributes.includes(attributeName)) {
+  //       const input = document.createElement('input');
+  //       input.value = attributeName;
+  //       input.type = 'button';
+  //       input.className = 'easy-email-merge-tag-badge';
+  //       input.id = ((new Date()).getTime()).toString();
+  //       return input.outerHTML.replace(/"/g, '\\"');
+  //     } else return match;
+  //   });
+  // };
+
+  const recursiveAttributeTransformation = (content: Node, attributes: string[]) => {
+    const findTextInNode = (node: Node) => {
+      if (['advanced_text', 'text'].includes(node.type)) {
+        const regex = /\{\{([a-zA-Z0-9._\-]+)\}\}/g;
+        const content = (node.data.value['content'] ?? '').replace(regex, (match, attributeName) => {
+          if (attributes.includes(attributeName)) {
+            const input = document.createElement('input');
+            input.value = attributeName;
+            input.type = 'button';
+            input.className = 'easy-email-merge-tag-badge';
+            input.id = ((new Date()).getTime()).toString();
+            return input.outerHTML;
+          } else return match;
+        });
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            value: {
+              ...node.data.value,
+              content
+            }
+          }
+        };
+      } else {
+        node = {
+          ...node,
+          children: ((node.children ?? []) as Node[]).map(node => findTextInNode(node))
+        };
+        return node;
+      }
+    };
+
+    return findTextInNode(content);
   };
 
   const onUploadImage = async (blob: Blob) => {
@@ -215,19 +251,26 @@ const Editor = () => {
     const staticText = payload.template.themeSettings.staticText ?? [];
     setTemplateTheme(_templateTheme => ({ typography, palettes, images, staticText }));
     const template = updateThemeInstancesInTemplate(payload.template);
-    const modifiedTemplate = JSON.parse(
-      transformAttributesInTemplateContent(
-        JSON.stringify(
-          modifyTemplateAccordingToThemeSettings(template)
-        ),
-        [
-          ...payload.attributes.predefined,
-          ...payload.attributes.custom,
-        ]
-      )
+    // const modifiedTemplateContent = JSON.parse(
+    //   transformAttributesInTemplateContent(
+    //     JSON.stringify(
+    //       modifyTemplateAccordingToThemeSettings(template)
+    //     ),
+    //     [
+    //       ...payload.attributes.predefined,
+    //       ...payload.attributes.custom,
+    //     ]
+    //   )
+    // );
+    const modifiedTemplateContent = recursiveAttributeTransformation(
+      modifyTemplateAccordingToThemeSettings(template),
+      [
+        ...payload.attributes.predefined,
+        ...payload.attributes.custom,
+      ]
     );
     setTemplateData({
-      content: modifiedTemplate,
+      content: modifiedTemplateContent,
       subject: '',
       subTitle: '',
     });
