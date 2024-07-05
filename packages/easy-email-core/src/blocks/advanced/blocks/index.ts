@@ -13,6 +13,7 @@ import {
   IGroup,
   IColumn,
   IHero,
+  ICustom,
 } from '../../standard';
 import { AdvancedType, BasicType } from '@core/constants';
 import { generateAdvancedContentBlock } from '../generateAdvancedContentBlock';
@@ -121,5 +122,23 @@ export const AdvancedHero = generateAdvancedLayoutBlock<IHero>({
     BasicType.WRAPPER,
     AdvancedType.WRAPPER,
     BasicType.PAGE,
+  ],
+});
+
+export const AdvancedCustom = generateAdvancedLayoutBlock<ICustom>({
+  type: AdvancedType.CUSTOM,
+  baseType: BasicType.CUSTOM,
+  validParentType: [
+    BasicType.PAGE,
+    BasicType.WRAPPER,
+    BasicType.SECTION,
+    BasicType.GROUP,
+    BasicType.COLUMN,
+    BasicType.GRID,
+    AdvancedType.WRAPPER,
+    AdvancedType.SECTION,
+    AdvancedType.GROUP,
+    AdvancedType.COLUMN,
+    AdvancedType.GRID,
   ],
 });

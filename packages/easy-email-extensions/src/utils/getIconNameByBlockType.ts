@@ -17,6 +17,7 @@ const iconsMap = {
   [BasicType.SOCIAL]: 'icon-social',
   [BasicType.CAROUSEL]: 'icon-carousel',
   [BasicType.ACCORDION]: 'icon-accordion',
+  [BasicType.CUSTOM]: 'icon-start',
 
   [AdvancedType.TEXT]: 'icon-text',
   [AdvancedType.DIVIDER]: 'icon-divider',

@@ -86,6 +86,9 @@ const InternalEditor = ({ values }: {
         {
           type: AdvancedType.COLUMN,
         },
+        {
+          type: BasicType.CUSTOM,
+        },
       ],
     },
     {

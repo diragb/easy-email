@@ -22,6 +22,7 @@ import { AccordionTitle, IAccordionTitle } from './AccordionTitle';
 import { AccordionText, IAccordionText } from './AccordionText';
 import { Table, ITable } from './Table';
 import { BasicType } from '@core/constants';
+import { ICustom, Custom } from './Custom';
 
 export const standardBlocks = {
   [BasicType.PAGE]: Page,
@@ -52,6 +53,7 @@ export const standardBlocks = {
   [BasicType.ACCORDION_TEXT]: AccordionText,
 
   [BasicType.TABLE]: Table,
+  [BasicType.CUSTOM]: Custom,
 };
 
 export type {
@@ -77,4 +79,5 @@ export type {
   IAccordionTitle,
   IAccordionText,
   ITemplate,
+  ICustom,
 };

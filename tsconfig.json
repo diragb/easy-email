@@ -60,6 +60,9 @@
       "conditional-mapping-manager": [
         "./conditionalMappingManager.ts"
       ],
+      "custom-block-manager": [
+        "./customBlockManager.ts"
+      ],
     }
   },
   "include": [
@@ -68,7 +71,8 @@
     "./typings",
     "attributeManager.ts",
     "templateThemeManager.ts",
-    "conditionalMappingManager.ts"
+    "conditionalMappingManager.ts",
+    "customBlockManager.ts",
   ],
   "exclude": [
     "node_modules"

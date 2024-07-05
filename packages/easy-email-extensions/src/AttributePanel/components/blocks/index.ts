@@ -21,6 +21,7 @@ import { Navbar } from './Navbar';
 import { Social } from './Social';
 import { Table } from './Table';
 import { BasicType, AdvancedType } from 'easy-email-core';
+import { Custom } from './Custom';
 
 export const blocks = {
   [BasicType.PAGE]: Page,
@@ -44,6 +45,7 @@ export const blocks = {
   [BasicType.NAVBAR]: Navbar,
   [BasicType.SOCIAL]: Social,
   [BasicType.TABLE]: Table,
+  [BasicType.CUSTOM]: Custom,
 
   [AdvancedType.TEXT]: Text,
   [AdvancedType.IMAGE]: Image,

@@ -19,6 +19,7 @@ export default defineConfig({
       'attribute-manager': path.resolve('../../attributeManager.ts'),
       'template-theme-manager': path.resolve('../../templateThemeManager.ts'),
       'conditional-mapping-manager': path.resolve('../../conditionalMappingManager.ts'),
+      'custom-block-manager': path.resolve(__dirname, 'customBlockManager.ts'),
     },
   },
   define: {},

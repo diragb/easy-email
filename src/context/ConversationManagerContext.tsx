@@ -10,8 +10,7 @@ export enum ConversationType {
   GET_TEMPLATE,
   ENABLE_PUBLISH,
   ENABLE_SAVE,
-  IMAGE_LIBRARY,
-  GET_IMAGE,
+  UPLOAD_IMAGE,
   CONDITIONAL_MAPPING_STATUS,
   LOAD_TEMPLATE,
   EXIT_CONDITIONAL_MAPPING,
@@ -106,6 +105,7 @@ const defaultProvider: ConversationManagerValues = {
 const ConversationManagerContext = createContext(defaultProvider);
 
 // Functions:
+// data-is-image-url
 const ConversationManagerProvider = ({ children }: { children: React.ReactNode; }) => {
   // Constants:
   const RESEND_MESSAGE_TIMEOUT = 2000;
@@ -224,8 +224,24 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
           ]
         }
       ]
-    }
+    },
+    customBlocks: [
+      {
+        id: 'pie-chart',
+        label: 'Pie Chart',
+        code: window.btoa(`const pie = document.createElement('div'); const percentageFill = (attributes['data-percent'] ?? 0) * 3.6; pie.style['width'] = '200px'; pie.style['height'] = '200px'; pie.style['borderRadius'] = '50%'; pie.style['background'] = 'conic-gradient(#ff6b6b 0deg ' + percentageFill + 'deg, #4ecdc4 ' + percentageFill + 'deg 360deg)'; return pie.outerHTML;`),
+        configuration: '{"sections":[{"header":"Pie Configuration","fields":[{"label":"Percent","type":"text","attribute":"data-percent"}]}]}',
+      },
+      {
+        id: 'pie-chart-html',
+        label: 'Pie Chart (HTML)',
+        code: window.btoa('return `<div style="width: 200px; height: 200px; border-radius: 50%; background: conic-gradient(#ff6b6b 0deg ${ (attributes[\'data-percent\'] ?? 0) * 3.6 }deg, #4ecdc4 ${ (attributes[\'data-percent\'] ?? 0) * 3.6 }deg 360deg)"></div>`'),
+        configuration: '{"sections":[{"header":"Pie Configuration","fields":[{"label":"Percent","type":"text","attribute":"data-percent"}]}]}',
+      },
+    ],
   };
+
+  // @@<PIE_CHART data-percent="{{alpha}}" />@@ -> <div style="width: 200px; height: 200px; border-radius: 50%; background: conic-gradient(#ff6b6b 0deg {{alpha}}deg, #4ecdc4 {{alpha}}deg 360deg)"></div>
 
   // State:
   const [conversations, setConversations] = useState<Record<string, ConversationState>>({});

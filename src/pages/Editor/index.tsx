@@ -16,6 +16,7 @@ import {
 import { isJSONStringValid } from '@demo/utils/isJSONStringValid';
 import { LibraryImage, StaticText, setTemplateTheme } from 'template-theme-manager';
 import updateThemeInstancesInTemplate from '@demo/utils/updateThemeInstancesInTemplate';
+import { setCustomBlocks } from 'custom-block-manager';
 import { setConditionalMappingState } from 'conditional-mapping-manager';
 
 // Typescript:
@@ -57,6 +58,7 @@ import {
   EmailEditorProvider,
   IEmailTemplate,
 } from 'easy-email-editor';
+import { BasicType } from 'easy-email-core';
 
 // Functions:
 export const generateTimestampID = () => {
@@ -240,6 +242,12 @@ const Editor = () => {
         javascript?: string;
         css?: string;
       };
+      customBlocks: {
+        id: string;
+        label: string;
+        code: string;
+        configuration: string;
+      }[];
     };
 
     sessionStorage.setItem('template-type', payload.template.type ?? 'EMAIL');
@@ -292,6 +300,7 @@ const Editor = () => {
       javascript: payload.conditionalMapping.javascript,
       css: payload.conditionalMapping.css,
     }));
+    if (payload.customBlocks && payload.customBlocks?.length > 0) setCustomBlocks(_customBlocks => payload.customBlocks);
     setIsLoading(false);
     acknowledgeAndEndConversation(message.conversationID, 'Template has been received from Flutter.');
   };

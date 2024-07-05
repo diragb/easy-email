@@ -24,6 +24,9 @@
       "conditional-mapping-manager": [
         "../../conditionalMappingManager.ts"
       ],
+      "custom-block-manager": [
+        "../../customBlockManager.ts"
+      ],
     }
   }
 }

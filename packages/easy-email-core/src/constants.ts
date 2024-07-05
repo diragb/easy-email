@@ -26,6 +26,7 @@ export enum BasicType {
   TABLE = 'table',
 
   TEMPLATE = 'template',
+  CUSTOM = 'custom'
 }
 
 // 高级组件
@@ -46,6 +47,7 @@ export enum AdvancedType {
   GRID = 'advanced_grid',
   GROUP = 'advanced_group',
   HERO = 'advanced_hero',
+  CUSTOM = 'advanced_custom'
 }
 
 export const MERGE_TAG_CLASS_NAME = 'easy-email-merge-tag-container';
