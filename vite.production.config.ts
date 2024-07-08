@@ -17,6 +17,7 @@ export default defineConfig({
       'template-theme-manager': path.resolve(__dirname, './templateThemeManager.ts'),
       'conditional-mapping-manager': path.resolve(__dirname, './conditionalMappingManager.ts'),
       'custom-block-manager': path.resolve(__dirname, './customBlockManager.ts'),
+      'image-upload-manager': path.resolve(__dirname, './imageUploadManager.ts'),
     },
   },
   optimizeDeps: {},

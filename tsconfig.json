@@ -63,6 +63,9 @@
       "custom-block-manager": [
         "./customBlockManager.ts"
       ],
+      "image-upload-manager": [
+        "./imageUploadManager.ts"
+      ],
     }
   },
   "include": [
@@ -73,6 +76,7 @@
     "templateThemeManager.ts",
     "conditionalMappingManager.ts",
     "customBlockManager.ts",
+    "imageUploadManager.ts",
   ],
   "exclude": [
     "node_modules"

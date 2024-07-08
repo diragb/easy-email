@@ -1,6 +1,12 @@
 // Packages:
 import { Message as ArcoMessage } from '@arco-design/web-react';
+import {
+  generateUpdateImageUploadListener,
+  ImageUpload,
+  setImageUpload
+} from 'image-upload-manager';
 import React, { createContext, useEffect, useState } from 'react';
+import sleep from 'sleep-promise';
 import { v4 as uuidv4 } from 'uuid';
 
 // Typescript:
@@ -105,7 +111,6 @@ const defaultProvider: ConversationManagerValues = {
 const ConversationManagerContext = createContext(defaultProvider);
 
 // Functions:
-// data-is-image-url
 const ConversationManagerProvider = ({ children }: { children: React.ReactNode; }) => {
   // Constants:
   const RESEND_MESSAGE_TIMEOUT = 2000;
@@ -453,6 +458,17 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
             break;
           case ConversationType.LOAD_TEMPLATE:
             eventHandlers.onLoadTemplate(message);
+            break;
+          case ConversationType.UPLOAD_IMAGE:
+            console.log('[Conversation Manager - React]: Received uploaded image URL from Flutter: ', message.payload);
+            const payload = JSON.parse(message.payload) as ImageUpload;
+            setImageUpload(() => ({
+              idx: payload.idx,
+              url: payload.url,
+              status: 'UPLOADED',
+            }));
+            acknowledgeAndEndConversation(message.conversationID);
+            break;
           default:
             break;
         }
@@ -475,6 +491,7 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
       }
 
       if (message.sender !== Sender.REACT) return;
+      if (message.callType == CallType.ACKNOWLEDGEMENT) return;
 
       if (
         message.conversationType === ConversationType.READY
@@ -508,6 +525,39 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
         console.log('[Conversation Manager - Flutter] Template sent.');
       }
 
+      if (message.conversationType === ConversationType.UPLOAD_IMAGE) {
+        console.log('[Conversation Manager - Flutter] Received image upload request.');
+        const responseMessage: Message = {
+          ...message,
+          callType: CallType.ACKNOWLEDGEMENT,
+          payload: '',
+          sender: Sender.FLUTTER,
+          sentAt: new Date().getTime(),
+        };
+
+        window.parent.postMessage(JSON.stringify(responseMessage), '*');
+
+        await sleep(3000);
+        console.log('[Conversation Manager - Flutter] Mock image uploaded.');
+
+        const newConversationID = uuidv4();
+        const newMessage: Message = {
+          conversationID: newConversationID,
+          conversationType: ConversationType.UPLOAD_IMAGE,
+          callType: CallType.REQUEST,
+          payload: JSON.stringify({
+            idx: JSON.parse(message.payload).idx,
+            url: 'https://images.pexels.com/photos/21936231/pexels-photo-21936231/free-photo-of-storks-in-nest.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+          }),
+          sender: Sender.FLUTTER,
+          sentAt: new Date().getTime(),
+        };
+
+        window.parent.postMessage(JSON.stringify(newMessage), '*');
+
+        console.log('[Conversation Manager - Flutter] Uploaded image URL sent.');
+      }
+
       if (
         message.conversationType === ConversationType.SAVE &&
         message.callType === CallType.RESPONSE
@@ -528,6 +578,19 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
       // console.error('[Conversation Manager - Flutter]: Encountered an error while reading the message', error);
     }
   };
+
+  const updateImageUpload = generateUpdateImageUploadListener(imageUpload => {
+    if (
+      imageUpload.status === 'NEED_TO_UPLOAD' &&
+      imageUpload.idx
+    ) {
+      console.log('[Conversation Manager - React] Requesting Flutter to start upload.');
+      beginConversation({
+        conversationType: ConversationType.UPLOAD_IMAGE,
+        payload: JSON.stringify({ idx: imageUpload.idx })
+      });
+    }
+  });
 
   // Exposed Functions:
   const announceReadiness = () => {
@@ -637,6 +700,7 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
   // Effects:
   useEffect(() => {
     window.addEventListener('message', onFlutterMessage);
+    window.addEventListener('message', updateImageUpload);
     // NOTE: Uncomment the following lines to mock Flutter's responses.
     // window.addEventListener('message', onReactMessage);
     // (window as any).mockFlutterSave = () => {
@@ -680,6 +744,7 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
     return () => {
       window.removeEventListener('message', onFlutterMessage);
       window.removeEventListener('message', onReactMessage);
+      window.removeEventListener('message', updateImageUpload);
     };
   }, []);
 

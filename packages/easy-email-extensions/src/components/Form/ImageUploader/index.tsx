@@ -18,8 +18,18 @@ import { classnames } from '@extensions/AttributePanel/utils/classnames';
 import { previewLoadImage } from '@extensions/AttributePanel/utils/previewLoadImage';
 import { MergeTags } from '@extensions';
 import { IconFont, useFocusIdx } from 'easy-email-editor';
-import { AttributeModifier, generateUpdateCustomAttributeListener, generateUpdatePredefinedAttributeListener, getCustomAttributes, getPredefinedAttributes } from 'attribute-manager';
+import {
+  AttributeModifier,
+  generateUpdateCustomAttributeListener,
+  generateUpdatePredefinedAttributeListener,
+  getCustomAttributes,
+  getPredefinedAttributes,
+} from 'attribute-manager';
 import { useField, useForm } from 'react-final-form';
+import {
+  setImageUpload,
+  generateUpdateImageUploadListener,
+} from 'image-upload-manager';
 
 export interface ImageUploaderProps {
   onChange: (val: string) => void;
@@ -41,6 +51,7 @@ export function ImageUploader(props: ImageUploaderProps) {
   const { change } = useForm();
   const { focusIdx } = useFocusIdx();
   const dataImageName = useField(`${focusIdx}.attributes.data-${props.isImage ? '' : 'background-'}image-name`);
+  const dataIsUploadedImage = useField(`${focusIdx}.attributes.data-is-uploaded-image`);
 
   const updateCustomAttributes = generateUpdateCustomAttributeListener(AttributeModifier.EasyEmail, _setCustomAttributes);
   const updatePredefinedAttributes = generateUpdatePredefinedAttributeListener(AttributeModifier.EasyEmail, _setPredefinedAttributes);
@@ -51,31 +62,18 @@ export function ImageUploader(props: ImageUploaderProps) {
   };
   const onChange = props.onChange;
 
-  const onUpload = useCallback(() => {
-    if (isUploading) {
-      return Message.warning(String('Uploading...'));
+  const onUpload = useCallback(() => setImageUpload(() => ({ idx: focusIdx, status: 'NEED_TO_UPLOAD' })), [focusIdx]);
+
+  const updateImageUpload = generateUpdateImageUploadListener(imageUpload => {
+    if (
+      imageUpload.status === 'UPLOADED' &&
+      imageUpload.url
+    ) {
+      change(`${focusIdx}.attributes.data-${props.isImage ? '' : 'background-'}image-name`, '');
+      change(props.isImage ? `${focusIdx}.attributes.src` : `${focusIdx}.attributes.background-url`, imageUpload.url);
+      change(`${focusIdx}.attributes.data-is-uploaded-image`, true);
     }
-    if (!uploadHandlerRef.current) return;
-
-    const uploader = new Uploader(uploadHandlerRef.current, {
-      limit: 1,
-      accept: 'image/*',
-    });
-
-    uploader.on('start', (photos) => {
-      setIsUploading(true);
-
-      uploader.on('end', (data) => {
-        const url = data[0]?.url;
-        if (url) {
-          onChange(url);
-        }
-        setIsUploading(false);
-      });
-    });
-
-    uploader.chooseFile();
-  }, [isUploading, onChange]);
+  });
 
   const onPaste = useCallback(
     async (e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -154,17 +152,15 @@ export function ImageUploader(props: ImageUploaderProps) {
     );
   }, [isUploading, onRemove, onUpload, props.value]);
 
-  if (!props.uploadHandler) {
-    return <Input value={props.value} onChange={onChange} />;
-  }
-
   useEffect(() => {
     window.addEventListener('message', updateCustomAttributes);
     window.addEventListener('message', updatePredefinedAttributes);
+    window.addEventListener('message', updateImageUpload);
 
     return () => {
       window.removeEventListener('message', updateCustomAttributes);
       window.removeEventListener('message', updatePredefinedAttributes);
+      window.removeEventListener('message', updateImageUpload);
     };
   }, []);
 
@@ -177,6 +173,11 @@ export function ImageUploader(props: ImageUploaderProps) {
             <Popover
               trigger='click'
               content={<MergeTags value={props.value} onChange={onChange} />}
+              disabled={
+                isUploading ||
+                !!dataImageName.input.value ||
+                !!dataIsUploadedImage.input.value
+              }
             >
               <ArcoButton icon={<IconFont iconName='icon-merge-tags' />} />
             </Popover>
@@ -186,11 +187,16 @@ export function ImageUploader(props: ImageUploaderProps) {
             onPaste={onPaste}
             value={props.value}
             onChange={onChange}
-            disabled={isUploading || !!dataImageName.input.value}
+            disabled={
+              isUploading ||
+              !!dataImageName.input.value ||
+              !!dataIsUploadedImage.input.value
+            }
           />
           {props.autoCompleteOptions && (
             <Dropdown
               position="tr"
+              disabled={!!dataIsUploadedImage.input.value}
               droplist={(
                 <Menu
                   style={{ width: '300px' }}
@@ -198,6 +204,7 @@ export function ImageUploader(props: ImageUploaderProps) {
                     if (!props.autoCompleteOptions) return;
                     onChange(props.autoCompleteOptions[+indexStr]?.value);
                     change(`${focusIdx}.attributes.data-${props.isImage ? '' : 'background-'}image-name`, props.autoCompleteOptions[+indexStr]?.label);
+                    change(`${focusIdx}.attributes.data-is-uploaded-image`, false);
                   }}
                 >
                   {
@@ -221,6 +228,7 @@ export function ImageUploader(props: ImageUploaderProps) {
           <Button
             onClick={() => {
               change(`${focusIdx}.attributes.data-${props.isImage ? '' : 'background-'}image-name`, '');
+              change(`${focusIdx}.attributes.data-is-uploaded-image`, false);
               change(props.isImage ? `${focusIdx}.attributes.src` : `${focusIdx}.attributes.background-url`, '');
             }}
             disabled={!props.value || isUploading}

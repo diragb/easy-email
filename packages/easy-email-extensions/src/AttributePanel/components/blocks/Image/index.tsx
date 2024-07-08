@@ -38,7 +38,6 @@ export function Image() {
   // Constants:
   const { focusIdx } = useFocusIdx();
   const { isConditionalMapping = false } = useExtensionProps();
-  const { onUploadImage } = useEditorProps();
   const { lastValidDataID, onBlurCapture } = useBlockID();
 
   // State:
@@ -91,7 +90,6 @@ export function Image() {
               helpText={String(
                 'The image suffix should be .jpg, jpeg, png, gif, etc. Otherwise, the picture may not be displayed normally.',
               )}
-              uploadHandler={onUploadImage}
               autoCompleteOptions={imagesDropdownOptions}
               isImage
             />
