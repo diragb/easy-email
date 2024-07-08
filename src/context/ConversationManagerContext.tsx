@@ -246,8 +246,6 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
     ],
   };
 
-  // @@<PIE_CHART data-percent="{{alpha}}" />@@ -> <div style="width: 200px; height: 200px; border-radius: 50%; background: conic-gradient(#ff6b6b 0deg {{alpha}}deg, #4ecdc4 {{alpha}}deg 360deg)"></div>
-
   // State:
   const [conversations, setConversations] = useState<Record<string, ConversationState>>({});
   const [doesFlutterKnowThatReactIsReady, setDoesFlutterKnowThatReactIsReady] = useState(false);
@@ -455,6 +453,7 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
           case ConversationType.CONDITIONAL_MAPPING_STATUS:
             // console.log('[Conversation Manager - React]: Received request for Conditional Mapping Status: ', JSON.stringify(message));
             eventHandlers.onConditionalMappingStatus(JSON.parse(message.payload) ?? false);
+            acknowledgeAndEndConversation(message.conversationID);
             break;
           case ConversationType.LOAD_TEMPLATE:
             eventHandlers.onLoadTemplate(message);
