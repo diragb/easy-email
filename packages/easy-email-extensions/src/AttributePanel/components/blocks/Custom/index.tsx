@@ -50,12 +50,14 @@ const InputFieldWithMergeTags = ({
   mergeTags,
   label,
   name,
+  validate,
 }: {
   mergeTags: {
     [x: string]: string;
   };
   label: string;
   name: string;
+  validate?: string;
 }) => {
   // Constants:
   const { change } = useForm();
@@ -82,6 +84,7 @@ const InputFieldWithMergeTags = ({
           style={{
             width: 'calc(100% - 32px)'
           }}
+          validate={value => validate ? new Function('value', window.atob(validate))(value) : undefined}
         />
       </Grid.Row>
     </div>
@@ -229,6 +232,7 @@ try {
                               label={field.label}
                               name={`${focusIdx}.attributes.${field.attribute}`}
                               mergeTags={mergeTags}
+                              validate={field.validate}
                             />
                           );
                           else if (field.type === 'select') return (

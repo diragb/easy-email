@@ -13,7 +13,6 @@ export interface CustomFieldSelect {
   label: string;
   type: 'select';
   attribute: string;
-  validate?: string;
   options: { value: string, label: string; }[];
 }
 
