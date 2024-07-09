@@ -9,7 +9,31 @@ const addCustomBlockScript = (html: string) => {
   document.body.appendChild(container);
 
   const script = document.createElement('script');
-  script.textContent = `const defineCustomBlock = (id, name, script) => {
+  script.textContent = `const generateRandomClassName = () => {
+  const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
+  const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+  const allChars = lowercaseChars + uppercaseChars + numbers;
+
+  const minLength = 5;
+  const maxLength = 10;
+
+  const length = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
+
+  let className = (lowercaseChars + uppercaseChars)[Math.floor(Math.random() * (lowercaseChars.length + uppercaseChars.length))];
+
+  for (let i = 1; i < length; i++) {
+    className += allChars[Math.floor(Math.random() * allChars.length)];
+  }
+
+  const timestamp = Date.now();
+  className += '_' + timestamp;
+
+  return className;
+}
+
+const defineCustomBlock = (id, code) => {
+  const name = generateRandomClassName();
   const customElementClassName = new Function(\`return class \${name} extends HTMLElement {
     constructor() {
       super();
@@ -27,7 +51,7 @@ const addCustomBlockScript = (html: string) => {
 
     render () {
       const attributes = Object.entries(this.dataset ?? {}).reduce((array, entry) => ({ ...array, ['data-' + entry[0]]: entry[1]}), {});
-      this.shadowRoot.innerHTML = new Function('attributes', window.atob("\${script}"))(attributes);
+      this.shadowRoot.innerHTML = new Function('attributes', window.atob("\${code}"))(attributes);
     }
   }\`)();
 
