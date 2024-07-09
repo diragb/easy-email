@@ -266,6 +266,7 @@ const InternalEditor = ({ values }: {
         const themeSettings = extractThemeSettingsFromTemplate(values.content);
         const templateTheme = getTemplateTheme();
         const conditionalMappingState = getConditionalMappingState();
+        const customElementsUsed = (window as any).customElementsBeingUsed ? [...((window as any).customElementsBeingUsed as Set<string>)] : [];
 
         sendMessageToFlutter({
           conversationID: message.conversationID,
@@ -295,9 +296,13 @@ const InternalEditor = ({ values }: {
               boolean: conditionalMappingState.conditions,
               javascript: conditionalMappingState.javascript,
               css: conditionalMappingState.css,
-            }
+            },
+            customElementsUsed,
           },
         });
+
+        if ((window as any).customElementsBeingUsed) (window as any).customElementsBeingUsed = undefined;
+
         Message.clear();
         // Message.success('Template saved successfully!');
       } catch (error) {
