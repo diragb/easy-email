@@ -280,11 +280,19 @@ const Editor = () => {
       ]
     );
     const customFonts = payload.template.themeSettings.customFonts ?? [];
-    const customFontURLs = customFonts.map(customFont => customFont.embed).join();
     if (customFonts.length > 0) {
       if (modifiedTemplateContent.type === BasicType.PAGE) {
-        modifiedTemplateContent.data.value['extraHeadContent'] = (modifiedTemplateContent.data.value['extraHeadContent'] ?? '') + customFontURLs;
-        (window as Window).document.head.innerHTML = ((window as Window).document.head.innerHTML ?? '') + customFontURLs;
+        const style = document.createElement('style');
+        const fontFaces = customFonts.map(customFont => `
+          @font-face {
+            font-family: '${customFont.name}';
+            src: url('${customFont.src}') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+          }
+        `).join('\n');
+        style.textContent = fontFaces;
+        document.head.appendChild(style);
       }
       setFontList(_fontList => [..._fontList, ...customFonts.map(customFont => ({ value: customFont.name, label: customFont.name }))]);
     }

@@ -188,12 +188,10 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
         ],
         customFonts: [
           {
-            name: 'Raleway',
-            embed: `<link rel="preconnect" href="//fonts.googleapis.com">
-<link rel="preconnect" href="//fonts.gstatic.com" crossorigin>
-<link href="//fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">`,
-          }
-        ]
+            name: 'Bottle Coffee',
+            src: 'https://amplispot-dev2.blr1.digitaloceanspaces.com/test/Bottle%20Coffee.ttf',
+          },
+        ],
       },
     },
     attributes: {

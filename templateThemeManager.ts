@@ -31,7 +31,7 @@ export interface StaticText {
 
 export interface CustomFont {
   name: string;
-  embed: string;
+  src: string;
 }[];
 
 export interface TemplateTheme {
