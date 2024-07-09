@@ -185,6 +185,14 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
             name: 'Brand Catchline',
             text: 'At the speed of light.',
           },
+        ],
+        customFonts: [
+          {
+            name: 'Raleway',
+            embed: `<link rel="preconnect" href="//fonts.googleapis.com">
+<link rel="preconnect" href="//fonts.gstatic.com" crossorigin>
+<link href="//fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">`,
+          }
         ]
       },
     },
@@ -234,13 +242,13 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
       {
         id: 'pie-chart',
         label: 'Pie Chart',
-        code: window.btoa(`const pie = document.createElement('div'); const percentageFill = (attributes['data-percent'] ?? 0) * 3.6; pie.style['width'] = '200px'; pie.style['height'] = '200px'; pie.style['borderRadius'] = '50%'; pie.style['background'] = 'conic-gradient(#ff6b6b 0deg ' + percentageFill + 'deg, #4ecdc4 ' + percentageFill + 'deg 360deg)'; return pie.outerHTML;`),
+        code: window.btoa(`const pie = document.createElement('div'); const percentageFill = (isNaN(attributes['data-percent']) ? 25 : attributes['data-percent']) * 3.6; pie.style['width'] = '200px'; pie.style['height'] = '200px'; pie.style['borderRadius'] = '50%'; pie.style['background'] = 'conic-gradient(#ff6b6b 0deg ' + percentageFill + 'deg, #4ecdc4 ' + percentageFill + 'deg 360deg)'; return pie.outerHTML;`),
         configuration: '{"sections":[{"header":"Pie Configuration","fields":[{"label":"Percent","type":"text","attribute":"data-percent"}]}]}',
       },
       {
         id: 'pie-chart-html',
         label: 'Pie Chart (HTML)',
-        code: window.btoa('return `<div style="width: 200px; height: 200px; border-radius: 50%; background: conic-gradient(#ff6b6b 0deg ${ (attributes[\'data-percent\'] ?? 0) * 3.6 }deg, #4ecdc4 ${ (attributes[\'data-percent\'] ?? 0) * 3.6 }deg 360deg)"></div>`'),
+        code: window.btoa('return `<div style="width: 200px; height: 200px; border-radius: 50%; background: conic-gradient(#ff6b6b 0deg ${ (isNaN(attributes[\'data-percent\']) ? 25 : attributes[\'data-percent\']) * 3.6 }deg, #4ecdc4 ${ (isNaN(attributes[\'data-percent\']) ? 25 : attributes[\'data-percent\']) * 3.6 }deg 360deg)"></div>`'),
         configuration: '{"sections":[{"header":"Pie Configuration","fields":[{"label":"Percent","type":"text","attribute":"data-percent"}]}]}',
       },
     ],

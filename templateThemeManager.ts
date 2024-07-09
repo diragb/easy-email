@@ -29,6 +29,11 @@ export interface StaticText {
   text: string;
 }
 
+export interface CustomFont {
+  name: string;
+  embed: string;
+}[];
+
 export interface TemplateTheme {
   typography: Typography[];
   palettes: Palette[];

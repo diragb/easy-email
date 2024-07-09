@@ -74,39 +74,39 @@ export const Custom = createBlock<ICustom>({
       !!customComponentLabel
     ) {
 
-      if (isExporting) {
-        const customComponentName = generateVariableName();
-        const customElementCode = `class ${customComponentName} extends HTMLElement {
-  constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
-  }
+      //       if (isExporting) {
+      //         const customComponentName = generateVariableName();
+      //         const customElementCode = `class ${customComponentName} extends HTMLElement {
+      //   constructor() {
+      //     super();
+      //     this.attachShadow({ mode: 'open' });
+      //   }
 
-  connectedCallback() {
-    const observer = new MutationObserver((mutationRecords) => {
-      mutationRecords.forEach(record => {
-        this.render();
-      });
-    }).observe(this, { attributes: true });
-    this.render();
-  }
+      //   connectedCallback() {
+      //     const observer = new MutationObserver((mutationRecords) => {
+      //       mutationRecords.forEach(record => {
+      //         this.render();
+      //       });
+      //     }).observe(this, { attributes: true });
+      //     this.render();
+      //   }
 
-  render () {
-    const attributes = Object.entries(this.dataset ?? {}).reduce((array, entry) => ({ ...array, ['data-' + entry[0]]: entry[1]}), {});
-    this.shadowRoot.innerHTML = new Function('attributes', window.atob("${customComponentCode}"))(attributes);
-  }
-}
+      //   render () {
+      //     const attributes = Object.entries(this.dataset ?? {}).reduce((array, entry) => ({ ...array, ['data-' + entry[0]]: entry[1]}), {});
+      //     this.shadowRoot.innerHTML = new Function('attributes', window.atob("${customComponentCode}"))(attributes);
+      //   }
+      // }
 
-try {
-  customElements.define("${customComponentID}", ${customComponentName});
-} catch (error) {
-  console.error(error);
-}`;
-        const script = `<script>
-${customElementCode}
-</script>`;
-        processedContent = processedContent + script;
-      }
+      // try {
+      //   customElements.define("${customComponentID}", ${customComponentName});
+      // } catch (error) {
+      //   console.error(error);
+      // }`;
+      //         const script = `<script>
+      // ${customElementCode}
+      // </script>`;
+      //         processedContent = processedContent + script;
+      //       }
 
       const attributesMap = cloneDeep(params.data.attributes);
       delete attributesMap['data-custom-component-id'];

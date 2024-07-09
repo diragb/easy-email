@@ -14,7 +14,7 @@ import {
   setPredefinedAttributes,
 } from 'attribute-manager';
 import { isJSONStringValid } from '@demo/utils/isJSONStringValid';
-import { LibraryImage, StaticText, setTemplateTheme } from 'template-theme-manager';
+import { CustomFont, LibraryImage, StaticText, setTemplateTheme } from 'template-theme-manager';
 import updateThemeInstancesInTemplate from '@demo/utils/updateThemeInstancesInTemplate';
 import { setCustomBlocks } from 'custom-block-manager';
 import { setConditionalMappingState } from 'conditional-mapping-manager';
@@ -70,7 +70,7 @@ export const generateTimestampID = () => {
 const Editor = () => {
   // Constants:
   const id = generateTimestampID();
-  const fontList = [
+  const DEFAULT_FONTS = [
     'Arial',
     'Tahoma',
     'Verdana',
@@ -79,14 +79,14 @@ const Editor = () => {
     'Georgia',
     'Lato',
     'Montserrat',
-    '黑体',
-    '仿宋',
-    '楷体',
-    '标楷体',
-    '华文仿宋',
-    '华文楷体',
-    '宋体',
-    '微软雅黑',
+    // '黑体',
+    // '仿宋',
+    // '楷体',
+    // '标楷体',
+    // '华文仿宋',
+    // '华文楷体',
+    // '宋体',
+    // '微软雅黑',
   ].map(item => ({ value: item, label: item }));
   const {
     acknowledgeAndEndConversation,
@@ -101,6 +101,7 @@ const Editor = () => {
   const [isDarkMode] = useState(false);
   const [theme] = useState<'blue' | 'green' | 'purple'>('blue');
   const [locale] = useState('en');
+  const [fontList, setFontList] = useState(DEFAULT_FONTS);
 
   // Memo:
   const themeStyleText = useMemo(() => {
@@ -228,6 +229,7 @@ const Editor = () => {
           palettes?: Palette[];
           images?: LibraryImage[];
           staticText?: StaticText[];
+          customFonts: CustomFont[];
         };
       };
       attributes: {
@@ -277,6 +279,16 @@ const Editor = () => {
         ...payload.attributes.custom,
       ]
     );
+    const customFonts = payload.template.themeSettings.customFonts ?? [];
+    const customFontURLs = customFonts.map(customFont => customFont.embed).join();
+    if (customFonts.length > 0) {
+      if (modifiedTemplateContent.type === BasicType.PAGE) {
+        modifiedTemplateContent.data.value['extraHeadContent'] = (modifiedTemplateContent.data.value['extraHeadContent'] ?? '') + customFontURLs;
+        (window as Window).document.head.innerHTML = ((window as Window).document.head.innerHTML ?? '') + customFontURLs;
+      }
+      setFontList(_fontList => [..._fontList, ...customFonts.map(customFont => ({ value: customFont.name, label: customFont.name }))]);
+    }
+
     setTemplateData({
       content: modifiedTemplateContent,
       subject: '',
