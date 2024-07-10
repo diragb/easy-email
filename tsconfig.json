@@ -66,6 +66,9 @@
       "image-upload-manager": [
         "./imageUploadManager.ts"
       ],
+      "focus-idx-manager": [
+        "./focusIdxManager.ts"
+      ],
     }
   },
   "include": [
@@ -77,6 +80,7 @@
     "conditionalMappingManager.ts",
     "customBlockManager.ts",
     "imageUploadManager.ts",
+    "focusIdxManager.ts",
   ],
   "exclude": [
     "node_modules"

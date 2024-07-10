@@ -1,8 +1,10 @@
 import { EventManager } from '@';
 import { EventType } from '@/utils/EventManager';
+import { ActionOrigin } from 'conditional-mapping-manager';
+import { setFocusIdx as _setFocusIdx, generateUpdateFocusIdxListener } from 'focus-idx-manager';
 import { getPageIdx } from 'easy-email-core';
 import { isFunction } from 'lodash';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 export enum ActiveTabKeys {
   EDIT = 'EDIT',
@@ -23,23 +25,28 @@ export const BlocksContext = React.createContext<{
   setActiveTab: React.Dispatch<React.SetStateAction<ActiveTabKeys>>;
 }>({
   initialized: false,
-  setInitialized: () => {},
+  setInitialized: () => { },
   focusIdx: getPageIdx(),
-  setFocusIdx: () => {},
+  setFocusIdx: () => { },
   dragEnabled: false,
-  setDragEnabled: () => {},
+  setDragEnabled: () => { },
   collapsed: false,
-  setCollapsed: () => {},
+  setCollapsed: () => { },
   activeTab: ActiveTabKeys.EDIT,
-  setActiveTab: () => {},
+  setActiveTab: () => { },
 });
 
-export const BlocksProvider: React.FC<{ children?: React.ReactNode }> = props => {
+export const BlocksProvider: React.FC<{ children?: React.ReactNode; }> = props => {
   const [focusIdx, setFocusIdx] = useState(getPageIdx());
   const [dragEnabled, setDragEnabled] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
   const [activeTab, setActiveTab] = useState(ActiveTabKeys.EDIT);
+
+  // Functions:
+  const updateFocusIdx = generateUpdateFocusIdxListener(ActionOrigin.React, (newFocusIdx: string, isExporting) => {
+    if (isExporting) setFocusIdx(newFocusIdx);
+  });
 
   const onChangeTab: React.Dispatch<React.SetStateAction<ActiveTabKeys>> = useCallback(
     handler => {
@@ -67,7 +74,22 @@ export const BlocksProvider: React.FC<{ children?: React.ReactNode }> = props =>
     [],
   );
 
+  // Effects:
+  useEffect(() => {
+    _setFocusIdx(ActionOrigin.EasyEmail, focusIdx);
+  }, [focusIdx]);
+
+  useEffect(() => {
+    window.addEventListener('message', updateFocusIdx);
+
+    return () => {
+      window.removeEventListener('message', updateFocusIdx);
+    };
+  }, []);
+
+  // Return:
   return (
+    // @ts-ignore
     <BlocksContext.Provider
       value={{
         initialized,

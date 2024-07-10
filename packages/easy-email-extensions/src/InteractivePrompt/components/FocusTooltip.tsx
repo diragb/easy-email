@@ -13,7 +13,7 @@ import { Toolbar } from './Toolbar';
 import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
 import {
   ActionOrigin,
-  generateUpdateFocusIdxListener,
+  generateUpdateCurrentFocusIdxListener,
   generateUpdateLastBlockModificationListener,
   getCurrentFocusBlock,
   getCurrentFocusIdx,
@@ -59,7 +59,7 @@ export const FocusTooltip = () => {
   //   change(`${focusIdx}.attributes.data-conditional-mapping`, encodedConditionString);
   // };
 
-  const updateFocusIdx = generateUpdateFocusIdxListener(ActionOrigin.React, setFocusIdx);
+  const updateFocusIdx = generateUpdateCurrentFocusIdxListener(ActionOrigin.React, setFocusIdx);
   const updateLastBlockModification = generateUpdateLastBlockModificationListener(
     ActionOrigin.React,
     ({ idx, attributes, isReset }) => updateBlock(idx, attributes, isReset)

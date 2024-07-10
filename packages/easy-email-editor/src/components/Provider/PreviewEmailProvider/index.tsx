@@ -160,6 +160,7 @@ export const PreviewEmailProvider: React.FC<{ children?: React.ReactNode; }> = p
   }, [errMsg, html, htmlNode, mobileWidth]);
 
   return (
+    // @ts-ignore
     <PreviewEmailContext.Provider value={value}>
       {props.children}
     </PreviewEmailContext.Provider>

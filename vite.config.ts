@@ -37,6 +37,7 @@ export default defineConfig({
       'conditional-mapping-manager': path.resolve(__dirname, 'conditionalMappingManager.ts'),
       'custom-block-manager': path.resolve(__dirname, 'customBlockManager.ts'),
       'image-upload-manager': path.resolve(__dirname, 'imageUploadManager.ts'),
+      'focus-idx-manager': path.resolve(__dirname, 'focusIdxManager.ts'),
     },
   },
 

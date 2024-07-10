@@ -17,6 +17,9 @@
       "conditional-mapping-manager": [
         "../../conditionalMappingManager.ts"
       ],
+      "focus-idx-manager": [
+        "../../focusIdxManager.ts"
+      ],
     }
   }
 }

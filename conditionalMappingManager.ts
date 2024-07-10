@@ -279,7 +279,7 @@ export const generateUpdateConditionalMappingIsActiveListener = (listenFor: Acti
   }
 };
 
-export const generateUpdateFocusIdxListener = (listenFor: ActionOrigin, callback: (newFocusIdx: string) => void) => (event: MessageEvent<any>) => {
+export const generateUpdateCurrentFocusIdxListener = (listenFor: ActionOrigin, callback: (newFocusIdx: string) => void) => (event: MessageEvent<any>) => {
   try {
     if (typeof event.data !== 'string') return;
     if (event.data.trim().length === 0) return;

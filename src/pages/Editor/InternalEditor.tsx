@@ -1,11 +1,11 @@
 // Packages:
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useWindowSize } from 'react-use';
 import useConversationManager from '@demo/hooks/useConversationManager';
 import extractAttributes from '@demo/utils/extractAttributes';
 import { getCustomAttributes, getPredefinedAttributes } from 'attribute-manager';
 import { useScreenshot } from 'use-react-screenshot';
-import { difference, zipObject } from 'lodash';
+import { zipObject } from 'lodash';
 import { isJSONStringValid } from '@demo/utils/isJSONStringValid';
 import generateHTML, { unsanitizeHTMLTags } from '@demo/utils/generateHTML';
 import mustachifyHTML from '@demo/utils/mustachifyHTML';
@@ -16,10 +16,12 @@ import { getTemplateTheme } from 'template-theme-manager';
 import {
   ActionOrigin,
   getConditionalMappingState,
-  setConditionalMappingIsActive
+  setConditionalMappingIsActive,
 } from 'conditional-mapping-manager';
 import addConditionalMappingScripts from '@demo/utils/addConditionalMappingScripts';
 import addCustomBlockScript from '@demo/utils/addCustomBlockScript';
+import { getFocusIdx, setFocusIdx } from 'focus-idx-manager';
+import sleep from 'sleep-promise';
 
 // Typescript:
 import { AdvancedType, BasicType, IPage } from 'easy-email-core';
@@ -130,13 +132,9 @@ const InternalEditor = ({ values }: {
   } = useConversationManager();
   const [_, takeScreenshot] = useScreenshot();
 
-  // Ref:
-  const screenshotRef = useRef<HTMLDivElement>(null);
-
   // State:
   const [enableFlutterPublish, setEnableFlutterPublish] = useState(false);
   const [enableFlutterSave, setEnableFlutterSave] = useState(false);
-  const [templateWidth, setTemplateWidth] = useState('600px');
   const [conditionalMappingStatus, setConditionalMappingStatus] = useState(false);
 
   // Functions:
@@ -226,7 +224,10 @@ const InternalEditor = ({ values }: {
     registerEventHandlers.onRequestSave(async message => {
       try {
         Message.loading('Loading...');
-        setTemplateWidth(values.content.attributes.width ?? '600px');
+        sessionStorage.setItem('isExporting', JSON.stringify(true));
+        const focusIdx = getFocusIdx();
+        setFocusIdx(ActionOrigin.React, '', true);
+        await sleep(500);
         const transformedContent = JSON.stringify(values.content, (_key, value) => {
           if (typeof value === 'string') {
             return revertMergeTags(value);
@@ -239,7 +240,6 @@ const InternalEditor = ({ values }: {
 
         const templateType = sessionStorage.getItem('template-type') ?? 'EMAIL';
         const rawHTML = generateHTML({ ...values, content: JSON.parse(transformedContent) });
-        const rawHTMLForPreview = generateHTML(values, true);
         const finalHTML = unsanitizeHTMLTags(
           addCustomBlockScript(
             addConditionalMappingScripts(
@@ -252,14 +252,21 @@ const InternalEditor = ({ values }: {
           )
         );
 
-        const previewHTML = unsanitizeHTMLTags(stylizeGridColumn(rawHTMLForPreview));
-        if (screenshotRef.current) screenshotRef.current.innerHTML = previewHTML;
+        const body = document.getElementById('VisualEditorEditMode')?.shadowRoot?.querySelectorAll('body')[0] as HTMLBodyElement | undefined;
+        const page = document.getElementById('VisualEditorEditMode')?.shadowRoot?.querySelectorAll('.node-type-page')[0] as HTMLDivElement | undefined;
+        const wrapper = (page && page.children.length > 0) ? page.children[0] : undefined;
 
-        const preview = await takeScreenshot(screenshotRef.current, {
+        let target = wrapper ? wrapper : page ? page : body;
+
+        if (!target) throw new Error();
+
+        const preview = await takeScreenshot(target, {
           allowTaint: false,
           useCORS: true,
+          windowWidth: 600,
         });
-        if (screenshotRef.current) screenshotRef.current.innerHTML = '';
+
+        setFocusIdx(ActionOrigin.React, focusIdx, true);
 
         const blockIDMap = isJSONStringValid(sessionStorage.getItem('block-ids') ?? '{}') ? (sessionStorage.getItem('block-ids') ?? '{}') : '{}';
         const blockIDs = Object.values(JSON.parse(blockIDMap) as Record<string, string>);
@@ -315,6 +322,8 @@ const InternalEditor = ({ values }: {
         Message.clear();
         console.error('Encountered an error while trying to save the template', error);
         Message.error((error as Error)?.message ?? 'Could not save template!');
+      } finally {
+        sessionStorage.setItem('isExporting', JSON.stringify(false));
       }
     });
   }, [values, takeScreenshot]);
@@ -355,14 +364,6 @@ const InternalEditor = ({ values }: {
   // Return:
   return (
     <>
-      <div
-        ref={screenshotRef}
-        style={{
-          position: 'absolute',
-          width: templateWidth ?? '600px',
-          left: '-9999px',
-        }}
-      />
       <div style={{ position: 'relative', display: 'flex', flexDirection: 'row', width: '100vw', height: '100vh' }}>
         {/* @ts-ignore */}
         <StandardLayout

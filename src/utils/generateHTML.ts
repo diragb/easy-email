@@ -203,7 +203,6 @@ const normalizeGridDataSourceProperties = (templateContent: Node) => {
 };
 
 const generateHTML = (templateData: IEmailTemplate, isPreview?: boolean) => {
-  sessionStorage.setItem('isExporting', JSON.stringify(true));
   let templateContent = gridShiftBackgroundImageFromSectionToColumn(templateData);
   if (!isPreview) {
     templateContent = replaceThemeInstancesWithEncoding(templateContent);
@@ -214,7 +213,6 @@ const generateHTML = (templateData: IEmailTemplate, isPreview?: boolean) => {
     data: normalizedGridDataPropertiesTemplateData,
     mode: 'production',
   });
-  sessionStorage.setItem('isExporting', JSON.stringify(false));
 
   const rawHTML = mjml2html(mjmlString, {}).html;
   const html = unwrapMJMLEncodedData(sanitizeRawHTMLTags(rawHTML));

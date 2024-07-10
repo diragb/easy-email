@@ -16,7 +16,7 @@ import {
   generateUpdateConditionalMappingConditionsListener,
   generateUpdateEnableAddConditionButtonListener,
   generateUpdateFocusBlockListener,
-  generateUpdateFocusIdxListener,
+  generateUpdateCurrentFocusIdxListener,
   generateUpdateLastBlockModificationListener,
   getBlockByIdx,
   getConditionalMappingCSS,
@@ -92,7 +92,7 @@ const ConditionalMappingSection = () => {
   // Functions:
   const updateCustomAttributes = generateUpdateCustomAttributeListener(AttributeModifier.EasyEmail, _setCustomAttributes);
   const updatePredefinedAttributes = generateUpdatePredefinedAttributeListener(AttributeModifier.EasyEmail, _setPredefinedAttributes);
-  const updateFocusIdx = generateUpdateFocusIdxListener(ActionOrigin.EasyEmail, _setFocusIdx);
+  const updateFocusIdx = generateUpdateCurrentFocusIdxListener(ActionOrigin.EasyEmail, _setFocusIdx);
   const updateFocusBlock = generateUpdateFocusBlockListener(ActionOrigin.EasyEmail, _setFocusBlock);
   const updateConditions = generateUpdateConditionalMappingConditionsListener(ActionOrigin.EasyEmail, _setConditions);
   const updateEnableAddConditionButton = generateUpdateEnableAddConditionButtonListener(ActionOrigin.EasyEmail, _setEnableAddConditionButton);
