@@ -155,7 +155,12 @@ const InternalEditor = ({ values }: {
   };
 
   const doesTemplateContainOnlyEmptyWrapper = (template: IEmailTemplate) => {
-    return template.content.children.length === 1 && template.content.children?.[0]?.type === 'advanced_wrapper' && (template.content.children?.[0]?.children?.length ?? 0) === 0;
+    return (
+      template.content.children.length === 1 &&
+      template.content.children?.[0]?.type === 'advanced_wrapper' &&
+      (template.content.children?.[0]?.children?.length ?? 0) === 0 &&
+      !template.content.children?.[0]?.attributes['background-url']
+    );
   };
 
   const revertMergeTags = (content: string) => {
