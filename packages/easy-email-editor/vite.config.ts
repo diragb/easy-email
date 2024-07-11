@@ -9,7 +9,7 @@ export default defineConfig({
       'easy-email-core': path.resolve('../easy-email-core'),
       'attribute-manager': path.resolve('../../attributeManager.ts'),
       'conditional-mapping-manager': path.resolve('../../conditionalMappingManager.ts'),
-      'focus-idx-manager': path.resolve('../../focusIdxManager.tsx'),
+      'focus-idx-manager': path.resolve('../../focusIdxManager.ts'),
     },
   },
   define: {},
