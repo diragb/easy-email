@@ -65,9 +65,9 @@ const InputFieldWithMergeTags = ({
 
   // Return:
   return (
-    <div className='arco-form-label-item' style={{ display: 'flex', flexDirection: 'column', gap: '0', width: '100%', marginBottom: '1rem', marginTop: '0.5rem' }}>
+    <div className='arco-form-label-item' style={{ display: 'flex', flexDirection: 'column', gap: '0', width: '100%', marginBottom: '0.5rem' }}>
       <label style={{ textAlign: 'left' }}>{label}</label>
-      <Grid.Row style={{ display: 'flex', width: '100%' }}>
+      <Grid.Row style={{ display: 'flex', width: '100%', textAlign: 'left' }}>
         {mergeTags && (
           <Popover
             trigger='click'
@@ -147,7 +147,10 @@ export const Custom = () => {
   }
 
   render () {
-    const attributes = Object.entries(this.dataset ?? {}).reduce((array, entry) => ({ ...array, ['data-' + entry[0]]: entry[1]}), {});
+    const attributes = Object.entries(this.dataset ?? {}).reduce((array, entry) => ({
+      ...array,
+      ['data-' + entry[0].split(/(?=[A-Z])/).join('-').toLowerCase()]: entry[1]
+    }), {});
     this.shadowRoot.innerHTML = new Function('attributes', window.atob("${selectedCustomBlock.code}"))(attributes);
   }
 }

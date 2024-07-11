@@ -50,7 +50,10 @@ const defineCustomBlock = (id, code) => {
     }
 
     render () {
-      const attributes = Object.entries(this.dataset ?? {}).reduce((array, entry) => ({ ...array, ['data-' + entry[0]]: entry[1]}), {});
+      const attributes = Object.entries(this.dataset ?? {}).reduce((array, entry) => ({
+        ...array,
+        ['data-' + entry[0].split(/(?=[A-Z])/).join('-').toLowerCase()]: entry[1]
+      }), {});
       this.shadowRoot.innerHTML = new Function('attributes', window.atob("\${code}"))(attributes);
     }
   }\`)();
