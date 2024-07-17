@@ -230,6 +230,12 @@ const Editor = () => {
           images?: LibraryImage[];
           staticText?: StaticText[];
           customFonts?: CustomFont[];
+          customBlocks: {
+            id: string;
+            label: string;
+            code: string;
+            configuration: string;
+          }[];
         };
       };
       attributes: {
@@ -244,12 +250,6 @@ const Editor = () => {
         javascript?: string;
         css?: string;
       };
-      customBlocks: {
-        id: string;
-        label: string;
-        code: string;
-        configuration: string;
-      }[];
     };
 
     sessionStorage.setItem('template-type', payload.template.type ?? 'EMAIL');
@@ -335,7 +335,10 @@ const Editor = () => {
       javascript: payload.conditionalMapping.javascript,
       css: payload.conditionalMapping.css,
     }));
-    if (payload.customBlocks && payload.customBlocks?.length > 0) setCustomBlocks(_customBlocks => payload.customBlocks);
+    if (
+      payload.template.themeSettings.customBlocks &&
+      payload.template.themeSettings.customBlocks?.length > 0
+    ) setCustomBlocks(_customBlocks => payload.template.themeSettings.customBlocks);
     setIsLoading(false);
     acknowledgeAndEndConversation(message.conversationID, 'Template has been received from Flutter.');
   };

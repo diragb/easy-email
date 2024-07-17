@@ -196,6 +196,97 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
             src: 'http://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap',
           }
         ],
+        customBlocks: [
+          {
+            id: 'pie-chart',
+            label: 'Pie Chart',
+            code: window.btoa(`const pie = document.createElement('div'); const percentageFill = (isNaN(attributes['data-percent']) ? 25 : attributes['data-percent']) * 3.6; pie.style['width'] = '200px'; pie.style['height'] = '200px'; pie.style['borderRadius'] = '50%'; pie.style['background'] = 'conic-gradient(#ff6b6b 0deg ' + percentageFill + 'deg, #4ecdc4 ' + percentageFill + 'deg 360deg)'; return pie.outerHTML;`),
+            configuration: '{"sections":[{"header":"Pie Configuration","fields":[{"label":"Percent","type":"text","attribute":"data-percent"}]}]}',
+          },
+          {
+            id: 'pie-chart-html',
+            label: 'Pie Chart (HTML)',
+            code: window.btoa('return `<div style="width: 200px; height: 200px; border-radius: 50%; background: conic-gradient(#ff6b6b 0deg ${ (isNaN(attributes[\'data-percent\']) ? 25 : attributes[\'data-percent\']) * 3.6 }deg, #4ecdc4 ${ (isNaN(attributes[\'data-percent\']) ? 25 : attributes[\'data-percent\']) * 3.6 }deg 360deg)"></div>`'),
+            configuration: '{"sections":[{"header":"Pie Configuration","fields":[{"label":"Percent","type":"text","attribute":"data-percent"}]}]}',
+          },
+          {
+            id: 'funnel-chart',
+            label: 'Funnel',
+            code: window.btoa(`
+              const upperPercent = isNaN(parseInt(attributes['data-upper-percent'])) ? 50 : attributes['data-upper-percent'];
+              const lowerPercent = isNaN(parseInt(attributes['data-lower-percent'])) ? 25 : attributes['data-lower-percent'];
+              const gap = isNaN(parseInt(attributes['data-gap'])) ? 16 : attributes['data-gap'];
+
+              const upperColor = attributes['data-upper-color'] ?? '#555';
+              const lowerColor = attributes['data-lower-color'] ?? '#555';
+
+              const container = document.createElement('div');
+              const upperTrapezoid = document.createElement('div');
+              const lowerTrapezoid = document.createElement('div');
+
+              container.style['display'] = 'flex';
+              container.style['alignItems'] = 'center';
+              container.style['flexDirection'] = 'column';
+              container.style['gap'] = gap + 'px';
+              container.style['width'] = '250px';
+
+              upperTrapezoid.style['borderTop'] = '50px solid ' + upperColor;
+              upperTrapezoid.style['borderLeft'] = '25px solid transparent';
+              upperTrapezoid.style['borderRight'] = '25px solid transparent';
+              upperTrapezoid.style['height'] = '0px';
+              upperTrapezoid.style['width'] = 'calc(' + upperPercent + '% - 50px)';
+
+              lowerTrapezoid.style['borderTop'] = '50px solid ' + lowerColor;
+              lowerTrapezoid.style['borderLeft'] = '25px solid transparent';
+              lowerTrapezoid.style['borderRight'] = '25px solid transparent';
+              lowerTrapezoid.style['height'] = '0px';
+              lowerTrapezoid.style['width'] = 'calc(' + lowerPercent + '% - 50px)';
+
+              container.append(upperTrapezoid);
+              container.append(lowerTrapezoid);
+
+              return container.outerHTML;
+            `),
+            configuration: `
+            {
+              "sections": [
+                {
+                  "header": "Funnel Configuration",
+                  "fields": [
+                    {
+                      "label": "Upper Percent",
+                      "type": "text",
+                      "attribute": "data-upper-percent",
+                      "validate": "${window.btoa("return value?.trim().length === 0 ? undefined : isNaN(parseInt(value)) ? 'Please enter a number!' : undefined;")}"
+                    },
+                    {
+                      "label": "Upper Funnel Color",
+                      "type": "text",
+                      "attribute": "data-upper-color"
+                    },
+                    {
+                      "label": "Lower Percent",
+                      "type": "text",
+                      "attribute": "data-lower-percent",
+                      "validate": "${window.btoa("return value?.trim().length === 0 ? undefined : isNaN(parseInt(value)) ? 'Please enter a number!' : undefined;")}"
+                    },
+                    {
+                      "label": "Lower Funnel Color",
+                      "type": "text",
+                      "attribute": "data-lower-color"
+                    },
+                    {
+                      "label": "Gap",
+                      "type": "text",
+                      "attribute": "data-gap",
+                      "validate": "${window.btoa("return value?.trim().length === 0 ? undefined : isNaN(parseInt(value)) ? 'Please enter a number!' : undefined;")}"
+                    }
+                  ]
+                }
+              ]
+            }`,
+          }
+        ],
       },
     },
     attributes: {
