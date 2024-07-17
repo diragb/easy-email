@@ -191,6 +191,10 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
             name: 'Bottle Coffee',
             src: 'https://amplispot-dev2.blr1.digitaloceanspaces.com/test/Bottle%20Coffee.ttf',
           },
+          {
+            name: 'Raleway',
+            src: 'http://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap',
+          }
         ],
       },
     },

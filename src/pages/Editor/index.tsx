@@ -229,7 +229,7 @@ const Editor = () => {
           palettes?: Palette[];
           images?: LibraryImage[];
           staticText?: StaticText[];
-          customFonts: CustomFont[];
+          customFonts?: CustomFont[];
         };
       };
       attributes: {
@@ -282,8 +282,21 @@ const Editor = () => {
     const customFonts = payload.template.themeSettings.customFonts ?? [];
     if (customFonts.length > 0) {
       if (modifiedTemplateContent.type === BasicType.PAGE) {
+
+        const customFontsForLinkIndexes = [] as number[];
+        const customFontsForLink = customFonts.filter((customFont, index) => {
+          if (customFont.src.includes('googleapis')) {
+            customFontsForLinkIndexes.push(index);
+            return true;
+          } else return false;
+        });
+        const customFontURLs = customFontsForLink.map(customFont => `<link href="${customFont.src}" rel="stylesheet">`).join();
+        sessionStorage.setItem('custom-font-urls', customFontURLs);
+        modifiedTemplateContent.data.value['extraHeadContent'] = (modifiedTemplateContent.data.value['extraHeadContent'] ?? '') + customFontURLs;
+        (window as Window).document.head.innerHTML = ((window as Window).document.head.innerHTML ?? '') + customFontURLs;
+
         const style = document.createElement('style');
-        const fontFaces = customFonts.map(customFont => `
+        const fontFaces = customFonts.map((customFont, index) => customFontsForLinkIndexes.includes(index) ? '' : `
           @font-face {
             font-family: '${customFont.name}';
             src: url('${customFont.src}') format('truetype');
@@ -292,7 +305,9 @@ const Editor = () => {
           }
         `).join('\n');
         style.textContent = fontFaces;
+        sessionStorage.setItem('custom-font-font-faces', fontFaces);
         document.head.appendChild(style);
+        modifiedTemplateContent.data.value['extraHeadContent'] = (modifiedTemplateContent.data.value['extraHeadContent'] ?? '') + style.outerHTML;
       }
       setFontList(_fontList => [..._fontList, ...customFonts.map(customFont => ({ value: customFont.name, label: customFont.name }))]);
     }
