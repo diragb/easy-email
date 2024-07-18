@@ -18,6 +18,7 @@ import { CustomFont, LibraryImage, StaticText, setTemplateTheme } from 'template
 import updateThemeInstancesInTemplate from '@demo/utils/updateThemeInstancesInTemplate';
 import { setCustomBlocks } from 'custom-block-manager';
 import { setConditionalMappingState } from 'conditional-mapping-manager';
+import { customAlphabet } from 'nanoid';
 
 // Typescript:
 declare global {
@@ -65,6 +66,12 @@ export const generateTimestampID = () => {
   const timestamp = Date.now();
   const id = 'req' + timestamp;
   return id;
+};
+
+const generateVariableName = (prefix: string = 'var'): string => {
+  const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const nanoid = customAlphabet(alphabet, 10);
+  return `${prefix}_${nanoid()}`;
 };
 
 const Editor = () => {
@@ -250,6 +257,7 @@ const Editor = () => {
         javascript?: string;
         css?: string;
       };
+      usedCustomBlocks?: string[];
     };
 
     sessionStorage.setItem('template-type', payload.template.type ?? 'EMAIL');
@@ -338,7 +346,51 @@ const Editor = () => {
     if (
       payload.template.themeSettings.customBlocks &&
       payload.template.themeSettings.customBlocks?.length > 0
-    ) setCustomBlocks(_customBlocks => payload.template.themeSettings.customBlocks);
+    ) {
+      const customBlocks = payload.template.themeSettings.customBlocks;
+      setCustomBlocks(_customBlocks => customBlocks);
+
+      // Activate custom blocks:
+      const usedCustomBlocks = payload.usedCustomBlocks ?? [];
+      if (usedCustomBlocks.length > 0) {
+        for (const usedCustomBlockID of usedCustomBlocks) {
+          const customBlock = customBlocks.find(customBlock => customBlock.id === usedCustomBlockID);
+          if (!customBlock) continue;
+          const customComponentName = generateVariableName();
+          const script = `class ${customComponentName} extends HTMLElement {
+            constructor() {
+              super();
+              this.attachShadow({ mode: 'open' });
+            }
+
+            connectedCallback() {
+              const observer = new MutationObserver((mutationRecords) => {
+                mutationRecords.forEach(record => {
+                  this.render();
+                });
+              }).observe(this, { attributes: true });
+              this.render();
+            }
+
+            render () {
+              const attributes = Object.entries(this.dataset ?? {}).reduce((array, entry) => ({
+                ...array,
+                ['data-' + entry[0].split(/(?=[A-Z])/).join('-').toLowerCase()]: entry[1]
+              }), {});
+              this.shadowRoot.innerHTML = new Function('attributes', window.atob("${customBlock.code}"))(attributes);
+            }
+          }
+
+          try {
+            if (!customElements.get("${customBlock.id}")) customElements.define("${customBlock.id}", ${customComponentName});
+          } catch (error) {
+            console.error(error);
+          }
+          `;
+          new Function(script)();
+        }
+      }
+    }
     setIsLoading(false);
     acknowledgeAndEndConversation(message.conversationID, 'Template has been received from Flutter.');
   };
