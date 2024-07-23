@@ -259,6 +259,7 @@ const Editor = () => {
         css?: string;
       };
     };
+    console.log(payload);
 
     sessionStorage.setItem('template-type', payload.template.type ?? 'EMAIL');
     sessionStorage.setItem('block-ids', isJSONStringValid(payload.blockIDs?.map) ? payload.blockIDs?.map : '{}');
