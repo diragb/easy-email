@@ -287,6 +287,7 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
             }`,
           }
         ],
+        usedCustomBlocks: ['pie-chart'],
       },
     },
     attributes: {
@@ -331,7 +332,6 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
         }
       ]
     },
-    usedCustomBlocks: ['pie-chart']
   };
 
   // State:

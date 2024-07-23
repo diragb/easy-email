@@ -243,6 +243,7 @@ const Editor = () => {
             code: string;
             configuration: string;
           }[];
+          usedCustomBlocks?: string[];
         };
       };
       attributes: {
@@ -257,7 +258,6 @@ const Editor = () => {
         javascript?: string;
         css?: string;
       };
-      usedCustomBlocks?: string[];
     };
 
     sessionStorage.setItem('template-type', payload.template.type ?? 'EMAIL');
@@ -351,7 +351,7 @@ const Editor = () => {
       setCustomBlocks(_customBlocks => customBlocks);
 
       // Activate custom blocks:
-      const usedCustomBlocks = payload.usedCustomBlocks ?? [];
+      const usedCustomBlocks = payload.template.themeSettings.usedCustomBlocks ?? [];
       if (usedCustomBlocks.length > 0) {
         for (const usedCustomBlockID of usedCustomBlocks) {
           const customBlock = customBlocks.find(customBlock => customBlock.id === usedCustomBlockID);
