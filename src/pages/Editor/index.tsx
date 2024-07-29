@@ -232,18 +232,6 @@ const Editor = () => {
           background?: string;
           contentBackground?: string;
           userStyle?: string;
-          typography?: Typography[];
-          palettes?: Palette[];
-          images?: LibraryImage[];
-          staticText?: StaticText[];
-          customFonts?: CustomFont[];
-          customBlocks: {
-            id: string;
-            label: string;
-            code: string;
-            configuration: string;
-          }[];
-          usedCustomBlocks?: string[];
         };
       };
       attributes: {
@@ -258,16 +246,29 @@ const Editor = () => {
         javascript?: string;
         css?: string;
       };
+      usedCustomBlocks?: string[];
+      styleConfig: {
+        typography?: Typography[];
+        palettes?: Palette[];
+        images?: LibraryImage[];
+        staticText?: StaticText[];
+        customFonts?: CustomFont[];
+        customBlocks: {
+          id: string;
+          label: string;
+          code: string;
+          configuration: string;
+        }[];
+      };
     };
-    console.log(payload);
 
     sessionStorage.setItem('template-type', payload.template.type ?? 'EMAIL');
     sessionStorage.setItem('block-ids', isJSONStringValid(payload.blockIDs?.map) ? payload.blockIDs?.map : '{}');
 
-    const typography = payload.template.themeSettings.typography ?? [];
-    const palettes = payload.template.themeSettings.palettes ?? [];
-    const images = payload.template.themeSettings.images ?? [];
-    const staticText = payload.template.themeSettings.staticText ?? [];
+    const typography = payload.styleConfig.typography ?? [];
+    const palettes = payload.styleConfig.palettes ?? [];
+    const images = payload.styleConfig.images ?? [];
+    const staticText = payload.styleConfig.staticText ?? [];
     setTemplateTheme(_templateTheme => ({ typography, palettes, images, staticText }));
     const template = updateThemeInstancesInTemplate(payload.template);
     // const modifiedTemplateContent = JSON.parse(
@@ -288,7 +289,7 @@ const Editor = () => {
         ...payload.attributes.custom,
       ]
     );
-    const customFonts = payload.template.themeSettings.customFonts ?? [];
+    const customFonts = payload.styleConfig.customFonts ?? [];
     if (customFonts.length > 0) {
       if (modifiedTemplateContent.type === BasicType.PAGE) {
 
@@ -345,14 +346,14 @@ const Editor = () => {
       css: payload.conditionalMapping.css,
     }));
     if (
-      payload.template.themeSettings.customBlocks &&
-      payload.template.themeSettings.customBlocks?.length > 0
+      payload.styleConfig.customBlocks &&
+      payload.styleConfig.customBlocks?.length > 0
     ) {
-      const customBlocks = payload.template.themeSettings.customBlocks;
+      const customBlocks = payload.styleConfig.customBlocks;
       setCustomBlocks(_customBlocks => customBlocks);
 
       // Activate custom blocks:
-      const usedCustomBlocks = payload.template.themeSettings.usedCustomBlocks ?? [];
+      const usedCustomBlocks = payload.usedCustomBlocks ?? [];
       if (usedCustomBlocks.length > 0) {
         for (const usedCustomBlockID of usedCustomBlocks) {
           const customBlock = customBlocks.find(customBlock => customBlock.id === usedCustomBlockID);

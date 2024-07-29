@@ -130,164 +130,6 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
         "textColor": "black",
         "background": "#F3F3F3",
         "userStyle": {},
-        typography: [
-          {
-            name: 'H1',
-            fontFamily: "'Roboto'",
-            fontSize: '60px',
-            fontWeight: '700',
-          }
-        ] as Typography[],
-        palettes: [
-          {
-            name: 'Utility Palette',
-            colors: [
-              {
-                name: 'Primary',
-                color: '#FFF',
-              },
-              {
-                name: 'Secondary',
-                color: '#03E3C1',
-              },
-            ],
-          },
-          {
-            name: 'Lucidity Palette',
-            colors: [
-              {
-                name: 'Primary',
-                color: '#121212',
-              },
-              {
-                name: 'Superluminary',
-                color: '#123456',
-              },
-            ],
-          },
-        ] as Palette[],
-        images: [
-          {
-            name: 'Banner',
-            url: 'https://images.pexels.com/photos/14981339/pexels-photo-14981339/free-photo-of-a-man-standing-on-gray-rock.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
-          },
-          {
-            name: 'Logo',
-            url: 'https://static.vecteezy.com/system/resources/thumbnails/008/214/517/small_2x/abstract-geometric-logo-or-infinity-line-logo-for-your-company-free-vector.jpg'
-          },
-        ],
-        staticText: [
-          {
-            name: 'Legal Disclosure',
-            text: 'The author assumes no responsibility or liability for any errors or omissions in the content of this site. The information contained in this site is provided on an "as is" basis with no guarantees of completeness, accuracy, usefulness or timeliness.',
-          },
-          {
-            name: 'Brand Catchline',
-            text: 'At the speed of light.',
-          },
-        ],
-        customFonts: [
-          {
-            name: 'Bottle Coffee',
-            src: 'https://amplispot-dev2.blr1.digitaloceanspaces.com/test/Bottle%20Coffee.ttf',
-          },
-          {
-            name: 'Raleway',
-            src: 'http://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap',
-          }
-        ],
-        customBlocks: [
-          {
-            id: 'pie-chart',
-            label: 'Pie Chart',
-            code: window.btoa(`const pie = document.createElement('div'); const percentageFill = (isNaN(attributes['data-percent']) ? 25 : attributes['data-percent']) * 3.6; pie.style['width'] = '200px'; pie.style['height'] = '200px'; pie.style['borderRadius'] = '50%'; pie.style['background'] = 'conic-gradient(#ff6b6b 0deg ' + percentageFill + 'deg, #4ecdc4 ' + percentageFill + 'deg 360deg)'; return pie.outerHTML;`),
-            configuration: '{"sections":[{"header":"Pie Configuration","fields":[{"label":"Percent","type":"text","attribute":"data-percent"}]}]}',
-          },
-          {
-            id: 'pie-chart-html',
-            label: 'Pie Chart (HTML)',
-            code: window.btoa('return `<div style="width: 200px; height: 200px; border-radius: 50%; background: conic-gradient(#ff6b6b 0deg ${ (isNaN(attributes[\'data-percent\']) ? 25 : attributes[\'data-percent\']) * 3.6 }deg, #4ecdc4 ${ (isNaN(attributes[\'data-percent\']) ? 25 : attributes[\'data-percent\']) * 3.6 }deg 360deg)"></div>`'),
-            configuration: '{"sections":[{"header":"Pie Configuration","fields":[{"label":"Percent","type":"text","attribute":"data-percent"}]}]}',
-          },
-          {
-            id: 'funnel-chart',
-            label: 'Funnel',
-            code: window.btoa(`
-              const upperPercent = isNaN(parseInt(attributes['data-upper-percent'])) ? 50 : attributes['data-upper-percent'];
-              const lowerPercent = isNaN(parseInt(attributes['data-lower-percent'])) ? 25 : attributes['data-lower-percent'];
-              const gap = isNaN(parseInt(attributes['data-gap'])) ? 16 : attributes['data-gap'];
-
-              const upperColor = attributes['data-upper-color'] ?? '#555';
-              const lowerColor = attributes['data-lower-color'] ?? '#555';
-
-              const container = document.createElement('div');
-              const upperTrapezoid = document.createElement('div');
-              const lowerTrapezoid = document.createElement('div');
-
-              container.style['display'] = 'flex';
-              container.style['alignItems'] = 'center';
-              container.style['flexDirection'] = 'column';
-              container.style['gap'] = gap + 'px';
-              container.style['width'] = '250px';
-
-              upperTrapezoid.style['borderTop'] = '50px solid ' + upperColor;
-              upperTrapezoid.style['borderLeft'] = '25px solid transparent';
-              upperTrapezoid.style['borderRight'] = '25px solid transparent';
-              upperTrapezoid.style['height'] = '0px';
-              upperTrapezoid.style['width'] = 'calc(' + upperPercent + '% - 50px)';
-
-              lowerTrapezoid.style['borderTop'] = '50px solid ' + lowerColor;
-              lowerTrapezoid.style['borderLeft'] = '25px solid transparent';
-              lowerTrapezoid.style['borderRight'] = '25px solid transparent';
-              lowerTrapezoid.style['height'] = '0px';
-              lowerTrapezoid.style['width'] = 'calc(' + lowerPercent + '% - 50px)';
-
-              container.append(upperTrapezoid);
-              container.append(lowerTrapezoid);
-
-              return container.outerHTML;
-            `),
-            configuration: `
-            {
-              "sections": [
-                {
-                  "header": "Funnel Configuration",
-                  "fields": [
-                    {
-                      "label": "Upper Percent",
-                      "type": "text",
-                      "attribute": "data-upper-percent",
-                      "validate": "${window.btoa("return value?.trim().length === 0 ? undefined : isNaN(parseInt(value)) ? 'Please enter a number!' : undefined;")}"
-                    },
-                    {
-                      "label": "Upper Funnel Color",
-                      "type": "text",
-                      "attribute": "data-upper-color"
-                    },
-                    {
-                      "label": "Lower Percent",
-                      "type": "text",
-                      "attribute": "data-lower-percent",
-                      "validate": "${window.btoa("return value?.trim().length === 0 ? undefined : isNaN(parseInt(value)) ? 'Please enter a number!' : undefined;")}"
-                    },
-                    {
-                      "label": "Lower Funnel Color",
-                      "type": "text",
-                      "attribute": "data-lower-color"
-                    },
-                    {
-                      "label": "Gap",
-                      "type": "text",
-                      "attribute": "data-gap",
-                      "validate": "${window.btoa("return value?.trim().length === 0 ? undefined : isNaN(parseInt(value)) ? 'Please enter a number!' : undefined;")}"
-                    }
-                  ]
-                }
-              ]
-            }`,
-          }
-        ],
-        usedCustomBlocks: ['pie-chart'],
       },
     },
     attributes: {
@@ -332,6 +174,166 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
         }
       ]
     },
+    usedCustomBlocks: ['pie-chart'],
+    styleConfig: {
+      typography: [
+        {
+          name: 'H1',
+          fontFamily: "'Roboto'",
+          fontSize: '60px',
+          fontWeight: '700',
+        }
+      ] as Typography[],
+      palettes: [
+        {
+          name: 'Utility Palette',
+          colors: [
+            {
+              name: 'Primary',
+              color: '#FFF',
+            },
+            {
+              name: 'Secondary',
+              color: '#03E3C1',
+            },
+          ],
+        },
+        {
+          name: 'Lucidity Palette',
+          colors: [
+            {
+              name: 'Primary',
+              color: '#121212',
+            },
+            {
+              name: 'Superluminary',
+              color: '#123456',
+            },
+          ],
+        },
+      ] as Palette[],
+      images: [
+        {
+          name: 'Banner',
+          url: 'https://images.pexels.com/photos/14981339/pexels-photo-14981339/free-photo-of-a-man-standing-on-gray-rock.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        {
+          name: 'Logo',
+          url: 'https://static.vecteezy.com/system/resources/thumbnails/008/214/517/small_2x/abstract-geometric-logo-or-infinity-line-logo-for-your-company-free-vector.jpg'
+        },
+      ],
+      staticText: [
+        {
+          name: 'Legal Disclosure',
+          text: 'The author assumes no responsibility or liability for any errors or omissions in the content of this site. The information contained in this site is provided on an "as is" basis with no guarantees of completeness, accuracy, usefulness or timeliness.',
+        },
+        {
+          name: 'Brand Catchline',
+          text: 'At the speed of light.',
+        },
+      ],
+      customFonts: [
+        {
+          name: 'Bottle Coffee',
+          src: 'https://amplispot-dev2.blr1.digitaloceanspaces.com/test/Bottle%20Coffee.ttf',
+        },
+        {
+          name: 'Raleway',
+          src: 'http://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap',
+        }
+      ],
+      customBlocks: [
+        {
+          id: 'pie-chart',
+          label: 'Pie Chart',
+          code: window.btoa(`const pie = document.createElement('div'); const percentageFill = (isNaN(attributes['data-percent']) ? 25 : attributes['data-percent']) * 3.6; pie.style['width'] = '200px'; pie.style['height'] = '200px'; pie.style['borderRadius'] = '50%'; pie.style['background'] = 'conic-gradient(#ff6b6b 0deg ' + percentageFill + 'deg, #4ecdc4 ' + percentageFill + 'deg 360deg)'; return pie.outerHTML;`),
+          configuration: '{"sections":[{"header":"Pie Configuration","fields":[{"label":"Percent","type":"text","attribute":"data-percent"}]}]}',
+        },
+        {
+          id: 'pie-chart-html',
+          label: 'Pie Chart (HTML)',
+          code: window.btoa('return `<div style="width: 200px; height: 200px; border-radius: 50%; background: conic-gradient(#ff6b6b 0deg ${ (isNaN(attributes[\'data-percent\']) ? 25 : attributes[\'data-percent\']) * 3.6 }deg, #4ecdc4 ${ (isNaN(attributes[\'data-percent\']) ? 25 : attributes[\'data-percent\']) * 3.6 }deg 360deg)"></div>`'),
+          configuration: '{"sections":[{"header":"Pie Configuration","fields":[{"label":"Percent","type":"text","attribute":"data-percent"}]}]}',
+        },
+        {
+          id: 'funnel-chart',
+          label: 'Funnel',
+          code: window.btoa(`
+            const upperPercent = isNaN(parseInt(attributes['data-upper-percent'])) ? 50 : attributes['data-upper-percent'];
+            const lowerPercent = isNaN(parseInt(attributes['data-lower-percent'])) ? 25 : attributes['data-lower-percent'];
+            const gap = isNaN(parseInt(attributes['data-gap'])) ? 16 : attributes['data-gap'];
+
+            const upperColor = attributes['data-upper-color'] ?? '#555';
+            const lowerColor = attributes['data-lower-color'] ?? '#555';
+
+            const container = document.createElement('div');
+            const upperTrapezoid = document.createElement('div');
+            const lowerTrapezoid = document.createElement('div');
+
+            container.style['display'] = 'flex';
+            container.style['alignItems'] = 'center';
+            container.style['flexDirection'] = 'column';
+            container.style['gap'] = gap + 'px';
+            container.style['width'] = '250px';
+
+            upperTrapezoid.style['borderTop'] = '50px solid ' + upperColor;
+            upperTrapezoid.style['borderLeft'] = '25px solid transparent';
+            upperTrapezoid.style['borderRight'] = '25px solid transparent';
+            upperTrapezoid.style['height'] = '0px';
+            upperTrapezoid.style['width'] = 'calc(' + upperPercent + '% - 50px)';
+
+            lowerTrapezoid.style['borderTop'] = '50px solid ' + lowerColor;
+            lowerTrapezoid.style['borderLeft'] = '25px solid transparent';
+            lowerTrapezoid.style['borderRight'] = '25px solid transparent';
+            lowerTrapezoid.style['height'] = '0px';
+            lowerTrapezoid.style['width'] = 'calc(' + lowerPercent + '% - 50px)';
+
+            container.append(upperTrapezoid);
+            container.append(lowerTrapezoid);
+
+            return container.outerHTML;
+          `),
+          configuration: `
+          {
+            "sections": [
+              {
+                "header": "Funnel Configuration",
+                "fields": [
+                  {
+                    "label": "Upper Percent",
+                    "type": "text",
+                    "attribute": "data-upper-percent",
+                    "validate": "${window.btoa("return value?.trim().length === 0 ? undefined : isNaN(parseInt(value)) ? 'Please enter a number!' : undefined;")}"
+                  },
+                  {
+                    "label": "Upper Funnel Color",
+                    "type": "text",
+                    "attribute": "data-upper-color"
+                  },
+                  {
+                    "label": "Lower Percent",
+                    "type": "text",
+                    "attribute": "data-lower-percent",
+                    "validate": "${window.btoa("return value?.trim().length === 0 ? undefined : isNaN(parseInt(value)) ? 'Please enter a number!' : undefined;")}"
+                  },
+                  {
+                    "label": "Lower Funnel Color",
+                    "type": "text",
+                    "attribute": "data-lower-color"
+                  },
+                  {
+                    "label": "Gap",
+                    "type": "text",
+                    "attribute": "data-gap",
+                    "validate": "${window.btoa("return value?.trim().length === 0 ? undefined : isNaN(parseInt(value)) ? 'Please enter a number!' : undefined;")}"
+                  }
+                ]
+              }
+            ]
+          }`,
+        }
+      ],
+    }
   };
 
   // State:
