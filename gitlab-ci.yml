@@ -1,0 +1,53 @@
+
+image: docker:24.0.5
+variables:
+  DOCKER_REGISTRY: $DOCKER_REGISTRY
+  DOCKER_TAG_LATEST: $DOCKER_REPOSITORY-$CI_COMMIT_BRANCH:latest
+  DOCKER_TAG_COMMIT: $DOCKER_REPOSITORY-$CI_COMMIT_BRANCH:$CI_COMMIT_SHORT_SHA
+services:
+  - name: docker:24.0.5-dind
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  environment: $CI_COMMIT_BRANCH
+  rules:
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+  script:
+    - echo "building docker image..."
+    - docker build -t easy_email-$CI_COMMIT_BRANCH .
+    - docker tag easy_email-$CI_COMMIT_BRANCH $DOCKER_TAG_LATEST
+    - docker tag easy_email-$CI_COMMIT_BRANCH $DOCKER_TAG_COMMIT
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin $DOCKER_REGISTRY
+    - docker push $DOCKER_TAG_LATEST
+    - docker push $DOCKER_TAG_COMMIT
+  when: manual
+deploy:
+  stage: deploy
+  image: alpine
+  environment: $CI_COMMIT_BRANCH
+  rules:
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+  script:
+    - echo "Deploying..."
+    - apk update
+    - apk add --no-cache curl unzip wget tar
+    - curl -sL https://github.com/digitalocean/doctl/releases/download/v1.105.0/doctl-1.105.0-linux-amd64.tar.gz | tar -xzv
+    - su root -c "mv ./doctl /usr/local/bin/"
+    - doctl version
+    - doctl auth init -t $DIGITALOCEAN_API_TOKEN
+    - doctl account get
+    - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    - install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    - kubectl version --client
+    - doctl kubernetes cluster kubeconfig save $DIGITALOCEAN_K8S_CLUSTER_ID
+    - kubectl config current-context
+    - cd ./kubernetes
+    - echo $CI_COMMIT_BRANCH
+    - sed -i "s|DOCKER_IMAGE|$DOCKER_TAG_LATEST|" easy_email_pod.yaml
+    - kubectl apply -f easy_email_service.yaml
+    - kubectl apply -f easy_email_pod.yaml
+    - kubectl rollout restart -f easy_email_pod.yaml
+  when: manual
