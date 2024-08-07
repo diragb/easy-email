@@ -70,6 +70,7 @@ export function Text() {
     value: string;
     label: React.ReactNode;
   }[]>([]);
+  const [disableTypographySelection, setDisableTypographySelection] = useState(false);
 
   // Functions:
   const resetToDefaultColor = () => {
@@ -259,10 +260,27 @@ export function Text() {
       const staticTextValue = staticText.find(_staticText => _staticText.name === dataStaticText.input.value);
       change(`${focusIdx}.data.value.content`, staticTextValue?.text);
       setTextNode('false', staticTextValue?.text ?? '');
+      if (staticTextValue?.typographyName) {
+        const _selectedTypography = typography.find(typographyItem => typographyItem.name === staticTextValue.typographyName);
+        setSelectedTypography(_selectedTypography);
+        if (_selectedTypography) {
+          setDisableTypographySelection(true);
+          change(`${focusIdx}.attributes.data-typography`, _selectedTypography.name);
+          change(`${focusIdx}.attributes.font-family`, _selectedTypography.fontFamily ?? '');
+          change(`${focusIdx}.attributes.font-size`, _selectedTypography.fontSize ?? '');
+          change(`${focusIdx}.attributes.font-weight`, _selectedTypography.fontWeight ?? '');
+        }
+      }
     } else {
       setTextNode(isConditionalMapping ? 'false' : 'true');
     }
-  }, [dataStaticText.input.value, textContent.input.value, staticText, isConditionalMapping]);
+  }, [
+    dataStaticText.input.value,
+    textContent.input.value,
+    staticText,
+    isConditionalMapping,
+    typography,
+  ]);
 
   useEffect(() => {
     if (isConditionalMapping) {
@@ -419,6 +437,7 @@ export function Text() {
                 onClick={() => {
                   change(`${focusIdx}.attributes.data-static-text`, '');
                   change(`${focusIdx}.data.value.content`, '');
+                  setDisableTypographySelection(false);
                 }}
                 disabled={(dataStaticText.input.value?.trim().length ?? 0) === 0}
                 status='danger'
@@ -439,10 +458,11 @@ export function Text() {
                 name={`${focusIdx}.attributes.data-typography`}
                 options={typographyList}
                 style={{ width: '72%', paddingRight: '1rem' }}
+                disabled={disableTypographySelection}
               />
               <Button
                 onClick={() => change(`${focusIdx}.attributes.data-typography`, '')}
-                disabled={(dataTypography.input.value?.trim().length ?? 0) === 0}
+                disabled={disableTypographySelection || (dataTypography.input.value?.trim().length ?? 0) === 0}
                 status='danger'
               >
                 Reset

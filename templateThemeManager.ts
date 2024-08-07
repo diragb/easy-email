@@ -27,6 +27,7 @@ export interface LibraryImage {
 export interface StaticText {
   name: string;
   text: string;
+  typographyName: string;
 }
 
 export interface CustomFont {
