@@ -98,11 +98,11 @@ export function Text() {
     const _selectedTypography = typography.find(typographyItem => typographyItem.name === dataTypography.input.value);
     setSelectedTypography(_selectedTypography);
     if (_selectedTypography) {
-      change(`${focusIdx}.attributes.font-family`, _selectedTypography.fontFamily ?? '');
+      change(`${focusIdx}.attributes.font-family`, _selectedTypography.fontFamily ? `'${_selectedTypography.fontFamily}'` : '');
       change(`${focusIdx}.attributes.font-size`, _selectedTypography.fontSize ?? '');
       change(`${focusIdx}.attributes.font-weight`, _selectedTypography.fontWeight ?? '');
     } else {
-      change(`${focusIdx}.attributes.font-family`, defaultTypographicStyling?.fontFamily ?? '');
+      change(`${focusIdx}.attributes.font-family`, defaultTypographicStyling?.fontFamily ? `'${defaultTypographicStyling?.fontFamily}'` : '');
       change(`${focusIdx}.attributes.font-size`, defaultTypographicStyling?.fontSize ?? '');
       change(`${focusIdx}.attributes.font-weight`, defaultTypographicStyling?.fontWeight ?? '');
     }

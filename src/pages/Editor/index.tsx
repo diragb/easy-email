@@ -300,7 +300,7 @@ const Editor = () => {
             return true;
           } else return false;
         });
-        const customFontURLs = customFontsForLink.map(customFont => `<link href="${customFont.src}" rel="stylesheet">`).join();
+        const customFontURLs = customFontsForLink.map(customFont => `<link href="${customFont.src}" rel="stylesheet">`).join('');
         sessionStorage.setItem('custom-font-urls', customFontURLs);
         modifiedTemplateContent.data.value['extraHeadContent'] = (modifiedTemplateContent.data.value['extraHeadContent'] ?? '') + customFontURLs;
         (window as Window).document.head.innerHTML = ((window as Window).document.head.innerHTML ?? '') + customFontURLs;

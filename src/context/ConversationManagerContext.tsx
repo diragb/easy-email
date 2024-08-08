@@ -179,10 +179,16 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
       typography: [
         {
           name: 'H1',
-          fontFamily: "'Roboto'",
+          fontFamily: "Sonic Turbo",
           fontSize: '60px',
           fontWeight: '700',
-        }
+        },
+        {
+          name: 'H2',
+          fontFamily: "Montserrat",
+          fontSize: '40px',
+          fontWeight: '500',
+        },
       ] as Typography[],
       palettes: [
         {
@@ -231,16 +237,125 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
         {
           name: 'Brand Catchline',
           text: 'At the speed of light.',
+          typographyName: 'H2',
         },
       ],
       customFonts: [
         {
-          name: 'Bottle Coffee',
-          src: 'https://amplispot-dev2.blr1.digitaloceanspaces.com/test/Bottle%20Coffee.ttf',
+          "name": "Dilemma Trial",
+          "src": "https://conversifytest.blr1.digitaloceanspaces.com/organisation/d564b4d9-dd45-4a4f-98ea-979b35834a3c/TP_FONT/Dilemma_Trial.ttf"
         },
         {
-          name: 'Raleway',
-          src: 'http://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap',
+          "name": "Slick Woff",
+          "src": "https://conversifytest.blr1.digitaloceanspaces.com/organisation/d564b4d9-dd45-4a4f-98ea-979b35834a3c/TP_FONT/slick_woff.woff"
+        },
+        {
+          "name": "Sonic Turbo",
+          "src": "https://conversifytest.blr1.digitaloceanspaces.com/organisation/d564b4d9-dd45-4a4f-98ea-979b35834a3c/TP_FONT/sonic_turbo.otf"
+        },
+        {
+          "name": "Custom Hermintosh",
+          "src": "https://conversifytest.blr1.digitaloceanspaces.com/organisation/d564b4d9-dd45-4a4f-98ea-979b35834a3c/TP_FONT/custom_hermintosh.otf"
+        },
+        {
+          "name": "Dino Files Ttf ",
+          "src": "https://conversifytest.blr1.digitaloceanspaces.com/organisation/d564b4d9-dd45-4a4f-98ea-979b35834a3c/TP_FONT/dino_files_ttf_.ttf"
+        },
+        {
+          "name": "Roboto",
+          "src": "//fonts.googleapis.com/css2?family=Roboto&display=swap"
+        },
+        {
+          "name": "Open Sans",
+          "src": "//fonts.googleapis.com/css2?family=Open+Sans&display=swap"
+        },
+        {
+          "name": "Noto Sans JP",
+          "src": "//fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap"
+        },
+        {
+          "name": "Lato",
+          "src": "//fonts.googleapis.com/css2?family=Lato&display=swap"
+        },
+        {
+          "name": "Montserrat",
+          "src": "//fonts.googleapis.com/css2?family=Montserrat&display=swap"
+        },
+        {
+          "name": "Roboto Condensed",
+          "src": "//fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap"
+        },
+        {
+          "name": "Oswald",
+          "src": "//fonts.googleapis.com/css2?family=Oswald&display=swap"
+        },
+        {
+          "name": "Poppins",
+          "src": "//fonts.googleapis.com/css2?family=Poppins&display=swap"
+        },
+        {
+          "name": "Raleway",
+          "src": "//fonts.googleapis.com/css2?family=Raleway&display=swap"
+        },
+        {
+          "name": "Roboto Mono",
+          "src": "//fonts.googleapis.com/css2?family=Roboto+Mono&display=swap"
+        },
+        {
+          "name": "Noto Sans",
+          "src": "//fonts.googleapis.com/css2?family=Noto+Sans&display=swap"
+        },
+        {
+          "name": "PT Sans",
+          "src": "//fonts.googleapis.com/css2?family=PT+Sans&display=swap"
+        },
+        {
+          "name": "Roboto Slab",
+          "src": "//fonts.googleapis.com/css2?family=Roboto+Slab&display=swap"
+        },
+        {
+          "name": "Ubuntu",
+          "src": "//fonts.googleapis.com/css2?family=Ubuntu&display=swap"
+        },
+        {
+          "name": "Merriweather",
+          "src": "//fonts.googleapis.com/css2?family=Merriweather&display=swap"
+        },
+        {
+          "name": "Playfair Display",
+          "src": "//fonts.googleapis.com/css2?family=Playfair+Display&display=swap"
+        },
+        {
+          "name": "Nunito",
+          "src": "//fonts.googleapis.com/css2?family=Nunito&display=swap"
+        },
+        {
+          "name": "Open Sans Condensed",
+          "src": "//fonts.googleapis.com/css2?family=Open+Sans+Condensed&display=swap"
+        },
+        {
+          "name": "Work Sans",
+          "src": "//fonts.googleapis.com/css2?family=Work+Sans&display=swap"
+        },
+        {
+          "name": "Lora",
+          "src": "//fonts.googleapis.com/css2?family=Lora&display=swap"
+        },
+        {
+          "name": "Mukta",
+          "src": "//fonts.googleapis.com/css2?family=Mukta&display=swap"
+        },
+        {
+          "name": "PT Serif",
+          "src": "//fonts.googleapis.com/css2?family=PT+Serif&display=swap"
+        },
+        {
+          "name": "Rubik",
+          "src": "//fonts.googleapis.com/css2?family=Rubik&display=swap"
+        },
+        {
+          "name": "Noto Serif",
+          "src": "//fonts.googleapis.com/css2?family=Noto+Serif&display=swap"
         }
       ],
       customBlocks: [
