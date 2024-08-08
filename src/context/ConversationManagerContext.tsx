@@ -178,17 +178,41 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
     styleConfig: {
       typography: [
         {
-          name: 'H1',
-          fontFamily: "Sonic Turbo",
-          fontSize: '60px',
-          fontWeight: '700',
+          "name": "New 900 Non Italic 20 custom hermintosh",
+          "fontFamily": "Custom Hermintosh",
+          "fontSize": "20px",
+          "fontWeight": "900"
         },
         {
-          name: 'H2',
-          fontFamily: "Montserrat",
-          fontSize: '40px',
-          fontWeight: '500',
+          "name": "Dino Typography Italic",
+          "fontFamily": "Dino Files Ttf ",
+          "fontSize": "24px",
+          "fontWeight": "normal"
         },
+        {
+          "name": "Sonic Turbo Typography",
+          "fontFamily": "Sonic Turbo",
+          "fontSize": "22px",
+          "fontWeight": "500"
+        },
+        {
+          "name": "Typography Dilemma",
+          "fontFamily": "Dilemma Trial",
+          "fontSize": "12px",
+          "fontWeight": "400"
+        },
+        {
+          "name": "Gooogle Font Oswald",
+          "fontFamily": "Oswald",
+          "fontSize": "18px",
+          "fontWeight": "normal"
+        },
+        {
+          "name": "I Am A Robot",
+          "fontFamily": "Roboto Mono",
+          "fontSize": "28px",
+          "fontWeight": "900"
+        }
       ] as Typography[],
       palettes: [
         {
@@ -230,14 +254,29 @@ const ConversationManagerProvider = ({ children }: { children: React.ReactNode; 
       ],
       staticText: [
         {
-          name: 'Legal Disclosure',
-          text: 'The author assumes no responsibility or liability for any errors or omissions in the content of this site. The information contained in this site is provided on an "as is" basis with no guarantees of completeness, accuracy, usefulness or timeliness.',
-          typographyName: 'H1',
+          "name": "Nameeeeee",
+          "text": "helloooooooooooooooo",
+          "typographyName": "Sonic Turbo Typography"
         },
         {
-          name: 'Brand Catchline',
-          text: 'At the speed of light.',
-          typographyName: 'H2',
+          "name": "Welcome Client",
+          "text": "Hello we welcome you to our team",
+          "typographyName": null
+        },
+        {
+          "name": "Brand Slogen",
+          "text": "The Best Bet You Can Make",
+          "typographyName": "Dino Typography Italic"
+        },
+        {
+          "name": "A Special Text Which Is Too Long Just To Test Over",
+          "text": "The old clock tower loomed over the sleepy town its weathered face barely visible through the morning mist For generations its steady ticking had marked the rhythm of daily life a constant reminder of times relentless march But on this particular dawn an eerie silence hung in the air The clock had stopped and with it a sense of unease crept through the streets below Townsfolk emerged from their homes exchanging worried glances and hushed whispers Some claimed it was merely a mechanical failure while others saw it as an omen of impending change As the sun climbed higher casting long shadows acr",
+          "typographyName": "New 900 Non Italic 20 custom hermintosh"
+        },
+        {
+          "name": "Test With Google Font Typo",
+          "text": "hello this is your developer",
+          "typographyName": "Gooogle Font Oswald"
         },
       ],
       customFonts: [
