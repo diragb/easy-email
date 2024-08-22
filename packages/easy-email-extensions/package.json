@@ -18,8 +18,7 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "dev": "vite",
-    "typings": "tsc --declaration --emitDeclarationOnly --project tsconfig.lib.json && tsc-alias -p tsconfig.alias.json",
-    "build": "rimraf lib && npm run typings && vite build --config vite.config.ts",
+    "build": "rimraf lib && vite build --config vite.config.ts",
     "format": "eslint --fix  --ext .tsx,.ts,.tsx src/",
     "test": "jest  --coverage"
   },
