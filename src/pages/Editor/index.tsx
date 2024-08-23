@@ -232,7 +232,7 @@ const Editor = () => {
           background?: string;
           contentBackground?: string;
           userStyle?: string;
-        };
+        } & UsedTemplateTheme;
       };
       attributes: {
         predefined: string[];
@@ -260,7 +260,6 @@ const Editor = () => {
           configuration: string;
         }[];
       };
-      usedStyleConfig?: UsedTemplateTheme;
     };
 
     sessionStorage.setItem('template-type', payload.template.type ?? 'EMAIL');
@@ -273,12 +272,12 @@ const Editor = () => {
     const customFonts = payload.styleConfig?.customFonts ?? [];
     setTemplateTheme(_templateTheme => ({ typography, palettes, images, staticText, customFonts }));
 
-    const usedTypography = payload.usedStyleConfig?.typography ?? [];
-    const usedPaletteColors = payload.usedStyleConfig?.paletteColors ?? { textColor: [], backgroundColor: [] };
-    const usedPalettes = payload.usedStyleConfig?.palettes ?? [];
-    const usedImages = payload.usedStyleConfig?.images ?? [];
-    const usedStaticText = payload.usedStyleConfig?.staticText ?? [];
-    const usedCustomFonts = payload.usedStyleConfig?.customFonts ?? [];
+    const usedTypography = payload.template.themeSettings?.typography ?? [];
+    const usedPaletteColors = payload.template.themeSettings?.paletteColors ?? { textColor: [], backgroundColor: [] };
+    const usedPalettes = payload.template.themeSettings?.palettes ?? [];
+    const usedImages = payload.template.themeSettings?.images ?? [];
+    const usedStaticText = payload.template.themeSettings?.staticText ?? [];
+    const usedCustomFonts = payload.template.themeSettings?.customFonts ?? [];
     setUsedTemplateTheme(_usedTemplateTheme => ({
       typography: usedTypography,
       paletteColors: usedPaletteColors,

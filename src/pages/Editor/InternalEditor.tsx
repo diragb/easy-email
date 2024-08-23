@@ -412,8 +412,7 @@ const InternalEditor = ({ values }: {
               content: transformedContent,
               themeSettings: {
                 ...themeSettings,
-                typography: templateTheme.typography,
-                palettes: templateTheme.palettes,
+                ...newUsedTemplateTheme,
               },
             },
             attributes: {
@@ -432,7 +431,6 @@ const InternalEditor = ({ values }: {
               css: conditionalMappingState.css,
             },
             usedCustomBlocks,
-            usedTemplateTheme: newUsedTemplateTheme,
           },
         });
 
