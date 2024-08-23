@@ -1,5 +1,5 @@
 import { useField, useForm } from 'react-final-form';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Padding } from '@extensions/AttributePanel/components/attributes/Padding';
 import { TextDecoration } from '@extensions/AttributePanel/components/attributes/TextDecoration';
 import { FontWeight } from '@extensions/AttributePanel/components/attributes/FontWeight';
@@ -21,7 +21,7 @@ import { ClassName } from '../../attributes/ClassName';
 import { CollapseWrapper } from '../../attributes/CollapseWrapper';
 import { SelectField, TextField } from '@extensions/components/Form';
 import { validateBlockID } from '@extensions/utils/blockIDManager';
-import { getTemplateTheme, Palette, StaticText, Typography } from 'template-theme-manager';
+import { getTemplateTheme, getUsedTemplateTheme, Palette, setUsedTemplateTheme, StaticText, Typography, UsedPaletteColor } from 'template-theme-manager';
 import { TreeSelectDataType } from '@arco-design/web-react/es/TreeSelect/interface';
 import ColorController from 'color';
 import { useExtensionProps } from '@extensions/components/Providers/ExtensionProvider';
@@ -35,6 +35,12 @@ export function Text() {
   const { isConditionalMapping = false } = useExtensionProps();
   const { lastValidDataID, onBlurCapture } = useBlockID();
 
+  // Ref:
+  const themeSettingTypography = useRef<Typography | null>(null);
+  const themeSettingStaticText = useRef<StaticText | null>(null);
+  const themeSettingTextColorPaletteColor = useRef<UsedPaletteColor | null>(null);
+  const themeSettingBackgroundColorPaletteColor = useRef<UsedPaletteColor | null>(null);
+
   // For Typography:
   const fontFamily = useField(`${focusIdx}.attributes.font-family`);
   const fontSize = useField(`${focusIdx}.attributes.font-size`);
@@ -42,18 +48,25 @@ export function Text() {
   const dataTypography = useField(`${focusIdx}.attributes.data-typography`);
 
   // For Text Color:
+  const dataColorPaletteName = useField(`${focusIdx}.attributes.data-color-palette-name`);
   const dataColorPaletteTree = useField(`${focusIdx}.attributes.data-color-palette-tree`);
+  const dataColorPaletteColorName = useField(`${focusIdx}.attributes.data-color-palette-color-name`);
   const color = useField(`${focusIdx}.attributes.color`);
   const dataColorPaletteColorCode = useField(`${focusIdx}.attributes.data-color-palette-color-code`);
 
   // For Background Color:
+  const dataBackgroundColorPaletteName = useField(`${focusIdx}.attributes.data-background-color-palette-name`);
   const dataBackgroundColorPaletteTree = useField(`${focusIdx}.attributes.data-background-color-palette-tree`);
+  const dataBackgroundColorPaletteColorName = useField(`${focusIdx}.attributes.data-background-color-palette-color-name`);
   const backgroundColor = useField(`${focusIdx}.attributes.container-background-color`);
   const dataBackgroundColorPaletteColorCode = useField(`${focusIdx}.attributes.data-background-color-palette-color-code`);
 
   // For Static Text:
   const dataStaticText = useField(`${focusIdx}.attributes.data-static-text`);
   const textContent = useField(`${focusIdx}.data.value.content`);
+
+  // Custom Fonts:
+  const customFonts = getTemplateTheme().customFonts ?? [];
 
   // State:
   const [visible, setVisible] = useState(false);
@@ -291,6 +304,644 @@ export function Text() {
       }
     }
   }, [focusIdx, isConditionalMapping]);
+
+  // Typography:
+  useEffect(() => {
+    if (dataTypography.input.value === '') {
+      const _previousThemeSettingTypography = themeSettingTypography.current;
+      if (_previousThemeSettingTypography === null) {
+        // Since nothing was set before, nothing needs to be changed for usedTemplate.
+        themeSettingTypography.current = null;
+      } else {
+        // An typography was indeed set before, so we remove the focusIdx from usedIn, and remove if usedIn.length === 0
+        setUsedTemplateTheme(_usedTemplateTheme => {
+          const _typography = _usedTemplateTheme.typography;
+          const typography = _typography.find(_typography => _typography.name === _previousThemeSettingTypography.name);
+
+          if (typography) {
+            // Typography has already been used somewhere in the template.
+            const usedIn = typography.usedIn;
+
+            if (usedIn.length === 1) {
+              // Implying typography is only being used once across the template, so we can delete this entry.
+              return {
+                ..._usedTemplateTheme,
+                typography: _typography.filter(_typography => _typography.name !== typography.name)
+              };
+            } else if (usedIn.length > 1) {
+              // Impling typography is being used elsewhere, so we just remove the focusIdx from usedIn.
+              return {
+                ..._usedTemplateTheme,
+                typography: _typography.map(_typography => {
+                  if (_typography.name !== typography.name) return _typography;
+                  else return {
+                    ..._typography,
+                    usedIn: _typography.usedIn.filter(_usedInIdx => _usedInIdx !== focusIdx),
+                  };
+                })
+              };
+            } else return _usedTemplateTheme;
+          } else return _usedTemplateTheme;
+        });
+
+        themeSettingTypography.current = null;
+      }
+    } else {
+      const _previousThemeSettingTypography = themeSettingTypography.current;
+      const typographyBeingUsed = getUsedTemplateTheme().typography.find(_typography => _typography.name === dataTypography.input.value) ?? null;
+
+      if (_previousThemeSettingTypography === null) {
+        // No typography was set before, so no other typography where we need to remove the focusIdx from usedIn.
+        setUsedTemplateTheme(_usedTemplateTheme => {
+          const _typography = _usedTemplateTheme.typography;
+          const typography = _typography.find(_typography => _typography.name === dataTypography.input.value);
+
+          if (typography) {
+            // The typography exists before in usedTemplateTheme, so add focusIdx to usedIn.
+            const usedIn = typography.usedIn;
+
+            return {
+              ..._usedTemplateTheme,
+              typography: _typography.map(_typography => {
+                if (_typography.name !== typography.name) return _typography;
+                else return {
+                  ..._typography,
+                  usedIn: [...new Set([...usedIn, focusIdx])],
+                };
+              })
+            };
+          } else {
+            // The typography does not exist, create it.
+            const typographyToAdd = getTemplateTheme().typography.find(_typography => _typography.name === dataTypography.input.value);
+
+            if (!typographyToAdd) return _usedTemplateTheme;
+            else return {
+              ..._usedTemplateTheme,
+              typography: [
+                ..._usedTemplateTheme.typography,
+                {
+                  ...typographyToAdd,
+                  usedIn: [focusIdx],
+                }
+              ]
+            };
+          }
+        });
+
+        themeSettingTypography.current = typographyBeingUsed;
+      } else {
+        // A typography was set indeed set before, so we remove the focusIdx from its usedIn as well as adding focusIdx to the usedIn of the typography selected.
+        setUsedTemplateTheme(_usedTemplateTheme => {
+          const _typography = _usedTemplateTheme.typography;
+          const typography = _typography.find(_typography => _typography.name === dataTypography.input.value);
+          const previousTypography = _typography.find(_typography => _typography.name === _previousThemeSettingTypography.name);
+
+          if (typography) {
+            // The typography exists before in usedTemplateTheme, so bump it up.
+            const usedIn = typography.usedIn;
+
+            return {
+              ..._usedTemplateTheme,
+              typography: _typography
+                .map(_typography => {
+                  if (_typography.name === typography.name) {
+                    return {
+                      ..._typography,
+                      usedIn: [...new Set([...usedIn, focusIdx])],
+                    };
+                  } else if (_typography.name === previousTypography?.name) {
+                    return {
+                      ..._typography,
+                      usedIn: _typography.usedIn.filter(_usedInIdx => _usedInIdx !== focusIdx),
+                    };
+                  } else return _typography;
+                })
+                .filter(_typography => (_typography.usedIn.length ?? 0) > 0)
+            };
+          } else {
+            // The typography does not exist, create it.
+            const typographyToAdd = getTemplateTheme().typography.find(_typography => _typography.name === dataTypography.input.value);
+
+            if (!typographyToAdd) return _usedTemplateTheme;
+            else return {
+              ..._usedTemplateTheme,
+              typography: [
+                ..._usedTemplateTheme.typography,
+                {
+                  ...typographyToAdd,
+                  usedIn: [focusIdx],
+                }
+              ].map(_typography => {
+                if (_typography.name === previousTypography?.name) {
+                  return {
+                    ..._typography,
+                    usedIn: _typography.usedIn.filter(_usedInIdx => _usedInIdx !== focusIdx),
+                  };
+                } else return _typography;
+              })
+                .filter(_typography => (_typography.usedIn.length ?? 0) > 0)
+            };
+          }
+        });
+
+        themeSettingTypography.current = typographyBeingUsed;
+      }
+    }
+  }, [themeSettingTypography.current, dataTypography, focusIdx]);
+
+  // Static Text:
+  useEffect(() => {
+    if (dataStaticText.input.value === '') {
+      const _previousThemeSettingStaticText = themeSettingStaticText.current;
+      if (_previousThemeSettingStaticText === null) {
+        // Since nothing was set before, nothing needs to be changed for usedTemplate.
+        themeSettingStaticText.current = null;
+      } else {
+        // An staticText was indeed set before, so we remove the focusIdx from usedIn, and remove if usedIn.length === 0
+        setUsedTemplateTheme(_usedTemplateTheme => {
+          const _staticText = _usedTemplateTheme.staticText;
+          const staticText = _staticText.find(_staticText => _staticText.name === _previousThemeSettingStaticText.name);
+
+          if (staticText) {
+            // StaticText has already been used somewhere in the template.
+            const usedIn = staticText.usedIn;
+
+            if (usedIn.length === 1) {
+              // Implying staticText is only being used once across the template, so we can delete this entry.
+              return {
+                ..._usedTemplateTheme,
+                staticText: _staticText.filter(_staticText => _staticText.name !== staticText.name)
+              };
+            } else if (usedIn.length > 1) {
+              // Impling staticText is being used elsewhere, so we just remove the focusIdx from usedIn.
+              return {
+                ..._usedTemplateTheme,
+                staticText: _staticText.map(_staticText => {
+                  if (_staticText.name !== staticText.name) return _staticText;
+                  else return {
+                    ..._staticText,
+                    usedIn: _staticText.usedIn.filter(_usedInIdx => _usedInIdx !== focusIdx),
+                  };
+                })
+              };
+            } else return _usedTemplateTheme;
+          } else return _usedTemplateTheme;
+        });
+
+        themeSettingStaticText.current = null;
+      }
+    } else {
+      const _previousThemeSettingStaticText = themeSettingStaticText.current;
+      const staticTextBeingUsed = getUsedTemplateTheme().staticText.find(_staticText => _staticText.name === dataStaticText.input.value) ?? null;
+
+      if (_previousThemeSettingStaticText === null) {
+        // No staticText was set before, so no other staticText where we need to remove the focusIdx from usedIn.
+        setUsedTemplateTheme(_usedTemplateTheme => {
+          const _staticText = _usedTemplateTheme.staticText;
+          const staticText = _staticText.find(_staticText => _staticText.name === dataStaticText.input.value);
+
+          if (staticText) {
+            // The staticText exists before in usedTemplateTheme, so add focusIdx to usedIn.
+            const usedIn = staticText.usedIn;
+
+            return {
+              ..._usedTemplateTheme,
+              staticText: _staticText.map(_staticText => {
+                if (_staticText.name !== staticText.name) return _staticText;
+                else return {
+                  ..._staticText,
+                  usedIn: [...new Set([...usedIn, focusIdx])],
+                };
+              })
+            };
+          } else {
+            // The staticText does not exist, create it.
+            const staticTextToAdd = getTemplateTheme().staticText.find(_staticText => _staticText.name === dataStaticText.input.value);
+
+            if (!staticTextToAdd) return _usedTemplateTheme;
+            else return {
+              ..._usedTemplateTheme,
+              staticText: [
+                ..._usedTemplateTheme.staticText,
+                {
+                  ...staticTextToAdd,
+                  usedIn: [focusIdx],
+                }
+              ]
+            };
+          }
+        });
+
+        themeSettingStaticText.current = staticTextBeingUsed;
+      } else {
+        // An staticText was set indeed set before, so we remove the focusIdx from its usedIn as well as adding focusIdx to the usedIn of the staticText selected.
+        setUsedTemplateTheme(_usedTemplateTheme => {
+          const _staticText = _usedTemplateTheme.staticText;
+          const staticText = _staticText.find(_staticText => _staticText.name === dataStaticText.input.value);
+          const previousStaticText = _staticText.find(_staticText => _staticText.name === _previousThemeSettingStaticText.name);
+
+          if (staticText) {
+            // The staticText exists before in usedTemplateTheme, so bump it up.
+            const usedIn = staticText.usedIn;
+
+            return {
+              ..._usedTemplateTheme,
+              staticText: _staticText
+                .map(_staticText => {
+                  if (_staticText.name === staticText.name) {
+                    return {
+                      ..._staticText,
+                      usedIn: [...new Set([...usedIn, focusIdx])],
+                    };
+                  } else if (_staticText.name === previousStaticText?.name) {
+                    return {
+                      ..._staticText,
+                      usedIn: _staticText.usedIn.filter(_usedInIdx => _usedInIdx !== focusIdx),
+                    };
+                  } else return _staticText;
+                })
+                .filter(_staticText => (_staticText.usedIn.length ?? 0) > 0)
+            };
+          } else {
+            // The staticText does not exist, create it.
+            const staticTextToAdd = getTemplateTheme().staticText.find(_staticText => _staticText.name === dataStaticText.input.value);
+
+            if (!staticTextToAdd) return _usedTemplateTheme;
+            else return {
+              ..._usedTemplateTheme,
+              staticText: [
+                ..._usedTemplateTheme.staticText,
+                {
+                  ...staticTextToAdd,
+                  usedIn: [focusIdx],
+                }
+              ].map(_staticText => {
+                if (_staticText.name === previousStaticText?.name) {
+                  return {
+                    ..._staticText,
+                    usedIn: _staticText.usedIn.filter(_usedInIdx => _usedInIdx !== focusIdx),
+                  };
+                } else return _staticText;
+              })
+                .filter(_staticText => (_staticText.usedIn.length ?? 0) > 0)
+            };
+          }
+        });
+
+        themeSettingStaticText.current = staticTextBeingUsed;
+      }
+    }
+  }, [themeSettingStaticText.current, dataStaticText, focusIdx]);
+
+  // Palettes Text Color:
+  useEffect(() => {
+    if (dataColorPaletteName.input.value === '') {
+      const _previousthemeSettingBackgroundColorPaletteColor = themeSettingBackgroundColorPaletteColor.current;
+      if (_previousthemeSettingBackgroundColorPaletteColor === null) {
+        // Since nothing was set before, nothing needs to be changed for usedTemplate.
+        themeSettingBackgroundColorPaletteColor.current = null;
+      } else {
+        // A palette color was indeed set before, so we remove the focusIdx from usedIn, and remove if usedIn.length === 0
+        setUsedTemplateTheme(_usedTemplateTheme => {
+          const _paletteColors = _usedTemplateTheme.paletteColors;
+          const paletteColor = _paletteColors.textColor.find(_paletteColor => _paletteColor.paletteColor === _previousthemeSettingBackgroundColorPaletteColor.paletteColor);
+
+          if (paletteColor) {
+            // Image has already been used somewhere in the template.
+            const usedIn = paletteColor.usedIn;
+
+            if (usedIn.length === 1) {
+              // Implying paletteColor is only being used once across the template, so we can delete this entry.
+              return {
+                ..._usedTemplateTheme,
+                paletteColors: {
+                  ..._usedTemplateTheme.paletteColors,
+                  textColor: _paletteColors.textColor.filter(_paletteColor => _paletteColor.paletteColor !== paletteColor.paletteColor)
+                }
+              };
+            } else if (usedIn.length > 1) {
+              // Impling paletteColor is being used elsewhere, so we just remove the focusIdx from usedIn.
+              return {
+                ..._usedTemplateTheme,
+                paletteColors: {
+                  ..._usedTemplateTheme.paletteColors,
+                  textColor: _paletteColors.textColor.map(_paletteColor => {
+                    if (_paletteColor !== paletteColor) return _paletteColor;
+                    else return {
+                      ..._paletteColor,
+                      usedIn: _paletteColor.usedIn.filter(_usedInIdx => _usedInIdx !== focusIdx),
+                    };
+                  })
+                }
+              };
+            } else return _usedTemplateTheme;
+          } else return _usedTemplateTheme;
+        });
+
+        themeSettingBackgroundColorPaletteColor.current = null;
+      }
+    } else {
+      const normalizedPaletteName = (dataColorPaletteName.input.value as string).toLocaleLowerCase().split(' ').join('-');
+      const normalizedColorName = (dataColorPaletteColorName.input.value as string).toLocaleLowerCase().split(' ').join('-');
+      const paletteColorInUse = `${normalizedPaletteName}.${normalizedColorName}`;
+      const _previousthemeSettingBackgroundColorPaletteColor = themeSettingBackgroundColorPaletteColor.current;
+      const paletteColorsBeingUsed = getUsedTemplateTheme().paletteColors.textColor.find(_paletteColor => _paletteColor.paletteColor === paletteColorInUse) ?? null;
+
+      if (_previousthemeSettingBackgroundColorPaletteColor === null) {
+        // No paletteColor was set before, so no other paletteColor where we need to remove the focusIdx from usedIn.
+        setUsedTemplateTheme(_usedTemplateTheme => {
+          const _paletteColors = _usedTemplateTheme.paletteColors;
+          const paletteColor = _paletteColors.textColor.find(_paletteColor => _paletteColor.paletteColor === paletteColorInUse);
+
+          if (paletteColor) {
+            // The paletteColor exists before in usedTemplateTheme, so add focusIdx to usedIn.
+            const usedIn = paletteColor.usedIn;
+
+            return {
+              ..._usedTemplateTheme,
+              paletteColors: {
+                ..._usedTemplateTheme.paletteColors,
+                textColor: _paletteColors.textColor.map(_paletteColor => {
+                  if (_paletteColor.paletteColor !== paletteColor.paletteColor) return _paletteColor;
+                  else return {
+                    ..._paletteColor,
+                    usedIn: [...new Set([...usedIn, focusIdx])],
+                  };
+                })
+              }
+            };
+          } else {
+            // The paletteColor does not exist, create it.
+            const doesPaletteColorExist = !!getTemplateTheme().palettes
+              .find(palette => palette.name === dataColorPaletteName.input.value)?.colors
+              .find(color => color.name === dataColorPaletteColorName.input.value);
+
+            if (!doesPaletteColorExist) return _usedTemplateTheme;
+            else return {
+              ..._usedTemplateTheme,
+              paletteColors: {
+                ..._usedTemplateTheme.paletteColors,
+                textColor: [
+                  ..._usedTemplateTheme.paletteColors.textColor,
+                  {
+                    paletteColor: paletteColorInUse,
+                    usedIn: [focusIdx],
+                  }
+                ]
+              }
+            };
+          }
+        });
+
+        themeSettingBackgroundColorPaletteColor.current = paletteColorsBeingUsed;
+      } else {
+        // An paletteColor was set indeed set before, so we remove the focusIdx from its usedIn as well as adding focusIdx to the usedIn of the paletteColor selected.
+        setUsedTemplateTheme(_usedTemplateTheme => {
+          const _paletteColors = _usedTemplateTheme.paletteColors;
+          const paletteColor = _paletteColors.textColor.find(_paletteColor => _paletteColor.paletteColor === paletteColorInUse);
+          const previousPaletteColor = _paletteColors.textColor.find(_paletteColor => _paletteColor.paletteColor === _previousthemeSettingBackgroundColorPaletteColor.paletteColor);
+
+          if (paletteColor) {
+            // The paletteColor exists before in usedTemplateTheme, so bump it up.
+            const usedIn = paletteColor.usedIn;
+
+            return {
+              ..._usedTemplateTheme,
+              paletteColors: {
+                ..._usedTemplateTheme.paletteColors,
+                textColor: _usedTemplateTheme.paletteColors.textColor
+                  .map(_paletteColor => {
+                    if (_paletteColor.paletteColor === paletteColor.paletteColor) {
+                      return {
+                        ..._paletteColor,
+                        usedIn: [...new Set([...usedIn, focusIdx])],
+                      };
+                    } else if (_paletteColor.paletteColor === previousPaletteColor?.paletteColor) {
+                      return {
+                        ..._paletteColor,
+                        usedIn: _paletteColor.usedIn.filter(_usedInIdx => _usedInIdx !== focusIdx),
+                      };
+                    } else return _paletteColor;
+                  })
+                  .filter(_paletteColor => (_paletteColor.usedIn.length ?? 0) > 0)
+              }
+            };
+          } else {
+            // The paletteColor does not exist, create it.
+            const doesPaletteColorExist = !!getTemplateTheme().palettes
+              .find(palette => palette.name === dataColorPaletteName.input.value)?.colors
+              .find(color => color.name === dataColorPaletteColorName.input.value);
+
+            if (!doesPaletteColorExist) return _usedTemplateTheme;
+            else return {
+              ..._usedTemplateTheme,
+              paletteColors: {
+                ..._usedTemplateTheme.paletteColors,
+                textColor: [
+                  ..._usedTemplateTheme.paletteColors.textColor,
+                  {
+                    paletteColor: paletteColorInUse,
+                    usedIn: [focusIdx],
+                  }
+                ].map(_paletteColor => {
+                  if (_paletteColor.paletteColor === previousPaletteColor?.paletteColor) {
+                    return {
+                      ..._paletteColor,
+                      usedIn: _paletteColor.usedIn.filter(_usedInIdx => _usedInIdx !== focusIdx),
+                    };
+                  } else return _paletteColor;
+                })
+                  .filter(_paletteColor => (_paletteColor.usedIn.length ?? 0) > 0)
+              }
+            };
+          }
+        });
+
+        themeSettingBackgroundColorPaletteColor.current = paletteColorsBeingUsed;
+      }
+    }
+  }, [
+    themeSettingBackgroundColorPaletteColor.current,
+    dataColorPaletteName,
+    dataColorPaletteColorName,
+    focusIdx,
+  ]);
+
+  // Palettes Text Background Color:
+  useEffect(() => {
+    if (dataBackgroundColorPaletteName.input.value === '') {
+      const _previousthemeSettingTextColorPaletteColor = themeSettingTextColorPaletteColor.current;
+      if (_previousthemeSettingTextColorPaletteColor === null) {
+        // Since nothing was set before, nothing needs to be changed for usedTemplate.
+        themeSettingTextColorPaletteColor.current = null;
+      } else {
+        // A palette color was indeed set before, so we remove the focusIdx from usedIn, and remove if usedIn.length === 0
+        setUsedTemplateTheme(_usedTemplateTheme => {
+          const _paletteColors = _usedTemplateTheme.paletteColors;
+          const paletteColor = _paletteColors.backgroundColor.find(_paletteColor => _paletteColor.paletteColor === _previousthemeSettingTextColorPaletteColor.paletteColor);
+
+          if (paletteColor) {
+            // Image has already been used somewhere in the template.
+            const usedIn = paletteColor.usedIn;
+
+            if (usedIn.length === 1) {
+              // Implying paletteColor is only being used once across the template, so we can delete this entry.
+              return {
+                ..._usedTemplateTheme,
+                paletteColors: {
+                  ..._usedTemplateTheme.paletteColors,
+                  backgroundColor: _paletteColors.backgroundColor.filter(_paletteColor => _paletteColor.paletteColor !== paletteColor.paletteColor)
+                }
+              };
+            } else if (usedIn.length > 1) {
+              // Impling paletteColor is being used elsewhere, so we just remove the focusIdx from usedIn.
+              return {
+                ..._usedTemplateTheme,
+                paletteColors: {
+                  ..._usedTemplateTheme.paletteColors,
+                  backgroundColor: _paletteColors.backgroundColor.map(_paletteColor => {
+                    if (_paletteColor !== paletteColor) return _paletteColor;
+                    else return {
+                      ..._paletteColor,
+                      usedIn: _paletteColor.usedIn.filter(_usedInIdx => _usedInIdx !== focusIdx),
+                    };
+                  })
+                }
+              };
+            } else return _usedTemplateTheme;
+          } else return _usedTemplateTheme;
+        });
+
+        themeSettingTextColorPaletteColor.current = null;
+      }
+    } else {
+      const normalizedPaletteName = (dataBackgroundColorPaletteName.input.value as string).toLocaleLowerCase().split(' ').join('-');
+      const normalizedColorName = (dataBackgroundColorPaletteColorName.input.value as string).toLocaleLowerCase().split(' ').join('-');
+      const paletteColorInUse = `${normalizedPaletteName}.${normalizedColorName}`;
+      const _previousthemeSettingTextColorPaletteColor = themeSettingTextColorPaletteColor.current;
+      const paletteColorsBeingUsed = getUsedTemplateTheme().paletteColors.backgroundColor.find(_paletteColor => _paletteColor.paletteColor === paletteColorInUse) ?? null;
+
+      if (_previousthemeSettingTextColorPaletteColor === null) {
+        // No paletteColor was set before, so no other paletteColor where we need to remove the focusIdx from usedIn.
+        setUsedTemplateTheme(_usedTemplateTheme => {
+          const _paletteColors = _usedTemplateTheme.paletteColors;
+          const paletteColor = _paletteColors.backgroundColor.find(_paletteColor => _paletteColor.paletteColor === paletteColorInUse);
+
+          if (paletteColor) {
+            // The paletteColor exists before in usedTemplateTheme, so add focusIdx to usedIn.
+            const usedIn = paletteColor.usedIn;
+
+            return {
+              ..._usedTemplateTheme,
+              paletteColors: {
+                ..._usedTemplateTheme.paletteColors,
+                backgroundColor: _paletteColors.backgroundColor.map(_paletteColor => {
+                  if (_paletteColor.paletteColor !== paletteColor.paletteColor) return _paletteColor;
+                  else return {
+                    ..._paletteColor,
+                    usedIn: [...new Set([...usedIn, focusIdx])],
+                  };
+                })
+              }
+            };
+          } else {
+            // The paletteColor does not exist, create it.
+            const doesPaletteColorExist = !!getTemplateTheme().palettes
+              .find(palette => palette.name === dataBackgroundColorPaletteName.input.value)?.colors
+              .find(color => color.name === dataBackgroundColorPaletteColorName.input.value);
+
+            if (!doesPaletteColorExist) return _usedTemplateTheme;
+            else return {
+              ..._usedTemplateTheme,
+              paletteColors: {
+                ..._usedTemplateTheme.paletteColors,
+                backgroundColor: [
+                  ..._usedTemplateTheme.paletteColors.backgroundColor,
+                  {
+                    paletteColor: paletteColorInUse,
+                    usedIn: [focusIdx],
+                  }
+                ]
+              }
+            };
+          }
+        });
+
+        themeSettingTextColorPaletteColor.current = paletteColorsBeingUsed;
+      } else {
+        // An paletteColor was set indeed set before, so we remove the focusIdx from its usedIn as well as adding focusIdx to the usedIn of the paletteColor selected.
+        setUsedTemplateTheme(_usedTemplateTheme => {
+          const _paletteColors = _usedTemplateTheme.paletteColors;
+          const paletteColor = _paletteColors.backgroundColor.find(_paletteColor => _paletteColor.paletteColor === paletteColorInUse);
+          const previousPaletteColor = _paletteColors.backgroundColor.find(_paletteColor => _paletteColor.paletteColor === _previousthemeSettingTextColorPaletteColor.paletteColor);
+
+          if (paletteColor) {
+            // The paletteColor exists before in usedTemplateTheme, so bump it up.
+            const usedIn = paletteColor.usedIn;
+
+            return {
+              ..._usedTemplateTheme,
+              paletteColors: {
+                ..._usedTemplateTheme.paletteColors,
+                backgroundColor: _usedTemplateTheme.paletteColors.backgroundColor
+                  .map(_paletteColor => {
+                    if (_paletteColor.paletteColor === paletteColor.paletteColor) {
+                      return {
+                        ..._paletteColor,
+                        usedIn: [...new Set([...usedIn, focusIdx])],
+                      };
+                    } else if (_paletteColor.paletteColor === previousPaletteColor?.paletteColor) {
+                      return {
+                        ..._paletteColor,
+                        usedIn: _paletteColor.usedIn.filter(_usedInIdx => _usedInIdx !== focusIdx),
+                      };
+                    } else return _paletteColor;
+                  })
+                  .filter(_paletteColor => (_paletteColor.usedIn.length ?? 0) > 0)
+              }
+            };
+          } else {
+            // The paletteColor does not exist, create it.
+            const doesPaletteColorExist = !!getTemplateTheme().palettes
+              .find(palette => palette.name === dataBackgroundColorPaletteName.input.value)?.colors
+              .find(color => color.name === dataBackgroundColorPaletteColorName.input.value);
+
+            if (!doesPaletteColorExist) return _usedTemplateTheme;
+            else return {
+              ..._usedTemplateTheme,
+              paletteColors: {
+                ..._usedTemplateTheme.paletteColors,
+                backgroundColor: [
+                  ..._usedTemplateTheme.paletteColors.backgroundColor,
+                  {
+                    paletteColor: paletteColorInUse,
+                    usedIn: [focusIdx],
+                  }
+                ].map(_paletteColor => {
+                  if (_paletteColor.paletteColor === previousPaletteColor?.paletteColor) {
+                    return {
+                      ..._paletteColor,
+                      usedIn: _paletteColor.usedIn.filter(_usedInIdx => _usedInIdx !== focusIdx),
+                    };
+                  } else return _paletteColor;
+                })
+                  .filter(_paletteColor => (_paletteColor.usedIn.length ?? 0) > 0)
+              }
+            };
+          }
+        });
+
+        themeSettingTextColorPaletteColor.current = paletteColorsBeingUsed;
+      }
+    }
+  }, [
+    themeSettingTextColorPaletteColor.current,
+    dataBackgroundColorPaletteName,
+    dataBackgroundColorPaletteColorName,
+    focusIdx,
+  ]);
+
+  // TODO: Custom Fonts:
 
   // Return:
   return (

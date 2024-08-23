@@ -30,6 +30,7 @@ import {
   setImageUpload,
   generateUpdateImageUploadListener,
 } from 'image-upload-manager';
+import { getTemplateTheme, getUsedTemplateTheme, LibraryImage, setUsedTemplateTheme } from 'template-theme-manager';
 
 export interface ImageUploaderProps {
   onChange: (val: string) => void;
@@ -48,6 +49,7 @@ export function ImageUploader(props: ImageUploaderProps) {
   );
   const [predefinedAttributes, _setPredefinedAttributes] = useState(getPredefinedAttributes());
   const [customAttributes, _setCustomAttributes] = useState(getCustomAttributes());
+  const themeSettingImage = useRef<LibraryImage | null>(null);
   const { change } = useForm();
   const { focusIdx } = useFocusIdx();
   const dataImageName = useField(`${focusIdx}.attributes.data-${props.isImage ? '' : 'background-'}image-name`);
@@ -163,6 +165,149 @@ export function ImageUploader(props: ImageUploaderProps) {
       window.removeEventListener('message', updateImageUpload);
     };
   }, []);
+
+  useEffect(() => {
+    if (dataImageName.input.value === '') {
+      const _previousThemeSettingImage = themeSettingImage.current;
+      if (_previousThemeSettingImage === null) {
+        // Since nothing was set before, nothing needs to be changed for usedTemplate.
+        themeSettingImage.current = null;
+      } else {
+        // An image was indeed set before, so we remove the focusIdx from usedIn, and remove if usedIn.length === 0
+        setUsedTemplateTheme(_usedTemplateTheme => {
+          const _images = _usedTemplateTheme.images;
+          const image = _images.find(_image => _image.name === _previousThemeSettingImage.name);
+
+          if (image) {
+            // Image has already been used somewhere in the template.
+            const usedIn = image.usedIn;
+
+            if (usedIn.length === 1) {
+              // Implying image is only being used once across the template, so we can delete this entry.
+              return {
+                ..._usedTemplateTheme,
+                images: _images.filter(_image => _image.name !== image.name)
+              };
+            } else if (usedIn.length > 1) {
+              // Impling image is being used elsewhere, so we just remove the focusIdx from usedIn.
+              return {
+                ..._usedTemplateTheme,
+                images: _images.map(_image => {
+                  if (_image.name !== image.name) return _image;
+                  else return {
+                    ..._image,
+                    usedIn: _image.usedIn.filter(_usedInIdx => _usedInIdx !== focusIdx),
+                  };
+                })
+              };
+            } else return _usedTemplateTheme;
+          } else return _usedTemplateTheme;
+        });
+
+        themeSettingImage.current = null;
+      }
+    } else {
+      const _previousThemeSettingImage = themeSettingImage.current;
+      const imageBeingUsed = getUsedTemplateTheme().images.find(_image => _image.name === dataImageName.input.value) ?? null;
+
+      if (_previousThemeSettingImage === null) {
+        // No image was set before, so no other image where we need to remove the focusIdx from usedIn.
+        setUsedTemplateTheme(_usedTemplateTheme => {
+          const _images = _usedTemplateTheme.images;
+          const image = _images.find(_image => _image.name === dataImageName.input.value);
+
+          if (image) {
+            // The image exists before in usedTemplateTheme, so add focusIdx to usedIn.
+            const usedIn = image.usedIn;
+
+            return {
+              ..._usedTemplateTheme,
+              images: _images.map(_image => {
+                if (_image.name !== image.name) return _image;
+                else return {
+                  ..._image,
+                  usedIn: [...new Set([...usedIn, focusIdx])],
+                };
+              })
+            };
+          } else {
+            // The image does not exist, create it.
+            const imageToAdd = getTemplateTheme().images.find(_image => _image.name === dataImageName.input.value);
+
+            if (!imageToAdd) return _usedTemplateTheme;
+            else return {
+              ..._usedTemplateTheme,
+              images: [
+                ..._usedTemplateTheme.images,
+                {
+                  ...imageToAdd,
+                  usedIn: [focusIdx],
+                }
+              ]
+            };
+          }
+        });
+
+        themeSettingImage.current = imageBeingUsed;
+      } else {
+        // An image was set indeed set before, so we remove the focusIdx from its usedIn as well as adding focusIdx to the usedIn of the image selected.
+        setUsedTemplateTheme(_usedTemplateTheme => {
+          const _images = _usedTemplateTheme.images;
+          const image = _images.find(_image => _image.name === dataImageName.input.value);
+          const previousImage = _images.find(_image => _image.name === _previousThemeSettingImage.name);
+
+          if (image) {
+            // The image exists before in usedTemplateTheme, so bump it up.
+            const usedIn = image.usedIn;
+
+            return {
+              ..._usedTemplateTheme,
+              images: _images
+                .map(_image => {
+                  if (_image.name === image.name) {
+                    return {
+                      ..._image,
+                      usedIn: [...new Set([...usedIn, focusIdx])],
+                    };
+                  } else if (_image.name === previousImage?.name) {
+                    return {
+                      ..._image,
+                      usedIn: _image.usedIn.filter(_usedInIdx => _usedInIdx !== focusIdx),
+                    };
+                  } else return _image;
+                })
+                .filter(_image => (_image.usedIn.length ?? 0) > 0)
+            };
+          } else {
+            // The image does not exist, create it.
+            const imageToAdd = getTemplateTheme().images.find(_image => _image.name === dataImageName.input.value);
+
+            if (!imageToAdd) return _usedTemplateTheme;
+            else return {
+              ..._usedTemplateTheme,
+              images: [
+                ..._usedTemplateTheme.images,
+                {
+                  ...imageToAdd,
+                  usedIn: [focusIdx],
+                }
+              ].map(_image => {
+                if (_image.name === previousImage?.name) {
+                  return {
+                    ..._image,
+                    usedIn: _image.usedIn.filter(_usedInIdx => _usedInIdx !== focusIdx),
+                  };
+                } else return _image;
+              })
+                .filter(_image => (_image.usedIn.length ?? 0) > 0)
+            };
+          }
+        });
+
+        themeSettingImage.current = imageBeingUsed;
+      }
+    }
+  }, [themeSettingImage.current, dataImageName, focusIdx]);
 
   return (
     <div className={styles.wrap}>

@@ -14,7 +14,7 @@ import {
   setPredefinedAttributes,
 } from 'attribute-manager';
 import { isJSONStringValid } from '@demo/utils/isJSONStringValid';
-import { CustomFont, LibraryImage, StaticText, setTemplateTheme } from 'template-theme-manager';
+import { CustomFont, LibraryImage, StaticText, UsedTemplateTheme, setTemplateTheme, setUsedTemplateTheme } from 'template-theme-manager';
 import updateThemeInstancesInTemplate from '@demo/utils/updateThemeInstancesInTemplate';
 import { setCustomBlocks } from 'custom-block-manager';
 import { setConditionalMappingState } from 'conditional-mapping-manager';
@@ -247,7 +247,7 @@ const Editor = () => {
         css?: string;
       };
       usedCustomBlocks?: string[];
-      styleConfig: {
+      styleConfig?: {
         typography?: Typography[];
         palettes?: Palette[];
         images?: LibraryImage[];
@@ -260,16 +260,34 @@ const Editor = () => {
           configuration: string;
         }[];
       };
+      usedStyleConfig?: UsedTemplateTheme;
     };
 
     sessionStorage.setItem('template-type', payload.template.type ?? 'EMAIL');
     sessionStorage.setItem('block-ids', isJSONStringValid(payload.blockIDs?.map) ? payload.blockIDs?.map : '{}');
 
-    const typography = payload.styleConfig.typography ?? [];
-    const palettes = payload.styleConfig.palettes ?? [];
-    const images = payload.styleConfig.images ?? [];
-    const staticText = payload.styleConfig.staticText ?? [];
-    setTemplateTheme(_templateTheme => ({ typography, palettes, images, staticText }));
+    const typography = payload.styleConfig?.typography ?? [];
+    const palettes = payload.styleConfig?.palettes ?? [];
+    const images = payload.styleConfig?.images ?? [];
+    const staticText = payload.styleConfig?.staticText ?? [];
+    const customFonts = payload.styleConfig?.customFonts ?? [];
+    setTemplateTheme(_templateTheme => ({ typography, palettes, images, staticText, customFonts }));
+
+    const usedTypography = payload.usedStyleConfig?.typography ?? [];
+    const usedPaletteColors = payload.usedStyleConfig?.paletteColors ?? { textColor: [], backgroundColor: [] };
+    const usedPalettes = payload.usedStyleConfig?.palettes ?? [];
+    const usedImages = payload.usedStyleConfig?.images ?? [];
+    const usedStaticText = payload.usedStyleConfig?.staticText ?? [];
+    const usedCustomFonts = payload.usedStyleConfig?.customFonts ?? [];
+    setUsedTemplateTheme(_usedTemplateTheme => ({
+      typography: usedTypography,
+      paletteColors: usedPaletteColors,
+      palettes: usedPalettes,
+      images: usedImages,
+      staticText: usedStaticText,
+      customFonts: usedCustomFonts
+    }));
+
     const template = updateThemeInstancesInTemplate(payload.template);
     // const modifiedTemplateContent = JSON.parse(
     //   transformAttributesInTemplateContent(
@@ -289,7 +307,7 @@ const Editor = () => {
         ...payload.attributes.custom,
       ]
     );
-    const customFonts = payload.styleConfig.customFonts ?? [];
+
     if (customFonts.length > 0) {
       if (modifiedTemplateContent.type === BasicType.PAGE) {
 
@@ -346,8 +364,8 @@ const Editor = () => {
       css: payload.conditionalMapping.css,
     }));
     if (
-      payload.styleConfig.customBlocks &&
-      payload.styleConfig.customBlocks?.length > 0
+      payload.styleConfig?.customBlocks &&
+      payload.styleConfig?.customBlocks?.length > 0
     ) {
       const customBlocks = payload.styleConfig.customBlocks;
       setCustomBlocks(_customBlocks => customBlocks);

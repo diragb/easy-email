@@ -33,13 +33,14 @@ export interface StaticText {
 export interface CustomFont {
   name: string;
   src: string;
-}[];
+};
 
 export interface TemplateTheme {
   typography: Typography[];
   palettes: Palette[];
   images: LibraryImage[];
   staticText: StaticText[];
+  customFonts: CustomFont[];
 }
 
 // Constants:
@@ -48,7 +49,20 @@ export const DEFAULT_TEMPLATE_THEME = {
   palettes: [],
   images: [],
   staticText: [],
+  customFonts: [],
 } as TemplateTheme;
+
+export const DEFAULT_USED_TEMPLATE_THEME = {
+  typography: [],
+  palettes: [],
+  paletteColors: {
+    textColor: [],
+    backgroundColor: [],
+  },
+  images: [],
+  staticText: [],
+  customFonts: [],
+} as UsedTemplateTheme;
 
 // Functions:
 const getSafeTemplateTheme = () => {
@@ -68,12 +82,39 @@ export const setTemplateTheme = (callback: (_templateTheme: TemplateTheme) => Te
   window.postMessage(JSON.stringify({ templateTheme: newTemplateTheme }), '*');
 };
 
-// export const generateUpdateThemeListener = (callback: (newTemplateTheme: TemplateTheme) => void) => (event: MessageEvent<any>) => {
-//   try {
-//     if (typeof event.data !== 'string') return;
-//     if (event.data.trim().length === 0) return;
-//     const message = JSON.parse(event.data) as any;
-//     callback(message.templateTheme);
-//   } catch (error) {
-//   }
-// };
+// For usedStyleConfig:
+export type Used<T> = T & { usedIn: string[]; };
+
+// Stores palette and color in `palette.color` format.
+export interface UsedPaletteColor {
+  paletteColor: string;
+}
+
+export interface UsedTemplateTheme {
+  typography: Used<Typography>[];
+  paletteColors: {
+    textColor: Used<UsedPaletteColor>[];
+    backgroundColor: Used<UsedPaletteColor>[];
+  };
+  palettes: Palette[];
+  images: Used<LibraryImage>[];
+  staticText: Used<StaticText>[];
+  customFonts: Used<CustomFont>[];
+}
+
+export const getSafeUsedTemplateTheme = () => {
+  const savedUsedTemplateTheme = sessionStorage.getItem('used-template-theme');
+
+  if (savedUsedTemplateTheme === null) return JSON.stringify(DEFAULT_USED_TEMPLATE_THEME);
+  if (savedUsedTemplateTheme === 'undefined') return JSON.stringify(DEFAULT_USED_TEMPLATE_THEME);
+  return savedUsedTemplateTheme;
+};
+
+export const getUsedTemplateTheme = () => JSON.parse(getSafeUsedTemplateTheme()) as UsedTemplateTheme;
+
+export const setUsedTemplateTheme = (callback: (_usedTemplateTheme: UsedTemplateTheme) => UsedTemplateTheme) => {
+  const _usedTemplateTheme = cloneDeep(getUsedTemplateTheme());
+  const newUsedTemplateTheme = callback(_usedTemplateTheme);
+  sessionStorage.setItem('used-template-theme', JSON.stringify(newUsedTemplateTheme));
+  window.postMessage(JSON.stringify({ usedTemplateTheme: newUsedTemplateTheme }), '*');
+};

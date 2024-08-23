@@ -5,14 +5,14 @@ import useConversationManager from '@demo/hooks/useConversationManager';
 import extractAttributes from '@demo/utils/extractAttributes';
 import { getCustomAttributes, getPredefinedAttributes } from 'attribute-manager';
 import { useScreenshot } from 'use-react-screenshot';
-import { zipObject } from 'lodash';
+import { zipObject, get } from 'lodash';
 import { isJSONStringValid } from '@demo/utils/isJSONStringValid';
 import generateHTML, { unsanitizeHTMLTags } from '@demo/utils/generateHTML';
 import mustachifyHTML from '@demo/utils/mustachifyHTML';
 import appendGridOrganizerScript from '@demo/utils/appendGridOrganizerScript';
 import getGridBlocksInJSON from '@demo/utils/getGridBlocksInJSON';
 import stylizeGridColumn from '@demo/utils/stylizeGridColumn';
-import { getTemplateTheme } from 'template-theme-manager';
+import { getSafeUsedTemplateTheme, getTemplateTheme, getUsedTemplateTheme, TemplateTheme, UsedTemplateTheme } from 'template-theme-manager';
 import {
   ActionOrigin,
   getConditionalMappingState,
@@ -239,6 +239,128 @@ const InternalEditor = ({ values }: {
           }
           return value;
         });
+
+        const content = JSON.parse(transformedContent);
+        const _usedTemplateTheme = getUsedTemplateTheme();
+        const newUsedTemplateTheme = {} as UsedTemplateTheme;
+
+        // Images:
+        newUsedTemplateTheme.images = _usedTemplateTheme.images.filter(image => {
+          const usedInLength = image.usedIn.filter(_usedIn => !!get({ content }, _usedIn)).length;
+
+          return usedInLength > 0;
+        });
+
+        // Static Text:
+        newUsedTemplateTheme.staticText = _usedTemplateTheme.staticText.filter(staticText => {
+          const usedInLength = staticText.usedIn.filter(_usedIn => !!get({ content }, _usedIn)).length;
+
+          return usedInLength > 0;
+        });
+
+        // Typography:
+        newUsedTemplateTheme.typography = _usedTemplateTheme.typography.filter(typography => {
+          const usedInLength = typography.usedIn.filter(_usedIn => !!get({ content }, _usedIn)).length;
+
+          return usedInLength > 0;
+        });
+
+        // Palettes:
+        const palettes = getTemplateTheme().palettes;
+        newUsedTemplateTheme.paletteColors = _usedTemplateTheme.paletteColors;
+        newUsedTemplateTheme.palettes = [];
+
+        _usedTemplateTheme.paletteColors.textColor.filter(paletteColor => {
+          const usedInLength = paletteColor.usedIn.filter(_usedIn => !!get({ content }, _usedIn)).length;
+
+          return usedInLength > 0;
+        }).forEach(paletteColor => {
+          const paletteColorNameComponents = paletteColor.paletteColor.split('.');
+          if (paletteColorNameComponents.length === 2) {
+            const paletteName = paletteColorNameComponents[0].split('-').map(token => token.charAt(0).toUpperCase() + token.slice(1)).join(' ');
+            const colorName = paletteColorNameComponents[1].split('-').map(token => token.charAt(0).toUpperCase() + token.slice(1)).join(' ');
+
+            const palette = palettes.find(_palette => _palette.name === paletteName);
+            const color = palette?.colors.find(_color => _color.name === colorName);
+
+            if (palette && color) {
+              const isPaletteAlreadyIndexed = !!newUsedTemplateTheme.palettes.find(_palette => _palette.name === paletteName);
+
+              if (isPaletteAlreadyIndexed) {
+                const isColorAlreadyIndexed = !!newUsedTemplateTheme.palettes.find(_palette => _palette.name === paletteName)?.colors.find(_color => _color.name === colorName);
+
+                if (!isColorAlreadyIndexed) {
+                  newUsedTemplateTheme.palettes = newUsedTemplateTheme.palettes.map(_palette => {
+                    if (_palette.name === paletteName) {
+                      _palette.colors = [
+                        ..._palette.colors,
+                        color,
+                      ];
+
+                      return _palette;
+                    } else return _palette;
+                  });
+                }
+              } else {
+                newUsedTemplateTheme.palettes = [
+                  ...newUsedTemplateTheme.palettes,
+                  {
+                    name: palette.name,
+                    colors: [color]
+                  }
+                ];
+              }
+            }
+          }
+        });
+
+        _usedTemplateTheme.paletteColors.backgroundColor.filter(paletteColor => {
+          const usedInLength = paletteColor.usedIn.filter(_usedIn => !!get({ content }, _usedIn)).length;
+
+          return usedInLength > 0;
+        }).forEach(paletteColor => {
+          const paletteColorNameComponents = paletteColor.paletteColor.split('.');
+          if (paletteColorNameComponents.length === 2) {
+            const paletteName = paletteColorNameComponents[0].split('-').map(token => token.charAt(0).toUpperCase() + token.slice(1)).join(' ');
+            const colorName = paletteColorNameComponents[1].split('-').map(token => token.charAt(0).toUpperCase() + token.slice(1)).join(' ');
+
+            const palette = palettes.find(_palette => _palette.name === paletteName);
+            const color = palette?.colors.find(_color => _color.name === colorName);
+
+            if (palette && color) {
+              const isPaletteAlreadyIndexed = !!newUsedTemplateTheme.palettes.find(_palette => _palette.name === paletteName);
+
+              if (isPaletteAlreadyIndexed) {
+                const isColorAlreadyIndexed = !!newUsedTemplateTheme.palettes.find(_palette => _palette.name === paletteName)?.colors.find(_color => _color.name === colorName);
+
+                if (!isColorAlreadyIndexed) {
+                  newUsedTemplateTheme.palettes = newUsedTemplateTheme.palettes.map(_palette => {
+                    if (_palette.name === paletteName) {
+                      _palette.colors = [
+                        ..._palette.colors,
+                        color,
+                      ];
+
+                      return _palette;
+                    } else return _palette;
+                  });
+                }
+              } else {
+                newUsedTemplateTheme.palettes = [
+                  ...newUsedTemplateTheme.palettes,
+                  {
+                    name: palette.name,
+                    colors: [color]
+                  }
+                ];
+              }
+            }
+          }
+        });
+
+        // Custom Fonts:
+        newUsedTemplateTheme.customFonts = [];
+
         const customAttributes = onlyGetUsedAttributes(values.content);
         const customAttributesArray = [...new Set(Object.keys(customAttributes))];
         const predefinedAttributesArray = [...new Set(Object.keys(getPredefinedAttributes()))];
@@ -310,6 +432,7 @@ const InternalEditor = ({ values }: {
               css: conditionalMappingState.css,
             },
             usedCustomBlocks,
+            usedTemplateTheme: newUsedTemplateTheme,
           },
         });
 
