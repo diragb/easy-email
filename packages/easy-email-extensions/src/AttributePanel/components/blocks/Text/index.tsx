@@ -48,18 +48,18 @@ export function Text() {
   const dataTypography = useField(`${focusIdx}.attributes.data-typography`);
 
   // For Text Color:
-  const dataColorPaletteName = useField(`${focusIdx}.attributes.data-color-palette-name`);
   const dataColorPaletteTree = useField(`${focusIdx}.attributes.data-color-palette-tree`);
+  const dataColorPaletteName = useField(`${focusIdx}.attributes.data-color-palette-name`);
   const dataColorPaletteColorName = useField(`${focusIdx}.attributes.data-color-palette-color-name`);
-  const color = useField(`${focusIdx}.attributes.color`);
   const dataColorPaletteColorCode = useField(`${focusIdx}.attributes.data-color-palette-color-code`);
+  const color = useField(`${focusIdx}.attributes.color`);
 
   // For Background Color:
-  const dataBackgroundColorPaletteName = useField(`${focusIdx}.attributes.data-background-color-palette-name`);
   const dataBackgroundColorPaletteTree = useField(`${focusIdx}.attributes.data-background-color-palette-tree`);
+  const dataBackgroundColorPaletteName = useField(`${focusIdx}.attributes.data-background-color-palette-name`);
   const dataBackgroundColorPaletteColorName = useField(`${focusIdx}.attributes.data-background-color-palette-color-name`);
-  const backgroundColor = useField(`${focusIdx}.attributes.container-background-color`);
   const dataBackgroundColorPaletteColorCode = useField(`${focusIdx}.attributes.data-background-color-palette-color-code`);
+  const backgroundColor = useField(`${focusIdx}.attributes.container-background-color`);
 
   // For Static Text:
   const dataStaticText = useField(`${focusIdx}.attributes.data-static-text`);

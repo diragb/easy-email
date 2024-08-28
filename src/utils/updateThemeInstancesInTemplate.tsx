@@ -22,32 +22,28 @@ const updateThemeInstances = (textNode: Node, { typography, palettes }: { typogr
     textNode.attributes['font-weight'] = styling?.fontWeight ?? textNode.attributes['font-weight'];
   }
 
-  if (textNode.attributes['data-color-palette-tree']) {
-    const indexes = textNode.attributes['data-color-palette-tree']
-      .split('-')
-      .filter(token => token.length > 0)
-      .map(token => parseInt(token));
-    const paletteIndex = indexes[0];
-    const colorIndex = indexes[1];
+  if (textNode.attributes['data-color-palette-name']) {
+    const paletteIndex = palettes.findIndex(palette => palette.name === textNode.attributes['data-color-palette-name']);
 
-    textNode.attributes['data-color-palette-name'] = palettes?.[paletteIndex]?.name ?? textNode.attributes['data-color-palette-name'];
-    textNode.attributes['data-color-palette-color-name'] = palettes?.[paletteIndex]?.colors?.[colorIndex]?.name ?? textNode.attributes['data-color-palette-color-name'];
-    textNode.attributes['data-color-palette-color-code'] = palettes?.[paletteIndex]?.colors?.[colorIndex]?.color ?? textNode.attributes['data-color-palette-color-code'];
-    textNode.attributes['color'] = palettes?.[paletteIndex]?.colors?.[colorIndex]?.color ?? textNode.attributes['color'];
+    if (paletteIndex !== -1 && textNode.attributes['data-color-palette-color-name']) {
+      const colorIndex = palettes[paletteIndex].colors.findIndex(color => color.name === textNode.attributes['data-color-palette-color-name']);
+
+      textNode.attributes['data-color-palette-tree'] = `-${paletteIndex}-${colorIndex}`;
+      textNode.attributes['data-color-palette-color-code'] = palettes?.[paletteIndex]?.colors?.[colorIndex]?.color ?? textNode.attributes['data-color-palette-color-code'];
+      textNode.attributes['color'] = palettes?.[paletteIndex]?.colors?.[colorIndex]?.color ?? textNode.attributes['color'];
+    }
   }
 
-  if (textNode.attributes['data-background-color-palette-tree']) {
-    const indexes = textNode.attributes['data-background-color-palette-tree']
-      .split('-')
-      .filter(token => token.length > 0)
-      .map(token => parseInt(token));
-    const paletteIndex = indexes[0];
-    const colorIndex = indexes[1];
+  if (textNode.attributes['data-background-color-palette-name']) {
+    const paletteIndex = palettes.findIndex(palette => palette.name === textNode.attributes['data-background-color-palette-name']);
 
-    textNode.attributes['data-background-color-palette-name'] = palettes?.[paletteIndex]?.name ?? textNode.attributes['data-background-color-palette-name'];
-    textNode.attributes['data-background-color-palette-color-name'] = palettes?.[paletteIndex]?.colors?.[colorIndex]?.name ?? textNode.attributes['data-background-color-palette-color-name'];
-    textNode.attributes['data-background-color-palette-color-code'] = palettes?.[paletteIndex]?.colors?.[colorIndex]?.color ?? textNode.attributes['data-background-color-palette-color-code'];
-    textNode.attributes['container-background-color'] = palettes?.[paletteIndex]?.colors?.[colorIndex]?.color ?? textNode.attributes['container-background-color'];
+    if (paletteIndex !== -1 && textNode.attributes['data-background-color-palette-color-name']) {
+      const colorIndex = palettes[paletteIndex].colors.findIndex(color => color.name === textNode.attributes['data-background-color-palette-color-name']);
+
+      textNode.attributes['data-background-color-palette-tree'] = `-${paletteIndex}-${colorIndex}`;
+      textNode.attributes['data-background-color-palette-color-code'] = palettes?.[paletteIndex]?.colors?.[colorIndex]?.color ?? textNode.attributes['data-background-color-palette-color-code'];
+      textNode.attributes['container-background-color'] = palettes?.[paletteIndex]?.colors?.[colorIndex]?.color ?? textNode.attributes['container-background-color'];
+    }
   }
 
   return textNode;

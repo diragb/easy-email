@@ -398,7 +398,6 @@ const InternalEditor = ({ values }: {
         const blockIDMap = isJSONStringValid(sessionStorage.getItem('block-ids') ?? '{}') ? (sessionStorage.getItem('block-ids') ?? '{}') : '{}';
         const blockIDs = Object.values(JSON.parse(blockIDMap) as Record<string, string>);
         const themeSettings = extractThemeSettingsFromTemplate(values.content);
-        const templateTheme = getTemplateTheme();
         const conditionalMappingState = getConditionalMappingState();
         const usedCustomBlocks = (window as any).customElementsBeingUsed ? [...((window as any).customElementsBeingUsed as Set<string>)] : [];
 
