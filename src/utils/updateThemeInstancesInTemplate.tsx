@@ -110,8 +110,6 @@ const updateThemeInstancesInTemplate = (template: {
             node.attributes['src'] = image.url;
           }
         }
-
-        return node;
       } else if (['advanced_wrapper', 'wrapper', 'advanced_section', 'section'].includes(node.type)) {
         if (node.attributes['data-background-image-name']) {
           const isUploadedImage = node.attributes['data-is-uploaded-image'] ?? false;
@@ -120,8 +118,6 @@ const updateThemeInstancesInTemplate = (template: {
             node.attributes['background-url'] = image.url;
           }
         }
-
-        return node;
       }
 
       node = {
