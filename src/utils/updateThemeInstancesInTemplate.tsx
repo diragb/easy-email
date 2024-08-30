@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 
 // Typescript:
 import { Node } from './gridShiftBackgroundImageFromSectionToColumn';
-import { Palette, Typography } from 'template-theme-manager';
+import type { LibraryImage, Palette, StaticText, Typography } from 'template-theme-manager';
 
 // Functions:
 const doesTextContainThemeInstances = (textNode: Node) => {
@@ -14,7 +14,27 @@ const doesTextContainThemeInstances = (textNode: Node) => {
   );
 };
 
-const updateThemeInstances = (textNode: Node, { typography, palettes }: { typography: Typography[], palettes: Palette[]; }) => {
+const updateThemeInstances = (
+  textNode: Node,
+  {
+    typography,
+    palettes,
+    staticText,
+  }: {
+    typography: Typography[];
+    palettes: Palette[];
+    staticText: StaticText[];
+  }) => {
+  // Static Text:
+  if (textNode.attributes['data-static-text']) {
+    const _staticText = staticText.find(_staticText => _staticText.name === textNode.attributes['data-static-text']);
+    if (_staticText) {
+      textNode.attributes['data-typography'] = _staticText.typographyName;
+      textNode.data.value.content = _staticText.text;
+    }
+  }
+
+  // Typography:
   if (textNode.attributes['data-typography']) {
     const styling = typography.find(typographyItem => typographyItem.name === textNode.attributes['data-typography']);
     textNode.attributes['font-family'] = styling?.fontFamily ?? textNode.attributes['font-family'];
@@ -22,6 +42,7 @@ const updateThemeInstances = (textNode: Node, { typography, palettes }: { typogr
     textNode.attributes['font-weight'] = styling?.fontWeight ?? textNode.attributes['font-weight'];
   }
 
+  // Text Color:
   if (textNode.attributes['data-color-palette-name']) {
     const paletteIndex = palettes.findIndex(palette => palette.name === textNode.attributes['data-color-palette-name']);
 
@@ -34,6 +55,7 @@ const updateThemeInstances = (textNode: Node, { typography, palettes }: { typogr
     }
   }
 
+  // Background Color:
   if (textNode.attributes['data-background-color-palette-name']) {
     const paletteIndex = palettes.findIndex(palette => palette.name === textNode.attributes['data-background-color-palette-name']);
 
@@ -53,16 +75,45 @@ const updateThemeInstancesInTemplate = (template: {
   type: string;
   content: string;
   themeSettings: Record<string, any>;
+}, styleConfig: {
+  typography?: Typography[];
+  palettes?: Palette[];
+  images?: LibraryImage[];
+  staticText?: StaticText[];
 }) => {
-  const typography = template.themeSettings.typography ?? [] as Typography[];
-  const palettes = template.themeSettings.palettes ?? [] as Palette[];
   const content = JSON.parse(template.content);
 
   const findTextInNode = (node: Node) => {
     if (['advanced_text', 'text'].includes(node.type)) {
       if (doesTextContainThemeInstances(node)) {
-        const transformedTextNode = updateThemeInstances(cloneDeep(node), { typography, palettes });
+        const transformedTextNode = updateThemeInstances(
+          cloneDeep(node), {
+          typography: styleConfig.typography ?? [],
+          palettes: styleConfig.palettes ?? [],
+          staticText: styleConfig.staticText ?? [],
+        }
+        );
         return transformedTextNode;
+      }
+
+      return node;
+    } else if (['advanced_image', 'image'].includes(node.type)) {
+      if (node.attributes['data-image-name']) {
+        const isUploadedImage = node.attributes['data-is-uploaded-image'] ?? false;
+        const image = styleConfig.images?.find(image => image.name === node.attributes['data-image-name']);
+        if (image && !isUploadedImage) {
+          node.attributes['src'] = image.url;
+        }
+      }
+
+      return node;
+    } else if (['advanced_wrapper', 'wrapper', 'advanced_section', 'section'].includes(node.type)) {
+      if (node.attributes['data-background-image-name']) {
+        const isUploadedImage = node.attributes['data-is-uploaded-image'] ?? false;
+        const image = styleConfig.images?.find(image => image.name === node.attributes['data-background-image-name']);
+        if (image && !isUploadedImage) {
+          node.attributes['background-url'] = image.url;
+        }
       }
 
       return node;
@@ -76,6 +127,7 @@ const updateThemeInstancesInTemplate = (template: {
   };
 
   return {
+    type: template.type,
     content: JSON.stringify(findTextInNode(content)),
     themeSettings: template.themeSettings,
   };
