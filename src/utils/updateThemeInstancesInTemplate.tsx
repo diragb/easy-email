@@ -43,17 +43,13 @@ const updateThemeInstances = (
   }
 
   // Text Color:
-  console.log(textNode.attributes['data-color-palette-name']);
   if (textNode.attributes['data-color-palette-name']) {
     const paletteIndex = palettes.findIndex(palette => palette.name === textNode.attributes['data-color-palette-name']);
 
-    console.log(paletteIndex);
     if (paletteIndex !== -1 && textNode.attributes['data-color-palette-color-name']) {
       const colorIndex = palettes[paletteIndex].colors.findIndex(color => color.name === textNode.attributes['data-color-palette-color-name']);
-      console.log(colorIndex);
 
       textNode.attributes['data-color-palette-tree'] = `-${paletteIndex}-${colorIndex}`;
-      console.log(`-${paletteIndex}-${colorIndex}`, textNode.attributes['data-color-palette-tree']);
       textNode.attributes['data-color-palette-color-code'] = palettes?.[paletteIndex]?.colors?.[colorIndex]?.color ?? textNode.attributes['data-color-palette-color-code'];
       textNode.attributes['color'] = palettes?.[paletteIndex]?.colors?.[colorIndex]?.color ?? textNode.attributes['color'];
     }

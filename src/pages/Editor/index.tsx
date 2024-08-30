@@ -287,14 +287,12 @@ const Editor = () => {
       customFonts: usedCustomFonts
     }));
 
-    console.log(payload.template);
     const template = updateThemeInstancesInTemplate(payload.template, {
       typography,
       palettes,
       images,
       staticText,
     });
-    console.log(template);
     // const modifiedTemplateContent = JSON.parse(
     //   transformAttributesInTemplateContent(
     //     JSON.stringify(
