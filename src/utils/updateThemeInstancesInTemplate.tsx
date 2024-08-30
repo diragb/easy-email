@@ -101,27 +101,29 @@ const updateThemeInstancesInTemplate = (template: {
       }
 
       return node;
-    } else if (['advanced_image', 'image'].includes(node.type)) {
-      if (node.attributes['data-image-name']) {
-        const isUploadedImage = node.attributes['data-is-uploaded-image'] ?? false;
-        const image = styleConfig.images?.find(image => image.name === node.attributes['data-image-name']);
-        if (image && !isUploadedImage) {
-          node.attributes['src'] = image.url;
-        }
-      }
-
-      return node;
-    } else if (['advanced_wrapper', 'wrapper', 'advanced_section', 'section'].includes(node.type)) {
-      if (node.attributes['data-background-image-name']) {
-        const isUploadedImage = node.attributes['data-is-uploaded-image'] ?? false;
-        const image = styleConfig.images?.find(image => image.name === node.attributes['data-background-image-name']);
-        if (image && !isUploadedImage) {
-          node.attributes['background-url'] = image.url;
-        }
-      }
-
-      return node;
     } else {
+      if (['advanced_image', 'image'].includes(node.type)) {
+        if (node.attributes['data-image-name']) {
+          const isUploadedImage = node.attributes['data-is-uploaded-image'] ?? false;
+          const image = styleConfig.images?.find(image => image.name === node.attributes['data-image-name']);
+          if (image && !isUploadedImage) {
+            node.attributes['src'] = image.url;
+          }
+        }
+
+        return node;
+      } else if (['advanced_wrapper', 'wrapper', 'advanced_section', 'section'].includes(node.type)) {
+        if (node.attributes['data-background-image-name']) {
+          const isUploadedImage = node.attributes['data-is-uploaded-image'] ?? false;
+          const image = styleConfig.images?.find(image => image.name === node.attributes['data-background-image-name']);
+          if (image && !isUploadedImage) {
+            node.attributes['background-url'] = image.url;
+          }
+        }
+
+        return node;
+      }
+
       node = {
         ...node,
         children: ((node.children ?? []) as Node[]).map(node => findTextInNode(node))
